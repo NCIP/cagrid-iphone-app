@@ -1,0 +1,381 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D3623260D0F684500981E51 /* CaGridAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* CaGridAppDelegate.m */; };
+		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		282CCBFE0DB6C98000C4EA27 /* SearchView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 282CCBFD0DB6C98000C4EA27 /* SearchView.xib */; };
+		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
+		28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD73870D9D96C1002E5188 /* MainWindow.xib */; };
+		A93543461019362C00988B88 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = A93543451019362C00988B88 /* folder.png */; };
+		A935435D101BD97000988B88 /* GridServicePropCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A935435C101BD97000988B88 /* GridServicePropCell.m */; };
+		A93543EF101BF06300988B88 /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A93543EE101BF06300988B88 /* Util.m */; };
+		A94A04891006409B00A7822B /* CategoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A04881006409B00A7822B /* CategoryController.m */; };
+		A94A0494100640F200A7822B /* ServiceListController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A0493100640F200A7822B /* ServiceListController.m */; };
+		A94A0526100CD48C00A7822B /* CategoryTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A0525100CD48C00A7822B /* CategoryTypeController.m */; };
+		A94A073D1012262100A7822B /* FavoritesController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A073C1012262100A7822B /* FavoritesController.m */; };
+		A9693A4B1002E30900FA59F5 /* MostRecentController.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693A4A1002E30900FA59F5 /* MostRecentController.m */; };
+		A9693A4E1002E3D600FA59F5 /* GridServiceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */; };
+		A9693A501002E3DF00FA59F5 /* GridServiceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */; };
+		A9693A5A1002E8A800FA59F5 /* ServiceDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */; };
+		A9693A681002FB6100FA59F5 /* GridServicePropCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */; };
+		A9693AE31003A93300FA59F5 /* Label2.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693AE21003A93300FA59F5 /* Label2.m */; };
+		A9693B091003B1C600FA59F5 /* ServiceMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693B081003B1C600FA59F5 /* ServiceMetadata.m */; };
+		A9693B6A1003BCA100FA59F5 /* services.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B691003BCA100FA59F5 /* services.js */; };
+		A9693B8A1003BE6800FA59F5 /* servicedetail.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B891003BE6800FA59F5 /* servicedetail.js */; };
+		A9AE08230FF2C39D002A773F /* Categories.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9AE08220FF2C39D002A773F /* Categories.xib */; };
+		A9D898EB1014E66300301DA0 /* icon_large_as_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */; };
+		A9D898EC1014E66300301DA0 /* icon_ds_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E41014E66300301DA0 /* icon_ds_active.png */; };
+		A9D898ED1014E66300301DA0 /* icon_as_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E51014E66300301DA0 /* icon_as_active.png */; };
+		A9D898EE1014E66300301DA0 /* icon_large_as_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E61014E66300301DA0 /* icon_large_as_active.png */; };
+		A9D898EF1014E66300301DA0 /* icon_large_ds_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E71014E66300301DA0 /* icon_large_ds_active.png */; };
+		A9D898F01014E66300301DA0 /* icon_large_ds_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E81014E66300301DA0 /* icon_large_ds_inactive.png */; };
+		A9D898F11014E66300301DA0 /* icon_ds_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E91014E66300301DA0 /* icon_ds_inactive.png */; };
+		A9D898F21014E66300301DA0 /* icon_as_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898EA1014E66300301DA0 /* icon_as_inactive.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1D3623240D0F684500981E51 /* CaGridAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaGridAppDelegate.h; sourceTree = "<group>"; };
+		1D3623250D0F684500981E51 /* CaGridAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaGridAppDelegate.m; sourceTree = "<group>"; };
+		1D6058910D05DD3D006BFB54 /* CaGrid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CaGrid.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		282CCBFD0DB6C98000C4EA27 /* SearchView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchView.xib; sourceTree = "<group>"; };
+		288765070DF74369002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		28A0AB4B0D9B1048005BE974 /* CaGrid_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaGrid_Prefix.pch; sourceTree = "<group>"; };
+		28AD73870D9D96C1002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A93543451019362C00988B88 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
+		A935435B101BD97000988B88 /* GridServicePropCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridServicePropCell.h; sourceTree = "<group>"; };
+		A935435C101BD97000988B88 /* GridServicePropCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridServicePropCell.m; sourceTree = "<group>"; };
+		A93543ED101BF06300988B88 /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
+		A93543EE101BF06300988B88 /* Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Util.m; sourceTree = "<group>"; };
+		A94A04871006409B00A7822B /* CategoryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CategoryController.h; sourceTree = "<group>"; };
+		A94A04881006409B00A7822B /* CategoryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CategoryController.m; sourceTree = "<group>"; };
+		A94A0492100640F200A7822B /* ServiceListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceListController.h; sourceTree = "<group>"; };
+		A94A0493100640F200A7822B /* ServiceListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceListController.m; sourceTree = "<group>"; };
+		A94A0524100CD48C00A7822B /* CategoryTypeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CategoryTypeController.h; sourceTree = "<group>"; };
+		A94A0525100CD48C00A7822B /* CategoryTypeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CategoryTypeController.m; sourceTree = "<group>"; };
+		A94A073B1012262100A7822B /* FavoritesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FavoritesController.h; sourceTree = "<group>"; };
+		A94A073C1012262100A7822B /* FavoritesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FavoritesController.m; sourceTree = "<group>"; };
+		A9693A491002E30900FA59F5 /* MostRecentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MostRecentController.h; sourceTree = "<group>"; };
+		A9693A4A1002E30900FA59F5 /* MostRecentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MostRecentController.m; sourceTree = "<group>"; };
+		A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridServiceCell.h; sourceTree = "<group>"; };
+		A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridServiceCell.m; sourceTree = "<group>"; };
+		A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridServiceCell.xib; sourceTree = "<group>"; };
+		A9693A581002E8A800FA59F5 /* ServiceDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceDetailController.h; sourceTree = "<group>"; };
+		A9693A591002E8A800FA59F5 /* ServiceDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceDetailController.m; sourceTree = "<group>"; };
+		A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridServicePropCell.xib; sourceTree = "<group>"; };
+		A9693AE11003A93300FA59F5 /* Label2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Label2.h; sourceTree = "<group>"; };
+		A9693AE21003A93300FA59F5 /* Label2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Label2.m; sourceTree = "<group>"; };
+		A9693B071003B1C600FA59F5 /* ServiceMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceMetadata.h; sourceTree = "<group>"; };
+		A9693B081003B1C600FA59F5 /* ServiceMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceMetadata.m; sourceTree = "<group>"; };
+		A9693B691003BCA100FA59F5 /* services.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = services.js; sourceTree = "<group>"; };
+		A9693B891003BE6800FA59F5 /* servicedetail.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = servicedetail.js; sourceTree = "<group>"; };
+		A9AE08220FF2C39D002A773F /* Categories.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Categories.xib; sourceTree = "<group>"; };
+		A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_as_inactive.png; sourceTree = "<group>"; };
+		A9D898E41014E66300301DA0 /* icon_ds_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ds_active.png; sourceTree = "<group>"; };
+		A9D898E51014E66300301DA0 /* icon_as_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_as_active.png; sourceTree = "<group>"; };
+		A9D898E61014E66300301DA0 /* icon_large_as_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_as_active.png; sourceTree = "<group>"; };
+		A9D898E71014E66300301DA0 /* icon_large_ds_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_ds_active.png; sourceTree = "<group>"; };
+		A9D898E81014E66300301DA0 /* icon_large_ds_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_ds_inactive.png; sourceTree = "<group>"; };
+		A9D898E91014E66300301DA0 /* icon_ds_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ds_inactive.png; sourceTree = "<group>"; };
+		A9D898EA1014E66300301DA0 /* icon_as_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_as_inactive.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1D60588F0D05DD3D006BFB54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
+				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
+				288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				A94A05F7100D2B0D00A7822B /* Controllers */,
+				A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */,
+				A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */,
+				A935435B101BD97000988B88 /* GridServicePropCell.h */,
+				A935435C101BD97000988B88 /* GridServicePropCell.m */,
+				A9693B071003B1C600FA59F5 /* ServiceMetadata.h */,
+				A9693B081003B1C600FA59F5 /* ServiceMetadata.m */,
+				1D3623240D0F684500981E51 /* CaGridAppDelegate.h */,
+				1D3623250D0F684500981E51 /* CaGridAppDelegate.m */,
+				A9693AE11003A93300FA59F5 /* Label2.h */,
+				A9693AE21003A93300FA59F5 /* Label2.m */,
+				A93543ED101BF06300988B88 /* Util.h */,
+				A93543EE101BF06300988B88 /* Util.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1D6058910D05DD3D006BFB54 /* CaGrid.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* CaGrid */ = {
+			isa = PBXGroup;
+			children = (
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+			);
+			name = CaGrid;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				28A0AB4B0D9B1048005BE974 /* CaGrid_Prefix.pch */,
+				29B97316FDCFA39411CA2CEA /* main.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A93543451019362C00988B88 /* folder.png */,
+				A9D898E61014E66300301DA0 /* icon_large_as_active.png */,
+				A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */,
+				A9D898E71014E66300301DA0 /* icon_large_ds_active.png */,
+				A9D898E81014E66300301DA0 /* icon_large_ds_inactive.png */,
+				A9D898E41014E66300301DA0 /* icon_ds_active.png */,
+				A9D898E91014E66300301DA0 /* icon_ds_inactive.png */,
+				A9D898E51014E66300301DA0 /* icon_as_active.png */,
+				A9D898EA1014E66300301DA0 /* icon_as_inactive.png */,
+				A9693B891003BE6800FA59F5 /* servicedetail.js */,
+				A9693B691003BCA100FA59F5 /* services.js */,
+				A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */,
+				A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */,
+				282CCBFD0DB6C98000C4EA27 /* SearchView.xib */,
+				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
+				8D1107310486CEB800E47090 /* Info.plist */,
+				A9AE08220FF2C39D002A773F /* Categories.xib */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
+				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				288765070DF74369002DB57D /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A94A05F7100D2B0D00A7822B /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				A94A0492100640F200A7822B /* ServiceListController.h */,
+				A94A0493100640F200A7822B /* ServiceListController.m */,
+				A9693A581002E8A800FA59F5 /* ServiceDetailController.h */,
+				A9693A591002E8A800FA59F5 /* ServiceDetailController.m */,
+				A9693A491002E30900FA59F5 /* MostRecentController.h */,
+				A9693A4A1002E30900FA59F5 /* MostRecentController.m */,
+				A94A04871006409B00A7822B /* CategoryController.h */,
+				A94A04881006409B00A7822B /* CategoryController.m */,
+				A94A0524100CD48C00A7822B /* CategoryTypeController.h */,
+				A94A0525100CD48C00A7822B /* CategoryTypeController.m */,
+				A94A073B1012262100A7822B /* FavoritesController.h */,
+				A94A073C1012262100A7822B /* FavoritesController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1D6058900D05DD3D006BFB54 /* CaGrid */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "CaGrid" */;
+			buildPhases = (
+				1D60588D0D05DD3D006BFB54 /* Resources */,
+				1D60588E0D05DD3D006BFB54 /* Sources */,
+				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CaGrid;
+			productName = CaGrid;
+			productReference = 1D6058910D05DD3D006BFB54 /* CaGrid.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CaGrid" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* CaGrid */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1D6058900D05DD3D006BFB54 /* CaGrid */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1D60588D0D05DD3D006BFB54 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */,
+				282CCBFE0DB6C98000C4EA27 /* SearchView.xib in Resources */,
+				A9AE08230FF2C39D002A773F /* Categories.xib in Resources */,
+				A9693A501002E3DF00FA59F5 /* GridServiceCell.xib in Resources */,
+				A9693A681002FB6100FA59F5 /* GridServicePropCell.xib in Resources */,
+				A9693B6A1003BCA100FA59F5 /* services.js in Resources */,
+				A9693B8A1003BE6800FA59F5 /* servicedetail.js in Resources */,
+				A9D898EB1014E66300301DA0 /* icon_large_as_inactive.png in Resources */,
+				A9D898EC1014E66300301DA0 /* icon_ds_active.png in Resources */,
+				A9D898ED1014E66300301DA0 /* icon_as_active.png in Resources */,
+				A9D898EE1014E66300301DA0 /* icon_large_as_active.png in Resources */,
+				A9D898EF1014E66300301DA0 /* icon_large_ds_active.png in Resources */,
+				A9D898F01014E66300301DA0 /* icon_large_ds_inactive.png in Resources */,
+				A9D898F11014E66300301DA0 /* icon_ds_inactive.png in Resources */,
+				A9D898F21014E66300301DA0 /* icon_as_inactive.png in Resources */,
+				A93543461019362C00988B88 /* folder.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1D60588E0D05DD3D006BFB54 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				1D3623260D0F684500981E51 /* CaGridAppDelegate.m in Sources */,
+				A9693A4B1002E30900FA59F5 /* MostRecentController.m in Sources */,
+				A9693A4E1002E3D600FA59F5 /* GridServiceCell.m in Sources */,
+				A9693A5A1002E8A800FA59F5 /* ServiceDetailController.m in Sources */,
+				A9693AE31003A93300FA59F5 /* Label2.m in Sources */,
+				A9693B091003B1C600FA59F5 /* ServiceMetadata.m in Sources */,
+				A94A04891006409B00A7822B /* CategoryController.m in Sources */,
+				A94A0494100640F200A7822B /* ServiceListController.m in Sources */,
+				A94A0526100CD48C00A7822B /* CategoryTypeController.m in Sources */,
+				A94A073D1012262100A7822B /* FavoritesController.m in Sources */,
+				A935435D101BD97000988B88 /* GridServicePropCell.m in Sources */,
+				A93543EF101BF06300988B88 /* Util.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1D6058940D05DD3E006BFB54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = CaGrid_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_NAME = CaGrid;
+			};
+			name = Debug;
+		};
+		1D6058950D05DD3E006BFB54 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = CaGrid_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				PRODUCT_NAME = CaGrid;
+			};
+			name = Release;
+		};
+		C01FCF4F08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADDITIONAL_SDKS = "$HOME/Library/SDKs/JSON/$(PLATFORM_NAME).sdk";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-ljson",
+				);
+				PREBINDING = NO;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphoneos3.0;
+			};
+			name = Debug;
+		};
+		C01FCF5008A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = iphoneos2.2.1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "CaGrid" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1D6058940D05DD3E006BFB54 /* Debug */,
+				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CaGrid" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4F08A954540054247B /* Debug */,
+				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
