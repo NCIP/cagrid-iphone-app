@@ -35,7 +35,7 @@
 #pragma mark Table View Data Source Methods
 
 - (NSInteger)tableView:(UITableView *)tableView 
-		numberOfRowsInSection:(NSInteger)section {
+ numberOfRowsInSection:(NSInteger)section {
 	return 4;
 }
 
@@ -47,8 +47,8 @@
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero 
-					reuseIdentifier:cellIdentifier] 
-					autorelease];
+									   reuseIdentifier:cellIdentifier] 
+				autorelease];
 		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 		cell.selectionStyle = UITableViewCellSelectionStyleGray;
 		cell.textLabel.highlightedTextColor = [UIColor blackColor];
@@ -61,13 +61,13 @@
 }
 
 - (void)tableView:(UITableView *)tableView
-		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (serviceListController == nil) {
 		self.serviceListController = [[ServiceListController alloc] init];
 		serviceListController.navController = navController;		
 	}
-
+	
 	if (categoryTypeController == nil) {
 		self.categoryTypeController = [[CategoryTypeController alloc] init];
 		categoryTypeController.navController = navController;
