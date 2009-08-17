@@ -23,6 +23,7 @@
 	[super viewDidLoad];
 }
 
+
 -(BOOL)string:(NSString *)searchString isFoundIn:(NSString *)text {
 	return ([text rangeOfString:searchString options:(NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch)].location != NSNotFound);
 }
@@ -35,7 +36,7 @@
 	[filtered removeAllObjects];
 	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	NSMutableArray *original = smdata.services;
+	NSMutableArray *original = [smdata getServices];
 	
 	for(int i=0; i<[original count]; i++) {
 		NSMutableDictionary *service = [original objectAtIndex:i];

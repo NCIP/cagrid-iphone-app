@@ -30,5 +30,7 @@
 @property (nonatomic, retain) NSString *filterValue;
 
 - (void)filter:(NSString *)key forValue:(NSString *)value;
-	
+
+- (void)loadData;
+
 @end

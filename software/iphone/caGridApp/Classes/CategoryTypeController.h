@@ -23,7 +23,5 @@
 @property (nonatomic, retain) ServiceListController *serviceListController;
 @property (nonatomic, retain) NSMutableArray *typeList;
 @property (nonatomic, retain) NSString *discriminator;
-
-- (void)loadWithDiscriminator:(NSString *)discrim;
 	
 @end
