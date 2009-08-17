@@ -24,9 +24,9 @@
 }
 
 - (void)dealloc {
-	serviceListController = nil;
-	categoryTypeController = nil;
-	categoryList = nil;
+	self.serviceListController = nil;
+	self.categoryTypeController = nil;
+	self.categoryList = nil;
     [super dealloc];
 }
 
@@ -93,7 +93,7 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 			[navController pushViewController:serviceListController animated:YES];
 			break;
 		case 3: // By Type
-			[categoryTypeController loadWithDiscriminator:@"type"];
+			categoryTypeController.discriminator = @"type";
 			[categoryTypeController.tableView reloadData];
 			[navController pushViewController:categoryTypeController animated:YES];			
 			break;

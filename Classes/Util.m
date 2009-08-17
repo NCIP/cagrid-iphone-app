@@ -37,4 +37,15 @@
 	return [dateFormat dateFromString:dateString];
 }
 
++ (void)displayDataError {
+	NSLog(@"Could not connect to the network");
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
+													message:@"Could not connect to the network" 
+												   delegate:self 
+										  cancelButtonTitle:@"OK" 
+										  otherButtonTitles:nil];
+	[alert show];
+	[alert autorelease];
+}
+
 @end

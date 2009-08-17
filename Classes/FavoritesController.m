@@ -25,6 +25,8 @@
 	[favorites writeToFile:[self dataFilePath] atomically:YES];
 }
 
+
+// To be called when the app is started
 - (void)loadFavorites {
 	
 	NSString *filePath = [self dataFilePath];
@@ -39,10 +41,33 @@
 	}
 }
 
+- (void)loadData {
+	
+	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
+		
+    self.filtered = [NSMutableArray array];
+    
+    for(NSString *serviceId in self.favorites) {
+        NSMutableDictionary *service = [smdata getServiceById:serviceId];
+        if (service == nil) {
+            // If an id is retied or lost or whatever then we won't be able to load all favorites, 
+            // but we need to put something in the slot, so that the indexes in the table match the favorites array.
+            // The user can delete the offending record themselves, or maybe it will get restored.
+            service = [NSMutableDictionary dictionary];
+            [service setObject:@"Unknown" forKey:@"name"];
+            [service setObject:@"" forKey:@"version"];                
+            [service setObject:serviceId forKey:@"id"];                
+        }
+        if (service != nil) [filtered addObject:service];
+    }
+    
+    [self.tableView reloadData];
+}
+
 - (void)viewDidLoad {
 	
 	// Add an Edit button to navigation bar
-
+	
 	UIBarButtonItem *editButton = [[UIBarButtonItem alloc]
 								   initWithTitle:@"Edit" 
 								   style:UIBarButtonItemStyleBordered 
@@ -51,24 +76,16 @@
 	self.navigationItem.rightBarButtonItem = editButton;
 	[editButton release];
 	
-	// Load table view with favorites
-	
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	self.filtered = [NSMutableArray array];
-	
-	for(NSString *serviceId in self.favorites) {
-		[filtered addObject:[smdata.serviceLookup objectForKey:serviceId]];
-	}
-	
 	// Listen for application termination event
 	
 	UIApplication *app = [UIApplication sharedApplication];
 	[[NSNotificationCenter defaultCenter] addObserver:self 
-							selector:@selector(applicationWillTerminate:) 
-							name:UIApplicationWillTerminateNotification object:app];
-		
+											 selector:@selector(applicationWillTerminate:) 
+												 name:UIApplicationWillTerminateNotification object:app];
+	
 	[super viewDidLoad];
 }
+
 
 - (void)dealloc {
 	self.favorites = nil;
@@ -82,7 +99,7 @@
 	if ([self isFavorite:serviceId]) return;
 	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	NSMutableDictionary *service = [smdata.serviceLookup objectForKey:serviceId];
+	NSMutableDictionary *service = [smdata getServiceById:serviceId];
 	
 	if (service == nil) {
 		NSLog(@"ERROR: cannot add non-existent service (id=%@) as favorite.",serviceId);

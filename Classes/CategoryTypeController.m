@@ -20,28 +20,38 @@
 	self.title = @"Services By Type";
 }
 
-- (void)loadWithDiscriminator:(NSString *)discrim {
-	
+- (void)loadData {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	self.discriminator = discrim;
-	NSMutableSet *types = [NSMutableSet set];
+    NSMutableArray *services = [smdata getServices];
 	
-	for(int i=0; i<[smdata.services count]; i++) {
-		NSMutableDictionary *service = [smdata.services objectAtIndex:i];	
-		NSString* type = [service objectForKey:discriminator];
-		[types addObject:type];
+	if (services != nil) {
+		NSMutableSet *types = [NSMutableSet set];
+		
+		for(int i=0; i<[services count]; i++) {
+			NSMutableDictionary *service = [services objectAtIndex:i];	
+			NSString* type = [service objectForKey:discriminator];
+			[types addObject:type];
+		}
+		
+		self.typeList = [NSMutableArray arrayWithCapacity:[types count]];
+		for(id obj in types) {
+			[typeList addObject:obj];
+		}
+		
+		[typeList sortUsingSelector: @selector(compare:)];
+		
+		[self.tableView reloadData];
 	}
-	
-	self.typeList = [NSMutableArray arrayWithCapacity:[types count]];
-	for(id obj in types) {
-		[typeList addObject:obj];
-	}
-	
-	[typeList sortUsingSelector: @selector(compare:)];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	if (self.typeList == nil) [self loadData];
 }
 
 - (void)dealloc {
-	serviceListController = nil;
+	self.serviceListController = nil;
+	self.typeList = nil;
+	self.discriminator = nil;
     [super dealloc];
 }
 

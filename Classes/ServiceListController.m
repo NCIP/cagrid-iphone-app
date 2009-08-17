@@ -19,29 +19,43 @@
 
 - (void)dealloc {
 	self.detailController = nil;
+	self.filtered = nil;
+	self.filterKey = nil;
+	self.filterValue = nil;
     [super dealloc];
 }
 
 - (void)filter:(NSString *)key forValue:(NSString *)value {
 	self.filterKey = key;
 	self.filterValue = value;
-	
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	NSMutableArray *original = smdata.services;
-	
-	if (key == nil) {
-		self.filtered = original;
-	}
-	else {	
-		self.filtered = [NSMutableArray array];
-		for(int i=0; i<[original count]; i++) {
-			NSMutableDictionary *service = [original objectAtIndex:i];	
-			if ([[service objectForKey:filterKey] isEqualToString:filterValue]) {
-				[filtered addObject:service];
-			}
-		}
-	}
+	self.filtered = nil;
 }
+
+- (void)loadData {
+	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
+    NSMutableArray *original = [smdata getServices];
+    if (original != nil) {
+        if (self.filterKey == nil) {
+            self.filtered = original;
+        }
+        else {	
+            self.filtered = [NSMutableArray array];
+            for(int i=0; i<[original count]; i++) {
+                NSMutableDictionary *service = [original objectAtIndex:i];	
+                if ([[service objectForKey:filterKey] isEqualToString:filterValue]) {
+                    [filtered addObject:service];
+                }
+            }
+        }
+        
+        [self.tableView reloadData];
+    }
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	if (self.filtered == nil) [self loadData];
+}
+
 
 #pragma mark -
 #pragma mark Table View Data Source Methods
@@ -92,20 +106,34 @@
 	NSString *serviceId = [service objectForKey:@"id"];
 	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	[smdata loadMetadataForService:serviceId];
-	
-	[detailController displayService:[smdata.metadata objectForKey:serviceId]];
-	[navController pushViewController:detailController animated:YES];
+    NSMutableDictionary* metadata = [smdata getMetadataById:serviceId];
+    if (metadata != nil) {
+		[detailController displayService:metadata];
+		[navController pushViewController:detailController animated:YES];
+	}
+    else {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
+                                                        message:@"Could not retrieve service details" 
+                                                       delegate:self 
+                                              cancelButtonTitle:@"OK" 
+                                              otherButtonTitles:nil];
+        [alert show];
+        [alert autorelease];
+    }
+        
 }
+
 
 - (void)tableView:(UITableView *)tableView
 		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	// TODO: stuff
 }
 
+
 - (CGFloat)tableView:(UITableView *)tableView
 		heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return GRID_SERVICE_CELL_HEIGHT;
 }
+
 
 @end

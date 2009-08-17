@@ -11,9 +11,10 @@
 #import "Util.h"
 
 @interface ServiceMetadata : NSObject {
-	NSMutableArray *services;
-	NSMutableDictionary *serviceLookup;		
-	NSMutableDictionary *metadata;	
+	@private NSMutableArray *services;
+	@private NSMutableDictionary *serviceLookup;		
+	@private NSMutableDictionary *metadata;
+	@private BOOL alerted;
 }
 
 @property (nonatomic, retain) NSMutableArray *services;
@@ -25,5 +26,14 @@
 - (void) loadData;
 
 - (void) loadMetadataForService:(NSString *)serviceId;
+
+- (BOOL) testConnectivity;
+
+- (NSMutableArray *)getServices;
+
+- (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
+
+- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
+
 
 @end
