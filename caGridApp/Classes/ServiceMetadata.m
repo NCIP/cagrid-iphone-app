@@ -34,13 +34,37 @@
 	return nil;
 }
 
+- (BOOL) testConnectivity {
+	
+	NSError *error = nil;
+	NSURL *jsonURL = [NSURL URLWithString:BASE_URL];
+	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
+	[jsonData release];
+	
+	if (error) {
+		return NO;
+	}
+	return YES;
+}
+
 - (void) loadData {
 	
+	NSError *error = nil;
 	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/services",BASE_URL]];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL];
+	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
 	//NSString *path = [[NSBundle mainBundle] pathForResource:@"services" ofType:@"js"];
 	//NSString *jsonData = [NSString stringWithContentsOfFile:path];
-	
+
+    if (error) {
+        if (!alerted) {
+	    	[Util displayDataError];
+    	    alerted = YES;
+        }
+    }
+    else {
+        alerted = NO;
+    }
+    
 	// TODO: error handling
 	self.services = [[jsonData JSONValue] objectForKey:@"services"];
 	self.serviceLookup = [NSMutableDictionary dictionary];
@@ -69,14 +93,28 @@
 						nil]];
 	
 	//NSLog(@"services: %@",services);
+	[jsonData release];
 }
 
 - (void) loadMetadataForService:(NSString *)serviceId {
 	
+	NSError *error = nil;
 	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service/%@?metadata=1",BASE_URL,serviceId]];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL];
+	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
+    
 //	NSString *path = [[NSBundle mainBundle] pathForResource:@"servicedetail" ofType:@"js"];
 //	NSString *jsonData = [NSString stringWithContentsOfFile:path];
+    
+    if (error) {
+        if (!alerted) {
+	    	[Util displayDataError];
+    	    alerted = YES;
+        }
+    }
+    else {
+        alerted = NO;
+    }
+    
 	NSMutableArray *serviceArray = (NSMutableArray *)[[jsonData JSONValue] objectForKey:@"services"];
 
 	if ([serviceArray count] < 1) {
@@ -86,6 +124,27 @@
 	
 	NSDictionary *service = [serviceArray objectAtIndex:0];
 	[self.metadata setValue:service forKey:serviceId];	
+	
+	[jsonData release];
+}
+
+- (NSMutableArray *)getServices {
+	if (services == nil) [self loadData];
+	return services;
+}
+
+- (NSMutableDictionary *)getServiceById:(NSString *)serviceId {
+	if (services == nil) [self loadData];
+	return [serviceLookup objectForKey:serviceId];
+}
+
+- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId {
+	NSMutableDictionary *service = (NSMutableDictionary *)[metadata objectForKey:serviceId];
+	if (service == nil) {
+		[self loadMetadataForService:serviceId];
+		service = (NSMutableDictionary *)[metadata objectForKey:serviceId];
+	}
+	return service;
 }
 
 @end

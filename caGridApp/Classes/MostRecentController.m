@@ -8,23 +8,28 @@
 
 #import "MostRecentController.h"
 
-#define MAX_NUM_RECENT 3
+#define MAX_NUM_RECENT 5
 
 @implementation MostRecentController
 
-//- (void)viewWillAppear:(BOOL)animated {
-- (void)viewDidLoad {
+- (void)loadData {
+	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-	self.filtered = [NSMutableArray array];
-	[filtered addObjectsFromArray: smdata.services];
 	
-	[filtered sortUsingDescriptors:[NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"publish_date_obj" ascending:NO] autorelease]]];
-
-	while ([filtered count] > MAX_NUM_RECENT) {
-		[filtered removeLastObject];
+    NSMutableArray *services = [smdata getServices];
+    
+	if (services != nil) {	
+		self.filtered = [NSMutableArray array];
+		[filtered addObjectsFromArray: services];
+		
+		[filtered sortUsingDescriptors:[NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"publish_date_obj" ascending:NO] autorelease]]];
+		
+		while ([filtered count] > MAX_NUM_RECENT) {
+			[filtered removeLastObject];
+		}
+		
+		[self.tableView reloadData];
 	}
-	
-	[super viewDidLoad];
 }
 
 @end
