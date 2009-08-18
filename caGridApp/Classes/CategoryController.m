@@ -13,11 +13,12 @@
 @synthesize navController;
 @synthesize serviceListController;
 @synthesize categoryTypeController;
+@synthesize categoryHostController;
 @synthesize categoryList;
 
 - (void)viewDidLoad {
 	NSArray *array = [[NSArray alloc] initWithObjects:@"All Services",
-					  @"Data Services", @"Analytical Services", @"By Type", nil];
+					  @"Data Services", @"Analytical Services", @"By Type", @"By Hosting Center", nil];
 	self.categoryList = array;
 	[array release];
     [super viewDidLoad];
@@ -36,7 +37,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  numberOfRowsInSection:(NSInteger)section {
-	return 4;
+	return [categoryList count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -56,7 +57,7 @@
 	
 	NSUInteger row = [indexPath row];
 	cell.text = [categoryList objectAtIndex:row];
-	
+    
 	return cell;
 }
 
@@ -64,13 +65,20 @@
 didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (serviceListController == nil) {
-		self.serviceListController = [[ServiceListController alloc] init];
-		serviceListController.navController = navController;		
+        self.serviceListController = [[ServiceListController alloc] initWithNibName:@"SearchView" bundle:nil];
+        serviceListController.navController = navController;
 	}
 	
 	if (categoryTypeController == nil) {
 		self.categoryTypeController = [[CategoryTypeController alloc] init];
+        categoryTypeController.title = @"Services By Type";        
 		categoryTypeController.navController = navController;
+	}
+    
+	if (categoryHostController == nil) {
+		self.categoryHostController = [[CategoryTypeController alloc] init];
+        categoryHostController.title = @"Services By Host";
+		categoryHostController.navController = navController;
 	}
 	
 	NSUInteger row = [indexPath row];
@@ -97,6 +105,11 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 			[categoryTypeController.tableView reloadData];
 			[navController pushViewController:categoryTypeController animated:YES];			
 			break;
+		case 4: // By Hosting Center
+			categoryHostController.discriminator = @"hosting_center_name";
+			[categoryHostController.tableView reloadData];
+			[navController pushViewController:categoryHostController animated:YES];			
+			break;            
 	}
 	
 }

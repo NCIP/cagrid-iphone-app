@@ -11,7 +11,7 @@
 
 @implementation Util
 
-+ (NSString *)getIconNameForClass:(NSString *)class andStatus:(NSString *)status {
++ (NSString *) getIconNameForClass:(NSString *)class andStatus:(NSString *)status {
 	
 	if ([class isEqualToString:@"DataService"]) {
 		if ([[status lowercaseString] isEqualToString:@"active"]) {
@@ -31,13 +31,17 @@
 	}	
 }
 
-+ (NSDate *)getDateFromString:(NSString *)dateString {
++ (BOOL) string:(NSString *)searchString isFoundIn:(NSString *)text {
+	return ([text rangeOfString:searchString options:(NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch)].location != NSNotFound);
+}
+
++ (NSDate *) getDateFromString:(NSString *)dateString {
 	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
 	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2009-02-01 19:50:41 PST
 	return [dateFormat dateFromString:dateString];
 }
 
-+ (void)displayDataError {
++ (void) displayDataError {
 	NSLog(@"Could not connect to the network");
 	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
 													message:@"Could not connect to the network" 

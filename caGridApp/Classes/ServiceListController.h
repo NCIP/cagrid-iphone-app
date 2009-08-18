@@ -9,17 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "ServiceMetadata.h"
 #import "GridServiceCell.h"
-#import "Util.h"
 
 @class ServiceDetailController;
 
-@interface ServiceListController : UITableViewController {
+@interface ServiceListController : UITableViewController <UISearchDisplayDelegate, UISearchBarDelegate> {
 	
 	IBOutlet UINavigationController *navController;
 	ServiceDetailController *detailController;
 	NSMutableArray *filtered;
 	NSString *filterKey;
 	NSString *filterValue;
+	NSMutableArray *searched;
 
 }
 
@@ -28,6 +28,7 @@
 @property (nonatomic, retain) NSMutableArray *filtered;
 @property (nonatomic, retain) NSString *filterKey;
 @property (nonatomic, retain) NSString *filterValue;
+@property (nonatomic, retain) NSMutableArray *searched;
 
 - (void)filter:(NSString *)key forValue:(NSString *)value;
 
