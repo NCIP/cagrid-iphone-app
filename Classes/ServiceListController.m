@@ -8,6 +8,7 @@
 
 #import "ServiceListController.h"
 #import "ServiceDetailController.h"
+#import "Util.h"
 
 @implementation ServiceListController
 
@@ -16,6 +17,7 @@
 @synthesize filtered;
 @synthesize filterKey;
 @synthesize filterValue;
+@synthesize searched;
 
 - (void)dealloc {
 	self.detailController = nil;
@@ -48,26 +50,60 @@
             }
         }
         
+        self.searched = [NSMutableArray array];
+        
         [self.tableView reloadData];
     }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [self.searchDisplayController setActive:NO animated:NO];
+    [self.tableView setContentOffset:CGPointMake(0,0) animated:YES];
 	if (self.filtered == nil) [self loadData];
 }
 
+
+#pragma mark -
+#pragma mark Content Filtering
+
+- (void)filterContentForSearchText:(NSString*)searchText {	
+	
+	[searched removeAllObjects];
+	
+	for(NSMutableDictionary *service in filtered) {
+		if ([Util string:searchText isFoundIn:[service objectForKey:@"name"]] ||
+			[Util string:searchText isFoundIn:[service objectForKey:@"hosting_center_name"]]) {
+			[searched addObject:service];
+		}		
+	}
+
+}
+
+
+#pragma mark -
+#pragma mark UISearchDisplayController Delegate Methods
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller 
+		shouldReloadTableForSearchString:(NSString *)searchString {
+    [self filterContentForSearchText:searchString];
+    // Return YES to cause the search result table view to be reloaded.
+    return YES;
+}
 
 #pragma mark -
 #pragma mark Table View Data Source Methods
 
 - (NSInteger)tableView:(UITableView *)tableView 
 		numberOfRowsInSection:(NSInteger)section {
-	return [filtered count];
+    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+	return [rows count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
+    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+    
 	// Get a cell
 
 	static NSString *cellIdentifier = @"GridServiceCell";
@@ -80,7 +116,7 @@
 	// Get service metadata
 	
 	NSUInteger row = [indexPath row];
-	NSMutableDictionary *service = [filtered objectAtIndex:row];
+	NSMutableDictionary *service = [rows objectAtIndex:row];
 	NSString *class = [service objectForKey:@"class"];
 	NSString *status = [service objectForKey:@"status"];
 	
@@ -97,12 +133,14 @@
 - (void)tableView:(UITableView *)tableView 
 		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
+    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+
 	if (detailController == nil) {
 		self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
 	}
 	
 	NSUInteger row = [indexPath row];
-	NSMutableDictionary *service = [filtered objectAtIndex:row];
+	NSMutableDictionary *service = [rows objectAtIndex:row];
 	NSString *serviceId = [service objectForKey:@"id"];
 	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];

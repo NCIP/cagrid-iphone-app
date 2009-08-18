@@ -16,10 +16,6 @@
 @synthesize typeList;
 @synthesize discriminator;
 
-- (void)viewDidLoad {
-	self.title = @"Services By Type";
-}
-
 - (void)loadData {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
     NSMutableArray *services = [smdata getServices];
@@ -76,9 +72,11 @@
 		cell.selectionStyle = UITableViewCellSelectionStyleGray;
 		cell.textLabel.highlightedTextColor = [UIColor blackColor];
 	}
-	
+    
 	NSUInteger row = [indexPath row];
-	cell.text = [typeList objectAtIndex:row];
+	NSString *type = [typeList objectAtIndex:row];
+    if ([type isEqualToString:@""]) type = @"Unknown";
+	cell.text = type;
 	
 	return cell;
 }
@@ -93,11 +91,12 @@
 	
 	NSUInteger row = [indexPath row];
 	NSString *type = [typeList objectAtIndex:row];
+	[serviceListController filter:discriminator forValue:type];
+    
+    if ([type isEqualToString:@""]) type = @"Unknown";
 	serviceListController.title = type;
 	
-	[serviceListController filter:discriminator forValue:type];
 	[serviceListController.tableView reloadData];
-	
 	[navController pushViewController:serviceListController animated:YES];	
 }
 

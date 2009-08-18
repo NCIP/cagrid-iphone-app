@@ -8,7 +8,7 @@
 
 #import "CaGridAppDelegate.h"
 #import "FavoritesController.h"
-#import "SearchController.h"
+#import "QueryRequestController.h"
 
 @implementation CaGridAppDelegate
 
@@ -20,21 +20,20 @@
 	
     // Add the tab bar controller's current view as a subview of the window
 	[favoritesController loadFavorites];
-	
-	// add search controller tab (can't get to to work in IB like the rest of the tabs)
-	SearchController *searchController = [[SearchController alloc] initWithNibName:@"SearchView" bundle:nil];
-	UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:searchController];
-	searchController.navController = navigationController;
-	navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemSearch tag:0];	
+    
+	// add search controller tab (can't get it to work in IB like the rest of the tabs)    
+	QueryRequestController *queryRequestController = [[QueryRequestController alloc] initWithNibName:@"QueryRequestView" bundle:nil];
+	UINavigationController *queryNavController = [[UINavigationController alloc] initWithRootViewController:queryRequestController];
+	queryRequestController.navController = queryNavController;
+	queryNavController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemSearch tag:0];	
 	NSMutableArray *controllers = [NSMutableArray arrayWithArray:tabBarController.viewControllers];
-	tabBarController.viewControllers = [controllers arrayByAddingObject:navigationController];
-	
+	tabBarController.viewControllers = [controllers arrayByAddingObject:queryNavController];
+	[queryRequestController release];
+	[queryNavController release];
+    
 	// add main view
     [window addSubview:tabBarController.view];
 	
-	// release objects
-	[searchController release];
-	[navigationController release];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
