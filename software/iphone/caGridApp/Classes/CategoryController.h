@@ -15,6 +15,7 @@
 	IBOutlet UINavigationController *navController;
 	ServiceListController *serviceListController;
 	CategoryTypeController *categoryTypeController;
+	CategoryTypeController *categoryHostController;
 	NSArray *categoryList;
 	
 }
@@ -22,6 +23,7 @@
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) ServiceListController *serviceListController;
 @property (nonatomic, retain) CategoryTypeController *categoryTypeController;
+@property (nonatomic, retain) CategoryTypeController *categoryHostController;
 @property (nonatomic, retain) NSArray *categoryList;
 
 @end
