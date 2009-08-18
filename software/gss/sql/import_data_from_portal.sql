@@ -45,10 +45,9 @@ INSERT INTO GRID_SERVICE
     TYPE,
     URL,
     VERSION,
-    STATUS,
     HOSTING_CENTER_ID,
     DOMAIN_MODEL_ID)
-SELECT gs.id, gs.service_type, s.description, s.name, s.name, gs.url, s.version, "active", sm.host_res_ctr_id, d.id
+SELECT gs.id, gs.service_type, s.description, s.name, s.name, gs.url, s.version, sm.host_res_ctr_id, d.id
 FROM portal2.grid_services gs, portal2.svc_meta sm, (portal2.svc s left join portal2.domain_models d on s.id = d.service_id and d.projectLongName is not null)
 WHERE gs.id = sm.service_id
 AND sm.service_desc_id = s.id;
