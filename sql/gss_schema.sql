@@ -4,9 +4,9 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `DOMAIN_CLASS` (
   `ID` bigint(20) NOT NULL,
-  `CLASS_NAME` varchar(255) default NULL,
-  `DESCRIPTION` varchar(255) default NULL,
-  `DOMAIN_PACKAGE` varchar(255) default NULL,
+  `CLASS_NAME` varchar(512) default NULL,
+  `DESCRIPTION` varchar(2000) default NULL,
+  `DOMAIN_PACKAGE` varchar(512) default NULL,
   `DOMAIN_MODEL_ID` bigint(20) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -17,8 +17,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `DOMAIN_MODEL` (
   `ID` bigint(20) NOT NULL,
-  `DESCRIPTION` varchar(255) default NULL,
-  `LONG_NAME` varchar(255) default NULL,
+  `DESCRIPTION` varchar(2000) default NULL,
+  `LONG_NAME` varchar(512) default NULL,
   `VERSION` varchar(255) default NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -30,11 +30,11 @@ SET character_set_client = utf8;
 CREATE TABLE `GRID_SERVICE` (
   `ID` bigint(20) NOT NULL,
   `DISCRIMINATOR` varchar(255) NOT NULL,
-  `DESCRIPTION` varchar(1024) default NULL,
-  `NAME` varchar(255) default NULL,
+  `DESCRIPTION` varchar(2000) default NULL,
+  `NAME` varchar(512) default NULL,
   `PUBLISH_DATE` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `TYPE` varchar(255) default NULL,
-  `URL` varchar(255) default NULL,
+  `URL` varchar(1024) default NULL,
   `VERSION` varchar(255) default NULL,
   `HOSTING_CENTER_ID` bigint(20) NULL,
   `DOMAIN_MODEL_ID` bigint(20) default NULL,
@@ -83,10 +83,10 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `POINT_OF_CONTACT` (
   `ID` bigint(20) NOT NULL,
-  `AFFILIATION` varchar(255) default NULL,
-  `EMAIL` varchar(255) default NULL,
-  `NAME` varchar(255) default NULL,
-  `ROLE` varchar(255) default NULL,
+  `AFFILIATION` varchar(512) default NULL,
+  `EMAIL` varchar(512) default NULL,
+  `NAME` varchar(512) default NULL,
+  `ROLE` varchar(512) default NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
