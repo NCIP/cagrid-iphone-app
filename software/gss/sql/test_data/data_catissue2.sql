@@ -41,7 +41,6 @@ INSERT INTO GRID_SERVICE
     TYPE,
     URL,
     VERSION, 
-    STATUS,
     HOSTING_CENTER_ID,
     DOMAIN_MODEL_ID)
     values 
@@ -52,7 +51,6 @@ INSERT INTO GRID_SERVICE
     "caTissue",
     "https://cabig.mc.vanderbilt.edu:8443/wsrf/services/cagrid/CaTissueCore", 
     "1.1",
-    "active",
     5,
     5);
 
