@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>gss</name>
+	<name>GSS</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>SDK41</name>
+			<type>2</type>
+			<location>/Users/chrisp/NCI/iPhone/SVN/trunk/software/SDK411</location>
+		</link>
+	</linkedResources>
 </projectDescription>

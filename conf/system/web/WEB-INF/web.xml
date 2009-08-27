@@ -80,6 +80,33 @@
         <servlet-class>gov.nih.nci.system.web.JSONDataService</servlet-class>            
     </servlet>
     
+	<servlet>
+		<servlet-name>QuartzInitializer</servlet-name>
+  		<servlet-class>
+    			org.quartz.ee.servlet.QuartzInitializerServlet
+  		</servlet-class>
+  		<init-param>
+    			<param-name>shutdown-on-unload</param-name>
+    			<param-value>true</param-value>
+  		</init-param>
+  		<init-param>
+    			<param-name>start-scheduler-on-load</param-name>
+    			<param-value>false</param-value>
+    	</init-param>
+    	 <!--  has to be started BEFORE SchedulerControllerServlet -->
+    	<load-on-startup>1</load-on-startup>
+ 	</servlet>
+     <servlet>
+     	 <servlet-name>SchedulerControllerServlet</servlet-name>
+         <servlet-class>gov.nih.nci.gss.scheduler.SchedulerControllerServlet</servlet-class>
+         <init-param>
+             <param-name>intervalInMinutes</param-name>
+             <param-value>60</param-value>
+         </init-param>
+         <!--  has to be started AFTER QuartzInitializer -->
+         <load-on-startup>10</load-on-startup>
+     </servlet>
+
     <servlet-mapping>
 		<servlet-name>httpinvoker</servlet-name>
 		<url-pattern>/http/*</url-pattern>
