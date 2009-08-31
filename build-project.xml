@@ -171,6 +171,15 @@
 		    <filelist dir="." files="version.properties"/>
 	    </concat>
         
+        <!-- copy configuration files to classpath -->
+        <copy todir="${system.config.web.classes.dir}" overwrite="true">
+            <fileset dir="${conf.dir}">
+                <include name="gss.properties" />
+                <include name="gss_ehcache.xml" />
+                <include name="rest_api_usage.js" />
+            </fileset>
+        </copy>
+        
     </target>
     
     
