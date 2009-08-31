@@ -124,7 +124,7 @@
     	
         <replace dir="${project.build.dir}/conf">
             <include name="gss_ehcache.xml"/>
-            <replacefilter token="GSS_EHCACHE_DIR" value="${gss.ehcache.dir}" />
+            <replacefilter token="GSS_EHCACHE_PATH" value="${GSS_EHCACHE_PATH}" />
         </replace>
         
     	
@@ -141,10 +141,6 @@
                 <include name="**/*" />
             </fileset>
         </copy>
-
-        <replace dir="${project.build.dir}/conf/system/web/WEB-INF/classes">
-            <replacefilter token="@INDEXBASE@" value="${index_base}" />
-        </replace>
 
     </target>
 
