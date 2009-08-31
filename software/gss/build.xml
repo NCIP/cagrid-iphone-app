@@ -16,7 +16,8 @@
     <property name="build.properties" value="dev.properties"/>
     <property name="project.home.dir" value="." />
     <property name="test.dir" value="${project.home.dir}/test" />
-    
+
+	<property file="${build.properties}"/>
     <property file="${project.home.dir}/conf/deploy.properties"  />
     
     <target name="help" 
@@ -116,6 +117,17 @@
             </fileset>
         </copy>
 
+        <replace dir="${project.build.dir}/conf">
+            <include name="gss.properties"/>
+            <replacefilter token="CAB2B_QUERY_URL" value="${cab2b.query.url}" />
+        </replace>
+    	
+        <replace dir="${project.build.dir}/conf">
+            <include name="gss_ehcache.xml"/>
+            <replacefilter token="GSS_EHCACHE_DIR" value="${gss.ehcache.dir}" />
+        </replace>
+        
+    	
         <!-- copy SDK configuration -->
         <copy todir="${project.build.dir}" overwrite="true">
             <fileset dir="${project.home.dir}/conf">
@@ -166,73 +178,15 @@
             message="build.date=${timestamp}"/>
     	
     </target>
-        	
-    <target name="dist-source" 
-            description="Create a source distribution ready to be zipped">
       
-        <fail message="Project must be built before calling this target. Type 'ant help' for more information.">
-            <condition>
-                <not><available file="${project.warfile}"/></not>
-            </condition>
-        </fail>
-        
-        <delete dir="${project.sourcedist.dir}" quiet="true"/>
-        <mkdir dir="${project.sourcedist.dir}"/>
-
-        <!-- copy system java code -->
-        <copy todir="${project.sourcedist.dir}/system" overwrite="true">
-            <fileset dir="${project.home.dir}/system">
-                <include name="**/*.java" />
-            </fileset>
-            <filterchain>
-                <concatfilter prepend="docs/LICENSE.txt"/>
-            </filterchain>
-        </copy>
-
-        <!-- copy system  -->
-        <copy todir="${project.sourcedist.dir}/system" overwrite="true">
-            <fileset dir="${project.home.dir}/system">
-                <exclude name="**/*.java" />
-            </fileset>
-        </copy>
-
-        <!-- copy the rest -->
-        <copy todir="${project.sourcedist.dir}" overwrite="true">
-            <fileset dir="${project.home.dir}">
-                <include name="models/*.xmi" />
-                <include name="conf/**/*" />
-                <include name="codegen/**/*" />
-                <include name="test/**/*" />
-                <include name="docs/*" />
-                <include name="*.xml" />
-            </fileset>
-        </copy>
-
-        <!-- copy deployment files -->
-        <copy todir="${project.sourcedist.dir}/deploy" overwrite="true">
-            <fileset dir="${project.home.dir}/docs/deploy">
-                <include name="**/*" />
-            </fileset>
-        </copy>
-        
-        <!-- copy war file -->
-        <copy todir="${project.sourcedist.dir}/deploy" overwrite="true"
-                file="${project.warfile}"/>
-        
-    </target>
     
-    <target name="dist-zips" depends="dist-source"
+    <target name="dist-zips" 
         description="Creates all the distribution zips">
 
         <delete>
             <fileset dir="${project.output.dir}" includes="*.zip"/>
         </delete>
-        
-        <zip destfile="${project.output.dir}/${project.sourcedist}.zip">
-            <zipfileset prefix="${project.sourcedist}" 
-                dir="${project.sourcedist.dir}"/>
-        </zip>
-
+    	
         <zip destfile="${project.output.dir}/${project.javaclientdist}.zip">
             <zipfileset prefix="${project.javaclientdist}" 
                 dir="${project.javaclientdist.dir}"/>
@@ -250,85 +204,4 @@
 
     </target>
     
-
-    <!--************************************************************************
-    * Remote deployment and testing
-    *************************************************************************-->
-    
-    <property file="${build.properties}" />
-    
-    <target name="remote-deploy" 
-            description="Deploys the webapp to a remote machine.">
-
-        <echo>Copying files to remote file system "${SSH.USER}@${SSH.HOST}:${SSH.PATH}"</echo>
-        
-        <scp todir="${SSH.USER}@${SSH.HOST}:${SSH.PATH}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true" 
-                file="${project.warfile}">
-        </scp>
-        
-        <sshexec username="${SSH.USER}" host="${SSH.HOST}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true" failonerror="false" 
-                command="mv ${SSH.PATH}/${PROJECT_NAME}.war ${JBOSS.DEPLOY.DIR}" />
-
-        <sleep seconds="30"/>
-            
-    </target>
-
-    <target name="testreport-deploy"
-            description="Deploys the testing reports to a remote machine.">
-
-        <property name="tmp.dir" value="${SSH.PATH}/reports/${PROJECT_NAME}" />
-        
-        <echo>Creating remote directory "${SSH.USER}@${SSH.HOST}:${SSH.PATH}/reports/${PROJECT_NAME}"</echo>
-        
-        <sshexec username="${SSH.USER}" host="${SSH.HOST}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="false" failonerror="false" 
-                command="mkdir -p ${tmp.dir}" />
-                    
-        <echo>Copying test report to remote system "${SSH.USER}@${SSH.HOST}:${tmp.dir}"</echo>
-
-        <scp todir="${SSH.USER}@${SSH.HOST}:${tmp.dir}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true">
-            <fileset dir="${test.dir}/report"/>
-        </scp>
-
-        <echo>Deploying report to "${REPORT.DEPLOY.DIR}"</echo>
-
-        <sshexec username="${SSH.USER}" host="${SSH.HOST}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true" failonerror="false" 
-                command="rm -r ${REPORT.DEPLOY.DIR}" />
-
-        <sshexec username="${SSH.USER}" host="${SSH.HOST}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true" failonerror="false" 
-                command="mkdir -p ${REPORT.DEPLOY.DIR}" />
-        
-        <sshexec username="${SSH.USER}" host="${SSH.HOST}" port="${SSH.PORT}" 
-                passphrase="${SSH.PASSPHRASE}" keyfile="${SSH.KEYFILE}" trust="true" verbose="true" failonerror="false" 
-                command="mv ${tmp.dir} ${REPORT.DEPLOY.DIR}/${PROJECT_NAME}" />
-        
-    </target>
-            
-    <target name="build-deploy-test" depends="build-system, remote-deploy"
-            description="Builds, deploys and runs the unit tests.">
-
-        <echo>Deploying to ${TIER.NAME} tier</echo>
-        
-        <ant dir="${test.dir}" target="report" 
-            inheritall="false" inheritrefs="false" />
-
-        <ant target="testreport-deploy"/>
-
-    </target>
-
-      <target name="remove.cvs">
-           <delete dir="**/CVS/**" />
-           <delete includeemptydirs="true">
-               <fileset dir="." defaultexcludes="no">
-                    <include name="CVS" />
-                    <include name="**/CVS/**/*.*" />
-                    <include name="**/*.cvsignore" />  
-               </fileset>
-           </delete>
-      </target> 
 </project>
