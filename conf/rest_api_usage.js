@@ -5,16 +5,10 @@
             "description":"Prints usage information"
         },
         {
-            "path":"/services",
-            "description":"Returns a summary of all grid services available.",
-            "params":{
-                "searchString":"Optional search string to filter results."
-            }
-        },
-        {
             "path":"/service/{serviceId}",
-            "description":"Returns a details about a specified grid service.",
+            "description":"Returns a details about a specified grid service, or all grid services.",
             "params":{
+                "serviceId":"Optional path parameter to limit results to a single service",
                 "metadata":"Set to 1 to retrieve service metadata.",
                 "model":"Set to 1 to retrieve the model used by the service (if it is a data service)."
             }

@@ -55,7 +55,7 @@ public class JSONDataService extends HttpServlet {
     private static final String GET_SERVICE_HQL_JOIN_STATUS = 
             "left join fetch service.statusHistory status ";
         
-    private static final String GET_SERVICE_HQL_WHERE = 
+    private static final String GET_SERVICE_HQL_WHERE_STATUS = 
              "where ((status.changeDate is null) or (status.changeDate = (" +
              "  select max(changeDate) " +
              "  from gov.nih.nci.gss.StatusChange s " +
@@ -162,19 +162,12 @@ public class JSONDataService extends HttpServlet {
             HttpServletRequest request) {
         
         try {
-            if ("services".equals(noun)) {
-                // Return summary of all services
-                return getServicesJSON(request.getParameter("searchString"));
-            }
-            else if ("service".equals(noun)) {
-                // Return details about a single service
+            if ("service".equals(noun)) {
+                // Return details about services, or a single service
                 
                 String id = null;
-                try {
+                if (pathList.length > 2) {
                     id = pathList[2];
-                }
-                catch (Exception e) {
-                    return getJSONError("UsageError", "Specify a service id.");
                 }
                 
                 boolean includeMetadata = "1".equals(request.getParameter("metadata"));
@@ -283,6 +276,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
         jsonService.put("type", service.getType());
+        jsonService.put("url", service.getUrl());
 
         Collection<StatusChange> scs = service.getStatusHistory(); 
         if (scs.size() > 1) {
@@ -300,62 +294,6 @@ public class JSONDataService extends HttpServlet {
     }
     
     /**
-     * Returns a JSON string with a summary of all the grid services in the system.
-     * @return JSON-formatted String
-     * @throws JSONException
-     * @throws ApplicationException
-     */
-    private String getServicesJSON(String searchString) 
-            throws JSONException, ApplicationException {
-        
-        Session s = sessionFactory.openSession();
-        JSONObject json = new JSONObject();
-        
-        try {
-            // TODO: use Lucene index for the search
-            String whereClause = "";
-            String param = "%"+searchString+"%";
-            if (searchString != null && searchString.matches("^\\w+$")) {
-                whereClause = "and (service.name like ? or service.description like ?)";
-            }
-            
-            Query q = s.createQuery(GET_SERVICE_HQL_SELECT
-                + GET_SERVICE_HQL_JOIN_STATUS
-                + "left join fetch service.hostingCenter "
-                + GET_SERVICE_HQL_WHERE
-                + whereClause);
-            
-            if (!"".equals(whereClause)) {
-                q.setString(0, param);
-                q.setString(1, param);
-            }
-            
-            List<GridService> services = q.list();
-            
-            JSONArray jsonArray = new JSONArray();
-            for (GridService service : services) {
-                
-                JSONObject jsonService = getJSONObjectForService(service);
-                jsonArray.put(jsonService);
-                
-                HostingCenter host = service.getHostingCenter();
-                if (host != null) {
-                    JSONObject hostObj = new JSONObject();
-                    hostObj.put("short_name", host.getShortName());
-                    jsonService.put("hosting_center", hostObj);
-                }
-            }
-    
-            json.put("services", jsonArray);
-        }
-        finally {
-            s.close();
-        }
-        
-        return json.toString();
-    }
-    
-    /**
      * Returns a JSON string with all the metadata about a particular service.
      * @return JSON-formatted String
      * @throws JSONException
@@ -369,36 +307,41 @@ public class JSONDataService extends HttpServlet {
         JSONObject json = new JSONObject();
         
         try {
-            String hql = GET_SERVICE_HQL_SELECT
-                + GET_SERVICE_HQL_JOIN_STATUS
-                +(includeMetadata ? "left join fetch service.hostingCenter ":"")
-                +(includeModel ? "left join fetch service.domainModel ":"")
-                +GET_SERVICE_HQL_WHERE
-                +"and service.id = ?";
+            // Create the HQL query
+            StringBuffer hql = new StringBuffer(GET_SERVICE_HQL_SELECT);
+            hql.append(GET_SERVICE_HQL_JOIN_STATUS);
+            hql.append("left join fetch service.hostingCenter ");
+            if (includeModel) hql.append("left join fetch service.domainModel ");
+            hql.append(GET_SERVICE_HQL_WHERE_STATUS);
+            if (serviceId != null) hql.append("and service.id = ?");
             
-            List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
+            // Create the Hibernate Query
+            Query q = s.createQuery(hql.toString());
+            if (serviceId != null) q.setString(0, serviceId);
+            
+            // Execute the query
+            List<GridService> services = q.list();
             
             JSONArray jsonArray = new JSONArray();
             json.put("services", jsonArray);
             
             for (GridService service : services) {
                 
-                JSONObject jsonService = null;
+                JSONObject jsonService = getJSONObjectForService(service);
+                jsonArray.put(jsonService);
+                
+                // service host short name
+
+                HostingCenter host = service.getHostingCenter();
+                JSONObject hostObj = new JSONObject();
+                jsonService.put("hosting_center", hostObj);
+                if (host != null) hostObj.put("short_name", host.getShortName());
                 
                 if (includeMetadata) {
-                    jsonService = getJSONObjectForService(service);
-                    jsonService.put("url", service.getUrl());
-                    jsonService.put("description", service.getDescription());
-                }
-                else {
-                    jsonService = new JSONObject();
-                    jsonService.put("id", service.getId());
                     
-                }
-                jsonArray.put(jsonService);
-                   
-                if (includeMetadata) {
-                    HostingCenter host = service.getHostingCenter();
+                    // service details
+                    
+                    jsonService.put("description", service.getDescription());
                     
                     // service pocs
                     
@@ -413,15 +356,11 @@ public class JSONDataService extends HttpServlet {
                     }
                     jsonService.put("pocs", jsonPocs);
                     
-                    // service host 
-
-                    JSONObject hostObj = new JSONObject();
-                    jsonService.put("hosting_center", hostObj);
+                    // service host details
                     
                     if (host != null) {
                     
                         hostObj.put("long_name", host.getLongName());
-                        hostObj.put("short_name", host.getShortName());
                         hostObj.put("country_code", host.getCountryCode());
                         hostObj.put("state_province", host.getStateProvince());
                         hostObj.put("locality", host.getLocality());
