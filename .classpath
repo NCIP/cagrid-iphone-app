@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SDK41"/>
 	<classpathentry kind="lib" path="build/output/gss10/build/jar/gss10-beans.jar"/>
@@ -8,8 +9,6 @@
 	<classpathentry kind="lib" path="system/lib/json.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/acegi-security-1.0.4.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/antlr-2.7.6.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/lib/asm.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/lib/axis.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/c3p0-0.9.0.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/caGrid-CQL-cql.1.0-1.2.jar"/>
@@ -51,11 +50,6 @@
 	<classpathentry kind="lib" path="/SDK41/system/lib/wsdl4j-1.5.1.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="/SDK41/system/lib/xwork-2.0-beta-1.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/dist/sdk-client-framework.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/dist/sdk-core.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/dist/sdk-security.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/dist/sdk-web-framework.jar"/>
-	<classpathentry kind="lib" path="/SDK41/system/dist/sdk-ws-framework.jar"/>
 	<classpathentry kind="lib" path="system/lib/addressing-1.0.jar"/>
 	<classpathentry kind="lib" path="system/lib/axis.jar"/>
 	<classpathentry kind="lib" path="system/lib/quartz-1.5.2.jar"/>
@@ -67,5 +61,13 @@
 	<classpathentry kind="lib" path="system/lib/caGrid-discovery-1.3.jar"/>
 	<classpathentry kind="lib" path="system/lib/caGrid-1.1-dataExtensions-style-cacore32.jar"/>
 	<classpathentry kind="lib" path="system/lib/wss4j.jar"/>
+	<classpathentry kind="lib" path="build/system/dist/sdk-client-framework.jar"/>
+	<classpathentry kind="lib" path="build/system/dist/sdk-core.jar"/>
+	<classpathentry kind="lib" path="build/system/dist/sdk-security.jar"/>
+	<classpathentry kind="lib" path="build/system/dist/sdk-web-framework.jar"/>
+	<classpathentry kind="lib" path="build/system/dist/sdk-ws-framework.jar"/>
+	<classpathentry kind="lib" path="system/lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="test/lib/junit-4.3.1.jar"/>
+	<classpathentry kind="lib" path="test/lib/saaj.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
