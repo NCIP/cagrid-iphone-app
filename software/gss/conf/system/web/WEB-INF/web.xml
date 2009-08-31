@@ -77,7 +77,7 @@
     
     <servlet>
         <servlet-name>JSONDataService</servlet-name>
-        <servlet-class>gov.nih.nci.system.web.JSONDataService</servlet-class>            
+        <servlet-class>gov.nih.nci.gss.api.JSONDataService</servlet-class>            
     </servlet>
     
 	<servlet>
@@ -106,7 +106,8 @@
          <!--  has to be started AFTER QuartzInitializer -->
          <load-on-startup>10</load-on-startup>
      </servlet>
-
+ 	
+ 
     <servlet-mapping>
 		<servlet-name>httpinvoker</servlet-name>
 		<url-pattern>/http/*</url-pattern>
