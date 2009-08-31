@@ -13,7 +13,7 @@
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
     -->
-    <diskStore path="GSS_EHCACHE_DIR"/>
+    <diskStore path="GSS_EHCACHE_PATH"/>
 
     <!--
     Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
