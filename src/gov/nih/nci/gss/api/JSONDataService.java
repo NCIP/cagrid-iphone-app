@@ -276,6 +276,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
         jsonService.put("type", service.getType());
+        jsonService.put("cab2b_type", service.getCab2bType());
         jsonService.put("url", service.getUrl());
 
         Collection<StatusChange> scs = service.getStatusHistory(); 
