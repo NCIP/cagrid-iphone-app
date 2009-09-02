@@ -50,7 +50,7 @@ public class QueryService {
             is = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "gss.properties");
             properties.load(is);
-            this.cab2b2QueryURL = properties.getProperty("cab2b.query.url");
+            this.cab2b2QueryURL = properties.getProperty("cab2b.query.url")+"/search";
             log.info("Configured cab2b2QueryURL="+cab2b2QueryURL);
         }
         finally {
