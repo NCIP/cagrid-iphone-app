@@ -70,5 +70,9 @@
 	<classpathentry kind="lib" path="test/lib/junit-4.3.1.jar"/>
 	<classpathentry kind="lib" path="test/lib/saaj.jar"/>
 	<classpathentry kind="lib" path="output/remote-client/conf"/>
+	<classpathentry kind="lib" path="system/lib/cryptix32.jar"/>
+	<classpathentry kind="lib" path="system/lib/cryptix-asn1.jar"/>
+	<classpathentry kind="lib" path="system/lib/jce-jdk13-125.jar"/>
+	<classpathentry kind="lib" path="system/lib/puretls.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
