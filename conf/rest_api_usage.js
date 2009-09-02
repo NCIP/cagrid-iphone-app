@@ -14,7 +14,7 @@
             }
         },
         {
-            "path":"/services",
+            "path":"/query",
             "description":"Queries a service or group of services and return the data.",
             "params":{
                 "searchString":"Mandatory search string.",
