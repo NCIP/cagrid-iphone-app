@@ -29,6 +29,8 @@
 
 - (BOOL) testConnectivity;
 
+- (NSMutableArray *) getResultsById:(NSString *)resultId;
+
 - (NSMutableArray *)getServices;
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;

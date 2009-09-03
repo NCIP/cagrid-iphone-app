@@ -42,6 +42,7 @@
 	[jsonData release];
 	
 	if (error) {
+        NSLog(@"testConnectivity returned error: %@",error);
 		return NO;
 	}
 	return YES;
@@ -50,14 +51,15 @@
 - (void) loadData {
 	
 	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/services",BASE_URL]];
+	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service",BASE_URL]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
 	//NSString *path = [[NSBundle mainBundle] pathForResource:@"services" ofType:@"js"];
 	//NSString *jsonData = [NSString stringWithContentsOfFile:path];
 
     if (error) {
+        NSLog(@"testConnectivity returned error: %@",error);
         if (!alerted) {
-	    	[Util displayDataError];
+	    	[Util displayNetworkError];
     	    alerted = YES;
         }
     }
@@ -65,8 +67,17 @@
         alerted = NO;
     }
     
-	// TODO: error handling
-	self.services = [[jsonData JSONValue] objectForKey:@"services"];
+    NSMutableDictionary *root = [jsonData JSONValue];
+    
+	self.services = [root objectForKey:@"services"];
+    
+    if (self.services == nil) {
+        NSString *error = [root objectForKey:@"error"];
+        NSString *message = [root objectForKey:@"message"];
+    	NSLog(@"Error from REST API. %@: %@",error,message);
+        [Util displayDataError]; 
+    }
+    
 	self.serviceLookup = [NSMutableDictionary dictionary];
 	
 	NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
@@ -107,7 +118,7 @@
     
     if (error) {
         if (!alerted) {
-	    	[Util displayDataError];
+	    	[Util displayNetworkError];
     	    alerted = YES;
         }
     }
@@ -128,6 +139,21 @@
 	[jsonData release];
 }
 
+- (NSMutableArray *) getResultsById:(NSString *)resultId {
+    
+    NSMutableDictionary *result1 = [NSMutableDictionary dictionary];
+    [result1 setObject:@"Test Value 1" forKey:@"value"];
+
+    NSMutableDictionary *result2 = [NSMutableDictionary dictionary];
+    [result2 setObject:@"Test Value 2" forKey:@"value"];
+
+    NSMutableArray *results = [NSMutableArray array];
+    [results addObject:result1];
+    [results addObject:result2];
+    
+    return results;
+}
+    
 - (NSMutableArray *)getServices {
 	if (services == nil) [self loadData];
 	return services;
