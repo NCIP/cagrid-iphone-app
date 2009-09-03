@@ -7,18 +7,19 @@
 //
 
 #import "QueryRequestController.h"
-
+#import "QueryResultsController.h"
 
 @implementation QueryRequestController
 @synthesize requestsTable;
 @synthesize navController;
+@synthesize resultsController;
 @synthesize queryRequests;
 
 #pragma mark -
 #pragma mark Object Methods
 
 - (void)viewDidLoad {
-	self.title = @"Grid Data Search";
+	self.title = @"Search";
     self.queryRequests = [NSMutableArray array];
 }
 
@@ -90,19 +91,20 @@
 - (void)tableView:(UITableView *)tableView
 		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-//	if (serviceListController == nil) {
-//		self.serviceListController = [[ServiceListController alloc] init];
-//		serviceListController.navController = navController;
-//	}
-//	
-//	NSUInteger row = [indexPath row];
-//	NSString *type = [typeList objectAtIndex:row];
-//	serviceListController.title = type;
-//	
-//	[serviceListController filter:discriminator forValue:type];
-//	[serviceListController.tableView reloadData];
-//	
-//	[navController pushViewController:serviceListController animated:YES];	
+	if (resultsController == nil) {
+		self.resultsController = [[QueryResultsController alloc] init];
+		resultsController.navController = navController;
+	}
+	
+	[queryRequests objectAtIndex:[indexPath row]];
+    
+	resultsController.title = @"Results";
+    
+    // TODO: set id
+    // resultsController.resultId = 
+	
+	[resultsController.tableView reloadData];
+	[navController pushViewController:resultsController animated:YES];	
 }
 
 
