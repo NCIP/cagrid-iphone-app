@@ -21,6 +21,9 @@
 + (NSDate *)getDateFromString:(NSString *)dateString;
 
 /** Display an error popup indicating that data could not be retrieved */
++ (void)displayNetworkError;
+
+/** Display an error popup indicating that data could not be parsed */
 + (void)displayDataError;
 
 @end
