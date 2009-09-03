@@ -8,17 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
+@class QueryResultsController;
 
 @interface QueryRequestController : UIViewController <UISearchBarDelegate> {
 	
     IBOutlet UITableView *requestsTable;
 	UINavigationController *navController;
+    QueryResultsController *resultsController;
 	NSMutableArray *queryRequests;
     
 }
 
 @property (nonatomic, retain) UITableView *requestsTable;
 @property (nonatomic, retain) UINavigationController *navController;
+@property (nonatomic, retain) QueryResultsController *resultsController;
 @property (nonatomic, retain) NSMutableArray *queryRequests;
 
 
