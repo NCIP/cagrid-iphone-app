@@ -88,9 +88,9 @@ public class JSONDataService extends HttpServlet {
             
             // TODO: externalize this mapping somewhere (database?)
             this.scope2ModelGroup = new HashMap<String,String>();
-            scope2ModelGroup.put("microarray","Microarray data");
-            scope2ModelGroup.put("imaging","Imaging data");
-            scope2ModelGroup.put("biospecimen","Biospecimen data");
+            scope2ModelGroup.put("microarray","Microarray Data");
+            scope2ModelGroup.put("imaging","Imaging Data");
+            scope2ModelGroup.put("biospecimen","Biospecimen Data");
             
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
