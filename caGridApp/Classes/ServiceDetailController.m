@@ -9,6 +9,7 @@
 #import "ServiceDetailController.h"
 #import "CaGridAppDelegate.h"
 #import "FavoritesController.h"
+#import "QueryRequestController.h"
 
 #define sidePadding 10 
 #define insetPadding 20 
@@ -152,9 +153,9 @@
 
 - (void)queryAction:(id)sender {
 	
-	// TODO: implement query screen
-	
-	[self.tableView reloadData];
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
+    delegate.queryRequestController.service = service;	
+    delegate.tabBarController.selectedIndex = 3;
 }
 
 #pragma mark -
@@ -191,7 +192,7 @@
 		}
 		
 		// TODO: Get the frames dynamically somehow. Calling cell.descLabel.frame throws an exception, and cell.contentView.frame is null, 
-		// and I don't see any other place to get them. So I printed the parent objects and got the coordinates from there, and 
+		// and I don't see any other place to get them. So I printed the parent objects and got the coordinates from STDOUT, and 
 		// hardcoded them here for now. Terrible.
 		
 		//NSLog(@"desc frame: %@",cell.descLabel);
@@ -318,9 +319,8 @@
 		
 		UIButton *queryButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 		queryButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
-
-		// TODO: enable when we have a query screen
-		queryButton.enabled = NO;
+    
+		queryButton.enabled = [service objectForKey:@"cab2b_type"] != nil;
 		[queryButton setTitle:@"Query" forState:UIControlStateNormal];
 		[queryButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
 		[queryButton addTarget:self action:@selector(queryAction:) forControlEvents:UIControlEventTouchUpInside];		

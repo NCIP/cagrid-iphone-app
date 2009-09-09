@@ -13,14 +13,12 @@
 @interface QueryResultsController : UITableViewController {
 	UINavigationController *navController;
     QueryResultDetailController *detailController;
-	NSMutableArray *results;
-    NSString *resultId;
+	NSMutableDictionary *request;
 }
 
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) QueryResultDetailController *detailController;
-@property (nonatomic, retain) NSMutableArray *results;
-@property (nonatomic, retain) NSString *resultId;
+@property (nonatomic, retain) NSMutableDictionary *request;
 
 
 @end
