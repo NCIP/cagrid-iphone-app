@@ -1,12 +1,20 @@
 package gov.nih.nci.gss.api;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 
 /**
@@ -47,22 +55,22 @@ public class Cab2bQuery implements Runnable, Serializable {
      */
     public void run() {
 
+    	DefaultHttpClient httpclient = new DefaultHttpClient();
+        
         try {
-            URI uri = new URI(queryService.getQueryURL(), false);
-            HttpClient client = new HttpClient();
-            HttpMethod method = new GetMethod();
-            method.setURI(uri);
-            
-            NameValuePair[] httpParams = new NameValuePair[3];
-            httpParams[0] = new NameValuePair("searchString", params.getSearchString());
-            httpParams[1] = new NameValuePair("modelGroup", params.getModelGroup());
-            httpParams[2] = new NameValuePair("serviceUrl", params.getServiceUrl());
-            method.setQueryString(httpParams);
-            
             log.info("Executing query: "+params.hashCode());
-            client.executeMethod(method);
-                        
-            String result = method.getResponseBodyAsString();
+            
+            List<NameValuePair> getParams = new ArrayList<NameValuePair>();
+            getParams.add(new BasicNameValuePair("searchString", params.getSearchString()));
+            getParams.add(new BasicNameValuePair("modelGroup", params.getModelGroup()));
+            getParams.add(new BasicNameValuePair("serviceUrl", params.getServiceUrl()));
+
+            String url = queryService.getQueryURL()+"?"+URLEncodedUtils.format(getParams, HTTP.UTF_8);
+            
+            HttpGet httpget = new HttpGet(url);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            String result = httpclient.execute(httpget, responseHandler);
+
             log.info("Completed query: "+params.hashCode()+", Response length: "+result.length());
             
             synchronized (this) {
@@ -72,9 +80,15 @@ public class Cab2bQuery implements Runnable, Serializable {
             }
         }
         catch (Exception e) {
+        	log.info("Caught exception",e);
             synchronized (this) {
                 this.exception = e;
+                this.isDone = true;
+                queryService.queryCompleted(this);
             }
+        }
+        finally {
+        	httpclient.getConnectionManager().shutdown();
         }
     }
 
