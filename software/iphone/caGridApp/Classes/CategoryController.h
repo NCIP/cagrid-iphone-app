@@ -16,6 +16,7 @@
 	ServiceListController *serviceListController;
 	CategoryTypeController *categoryTypeController;
 	CategoryTypeController *categoryHostController;
+	CategoryTypeController *categorySearchController;
 	NSArray *categoryList;
 	
 }
@@ -24,6 +25,7 @@
 @property (nonatomic, retain) ServiceListController *serviceListController;
 @property (nonatomic, retain) CategoryTypeController *categoryTypeController;
 @property (nonatomic, retain) CategoryTypeController *categoryHostController;
+@property (nonatomic, retain) CategoryTypeController *categorySearchController;
 @property (nonatomic, retain) NSArray *categoryList;
 
 @end

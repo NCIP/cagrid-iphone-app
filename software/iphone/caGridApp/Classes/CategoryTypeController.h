@@ -16,12 +16,13 @@
 	ServiceListController *serviceListController;
 	NSMutableArray *typeList;
 	NSString *discriminator;
-	
+	BOOL hideUnknowns;
 }
 
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) ServiceListController *serviceListController;
 @property (nonatomic, retain) NSMutableArray *typeList;
 @property (nonatomic, retain) NSString *discriminator;
-	
+@property BOOL hideUnknowns;
+
 @end

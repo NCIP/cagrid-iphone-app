@@ -15,6 +15,7 @@
 @synthesize serviceListController;
 @synthesize typeList;
 @synthesize discriminator;
+@synthesize hideUnknowns;
 
 - (void)loadData {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
@@ -26,9 +27,12 @@
 		for(int i=0; i<[services count]; i++) {
 			NSMutableDictionary *service = [services objectAtIndex:i];	
 			NSString* type = [service objectForKey:discriminator];
+            if (type == nil) type = @"";
 			[types addObject:type];
 		}
 		
+        if (hideUnknowns && [types containsObject:@""]) [types removeObject:@""];
+        
 		self.typeList = [NSMutableArray arrayWithCapacity:[types count]];
 		for(id obj in types) {
 			[typeList addObject:obj];

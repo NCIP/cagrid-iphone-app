@@ -8,28 +8,20 @@
 
 #import "QueryResultsController.h"
 #import "QueryResultDetailController.h"
-#import "ServiceMetadata.h"
+#import "TwoValueCell.h"
 
 @implementation QueryResultsController
 @synthesize navController;
 @synthesize detailController;
-@synthesize results;
-@synthesize resultId;
+@synthesize request;
 
-- (void)loadData {
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    self.results = [smdata getResultsById:resultId];
-    [self.tableView reloadData];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-	if (self.results == nil) [self loadData];
+- (void)viewDidLoad {
+	self.title = @"Results";
 }
 
 - (void)dealloc {
 	self.navController = nil;
-	self.results = nil;
-	self.resultId = nil;
+	self.request = nil;
     [super dealloc];
 }
 
@@ -39,43 +31,55 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  		numberOfRowsInSection:(NSInteger)section {
-	return [results count];
+	return [[request objectForKey:@"results"] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
+	// Get a cell
+    
 	static NSString *cellIdentifier = @"QueryResultCell";	
-	
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+	TwoValueCell *cell = (TwoValueCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
-		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:cellIdentifier] autorelease];
-		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-		cell.selectionStyle = UITableViewCellSelectionStyleGray;
-		cell.textLabel.highlightedTextColor = [UIColor blackColor];
+		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
+		cell = [nib objectAtIndex:0];
 	}
     
-	NSUInteger row = [indexPath row];
-	NSMutableDictionary *result = [results objectAtIndex:row];
-    // TODO: show result
-	cell.text = [result objectForKey:@"value"];
-	
+    NSMutableDictionary *result = [[request objectForKey:@"results"] objectAtIndex:[indexPath row]];
+    
+    NSString *title = nil;
+    NSString *desc = nil;
+    
+    // TODO: type recognition
+    if ([result objectForKey:@"Experiment Title"] != nil) {
+		title = [result objectForKey:@"Experiment Title"];
+		desc = [result objectForKey:@"Assay Type"];
+    }
+
+    cell.titleLabel.text = title;
+    cell.descLabel.text = desc;
 	return cell;
 }
+
 
 - (void)tableView:(UITableView *)tableView
 		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	if (self.detailController == nil) {
-		self.detailController = [[QueryResultDetailController alloc] initWithStyle:UITableViewStyleGrouped];
+		self.detailController = [[QueryResultDetailController alloc] init];
+		detailController.navController = navController;
 	}
 	
-	NSUInteger row = [indexPath row];
-    detailController.result = [results objectAtIndex:row];
-	detailController.title = @"Details";
+    NSMutableDictionary *result = [[request objectForKey:@"results"] objectAtIndex:[indexPath row]];
+    [detailController displayResult:result];
 	
-	[detailController.tableView reloadData];
 	[navController pushViewController:detailController animated:YES];	
+}
+
+- (CGFloat)tableView:(UITableView *)tableView
+		heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+	return DEFAULT_2VAL_CELL_HEIGHT;
 }
 
 @end

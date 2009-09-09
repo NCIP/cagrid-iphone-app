@@ -62,4 +62,14 @@
 	[alert autorelease];
 }
 
++ (void) displayCustomError:(NSString *)title withMessage:(NSString *)message {
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title 
+													message:message 
+												   delegate:self 
+										  cancelButtonTitle:@"OK" 
+										  otherButtonTitles:nil];
+	[alert show];
+	[alert autorelease];
+}
+
 @end
