@@ -44,7 +44,9 @@
             self.filtered = [NSMutableArray array];
             for(int i=0; i<[original count]; i++) {
                 NSMutableDictionary *service = [original objectAtIndex:i];	
-                if ([[service objectForKey:filterKey] isEqualToString:filterValue]) {
+                NSString *val = [service objectForKey:filterKey];
+                if (val == nil) val = @"";
+                if ([val isEqualToString:filterValue]) {
                     [filtered addObject:service];
                 }
             }
@@ -130,8 +132,8 @@
 }
 
 
-- (void)tableView:(UITableView *)tableView 
-		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView
+		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
     NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
 
@@ -158,13 +160,6 @@
         [alert show];
         [alert autorelease];
     }
-        
-}
-
-
-- (void)tableView:(UITableView *)tableView
-		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	// TODO: stuff
 }
 
 

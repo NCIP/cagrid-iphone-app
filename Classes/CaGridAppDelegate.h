@@ -9,15 +9,18 @@
 #import <UIKit/UIKit.h>
 
 @class FavoritesController;
+@class QueryRequestController;
 
 @interface CaGridAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate> {
-    UIWindow *window;
-    UITabBarController *tabBarController;
-	FavoritesController *favoritesController;
+    IBOutlet UIWindow *window;
+    IBOutlet UITabBarController *tabBarController;
+	IBOutlet FavoritesController *favoritesController;
+    QueryRequestController *queryRequestController;
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet UITabBarController *tabBarController;
-@property (nonatomic, retain) IBOutlet FavoritesController *favoritesController;
+@property (nonatomic, retain) UIWindow *window;
+@property (nonatomic, retain) UITabBarController *tabBarController;
+@property (nonatomic, retain) FavoritesController *favoritesController;
+@property (nonatomic, retain) QueryRequestController *queryRequestController;
 
 @end

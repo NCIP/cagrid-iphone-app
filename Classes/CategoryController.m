@@ -14,11 +14,12 @@
 @synthesize serviceListController;
 @synthesize categoryTypeController;
 @synthesize categoryHostController;
+@synthesize categorySearchController;
 @synthesize categoryList;
 
 - (void)viewDidLoad {
 	NSArray *array = [[NSArray alloc] initWithObjects:@"All Services",
-					  @"Data Services", @"Analytical Services", @"By Type", @"By Hosting Center", nil];
+					  @"Data Services", @"Analytical Services", @"Searchable Services", @"By Type", @"By Hosting Center", nil];
 	self.categoryList = array;
 	[array release];
     [super viewDidLoad];
@@ -27,6 +28,8 @@
 - (void)dealloc {
 	self.serviceListController = nil;
 	self.categoryTypeController = nil;
+	self.categoryHostController = nil;
+	self.categorySearchController = nil;
 	self.categoryList = nil;
     [super dealloc];
 }
@@ -36,7 +39,7 @@
 #pragma mark Table View Data Source Methods
 
 - (NSInteger)tableView:(UITableView *)tableView 
- numberOfRowsInSection:(NSInteger)section {
+ 		numberOfRowsInSection:(NSInteger)section {
 	return [categoryList count];
 }
 
@@ -81,6 +84,13 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 		categoryHostController.navController = navController;
 	}
 	
+	if (categorySearchController == nil) {
+		self.categorySearchController = [[CategoryTypeController alloc] init];
+        categorySearchController.title = @"Searchable Services";
+        categorySearchController.hideUnknowns = YES;
+		categorySearchController.navController = navController;
+	}
+    
 	NSUInteger row = [indexPath row];
 	serviceListController.title = [categoryList objectAtIndex:row];
 	
@@ -100,16 +110,21 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 			[serviceListController.tableView reloadData];		
 			[navController pushViewController:serviceListController animated:YES];
 			break;
-		case 3: // By Type
+		case 3: // Searchable
+			categorySearchController.discriminator = @"cab2b_type";
+			[categorySearchController.tableView reloadData];
+			[navController pushViewController:categorySearchController animated:YES];			
+			break;   
+		case 4: // By Type
 			categoryTypeController.discriminator = @"type";
 			[categoryTypeController.tableView reloadData];
 			[navController pushViewController:categoryTypeController animated:YES];			
 			break;
-		case 4: // By Hosting Center
+		case 5: // By Hosting Center
 			categoryHostController.discriminator = @"hosting_center_name";
 			[categoryHostController.tableView reloadData];
 			[navController pushViewController:categoryHostController animated:YES];			
-			break;            
+			break;           
 	}
 	
 }

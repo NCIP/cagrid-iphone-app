@@ -15,6 +15,7 @@
 @synthesize window;
 @synthesize tabBarController;
 @synthesize favoritesController;
+@synthesize queryRequestController;
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 	
@@ -22,7 +23,7 @@
 	[favoritesController loadFavorites];
     
 	// add search controller tab (can't get it to work in IB like the rest of the tabs)    
-	QueryRequestController *queryRequestController = [[QueryRequestController alloc] initWithNibName:@"QueryRequestView" bundle:nil];
+	self.queryRequestController = [[QueryRequestController alloc] initWithNibName:@"QueryRequestView" bundle:nil];
 	UINavigationController *queryNavController = [[UINavigationController alloc] initWithRootViewController:queryRequestController];
 	queryRequestController.navController = queryNavController;
 	queryNavController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemSearch tag:0];	
@@ -37,29 +38,26 @@
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
-	
+	    
 	// always show the root controller when switching to a tab
 	if ([viewController isKindOfClass:[UINavigationController class]]) {
 		UINavigationController* nav = (UINavigationController *)viewController;
 		[nav popToRootViewControllerAnimated:NO];
 	}
 	
+    // end editing mode
 	if (favoritesController.tableView.editing) {
 		[favoritesController toggleEdit:nil];
 	}
-	
+    
+    // end service query mode
+    [queryRequestController resetView];
 }
 
-
-/*
- // Optional UITabBarControllerDelegate method
- - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed {
- }
- */
-
-
 - (void)dealloc {
-    [tabBarController release];
+    self.tabBarController = nil;
+    self.favoritesController = nil;
+    self.queryRequestController = nil;
     [window release];
     [super dealloc];
 }

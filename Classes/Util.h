@@ -26,4 +26,6 @@
 /** Display an error popup indicating that data could not be parsed */
 + (void)displayDataError;
 
++ (void) displayCustomError:(NSString *)title withMessage:(NSString *)message;
+
 @end
