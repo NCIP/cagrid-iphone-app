@@ -2,10 +2,10 @@ package gov.nih.nci.gss;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
@@ -140,11 +140,9 @@ public class RESTAPITest extends TestCase {
      * JSON.
      */
     private JSONObject getJSON(String queryString) throws Exception {
-        URI uri = new URI(GET_JSON_URL+queryString, false);
-        HttpClient client = new HttpClient();
-        HttpMethod method = new GetMethod();
-        method.setURI(uri);
-        client.executeMethod(method);
-        return new JSONObject(method.getResponseBodyAsString());
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpget = new HttpGet(GET_JSON_URL+queryString);
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        return new JSONObject(httpclient.execute(httpget, responseHandler));
     }
 }
