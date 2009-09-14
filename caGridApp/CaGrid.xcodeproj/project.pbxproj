@@ -14,6 +14,12 @@
 		282CCBFE0DB6C98000C4EA27 /* SearchView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 282CCBFD0DB6C98000C4EA27 /* SearchView.xib */; };
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
 		28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD73870D9D96C1002E5188 /* MainWindow.xib */; };
+		9D4CCF90103A6B66000EAA83 /* QueryRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */; };
+		9D4CCF91103A6B66000EAA83 /* SearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D4CCF8F103A6B66000EAA83 /* SearchController.m */; };
+		9DA624031055ECAE00117D95 /* QueryRequestView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9DA624021055ECAE00117D95 /* QueryRequestView.xib */; };
+		9DA6240A1055ECC900117D95 /* QueryResultDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA624071055ECC900117D95 /* QueryResultDetailController.m */; };
+		9DA6240B1055ECC900117D95 /* QueryResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA624091055ECC900117D95 /* QueryResultsController.m */; };
+		9DA62414105C1AB700117D95 /* FullAttributeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA62413105C1AB700117D95 /* FullAttributeController.m */; };
 		A93543461019362C00988B88 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = A93543451019362C00988B88 /* folder.png */; };
 		A935435D101BD97000988B88 /* GridServicePropCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A935435C101BD97000988B88 /* GridServicePropCell.m */; };
 		A93543EF101BF06300988B88 /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A93543EE101BF06300988B88 /* Util.m */; };
@@ -53,6 +59,17 @@
 		28AD73870D9D96C1002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9D4CCF8C103A6B66000EAA83 /* QueryRequestController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryRequestController.h; sourceTree = "<group>"; };
+		9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryRequestController.m; sourceTree = "<group>"; };
+		9D4CCF8E103A6B66000EAA83 /* SearchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchController.h; sourceTree = "<group>"; };
+		9D4CCF8F103A6B66000EAA83 /* SearchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchController.m; sourceTree = "<group>"; };
+		9DA624021055ECAE00117D95 /* QueryRequestView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = QueryRequestView.xib; path = ../QueryRequestView.xib; sourceTree = "<group>"; };
+		9DA624061055ECC900117D95 /* QueryResultDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryResultDetailController.h; sourceTree = "<group>"; };
+		9DA624071055ECC900117D95 /* QueryResultDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryResultDetailController.m; sourceTree = "<group>"; };
+		9DA624081055ECC900117D95 /* QueryResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryResultsController.h; sourceTree = "<group>"; };
+		9DA624091055ECC900117D95 /* QueryResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryResultsController.m; sourceTree = "<group>"; };
+		9DA62412105C1AB700117D95 /* FullAttributeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullAttributeController.h; sourceTree = "<group>"; };
+		9DA62413105C1AB700117D95 /* FullAttributeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAttributeController.m; sourceTree = "<group>"; };
 		A93543451019362C00988B88 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		A935435B101BD97000988B88 /* GridServicePropCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridServicePropCell.h; sourceTree = "<group>"; };
 		A935435C101BD97000988B88 /* GridServicePropCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridServicePropCell.m; sourceTree = "<group>"; };
@@ -108,6 +125,13 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				9DA62412105C1AB700117D95 /* FullAttributeController.h */,
+				9DA62413105C1AB700117D95 /* FullAttributeController.m */,
+				9DA624061055ECC900117D95 /* QueryResultDetailController.h */,
+				9DA624071055ECC900117D95 /* QueryResultDetailController.m */,
+				9DA624081055ECC900117D95 /* QueryResultsController.h */,
+				9DA624091055ECC900117D95 /* QueryResultsController.m */,
+				9DA624021055ECAE00117D95 /* QueryRequestView.xib */,
 				A94A05F7100D2B0D00A7822B /* Controllers */,
 				A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */,
 				A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */,
@@ -117,6 +141,10 @@
 				A9693B081003B1C600FA59F5 /* ServiceMetadata.m */,
 				1D3623240D0F684500981E51 /* CaGridAppDelegate.h */,
 				1D3623250D0F684500981E51 /* CaGridAppDelegate.m */,
+				9D4CCF8C103A6B66000EAA83 /* QueryRequestController.h */,
+				9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */,
+				9D4CCF8E103A6B66000EAA83 /* SearchController.h */,
+				9D4CCF8F103A6B66000EAA83 /* SearchController.m */,
 				A9693AE11003A93300FA59F5 /* Label2.h */,
 				A9693AE21003A93300FA59F5 /* Label2.m */,
 				A93543ED101BF06300988B88 /* Util.h */,
@@ -265,6 +293,7 @@
 				A9D898F11014E66300301DA0 /* icon_ds_inactive.png in Resources */,
 				A9D898F21014E66300301DA0 /* icon_as_inactive.png in Resources */,
 				A93543461019362C00988B88 /* folder.png in Resources */,
+				9DA624031055ECAE00117D95 /* QueryRequestView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +317,11 @@
 				A94A073D1012262100A7822B /* FavoritesController.m in Sources */,
 				A935435D101BD97000988B88 /* GridServicePropCell.m in Sources */,
 				A93543EF101BF06300988B88 /* Util.m in Sources */,
+				9D4CCF90103A6B66000EAA83 /* QueryRequestController.m in Sources */,
+				9D4CCF91103A6B66000EAA83 /* SearchController.m in Sources */,
+				9DA6240A1055ECC900117D95 /* QueryResultDetailController.m in Sources */,
+				9DA6240B1055ECC900117D95 /* QueryResultsController.m in Sources */,
+				9DA62414105C1AB700117D95 /* FullAttributeController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,6 +337,9 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CaGrid_Prefix.pch;
+				GCC_VERSION = 4.0;
+				"GCC_VERSION[sdk=iphoneos3.0][arch=*]" = 4.2;
+				"GCC_VERSION[sdk=iphonesimulator3.0][arch=*]" = 4.2;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = CaGrid;
 			};
@@ -328,6 +365,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				"GCC_VERSION[arch=*]" = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -337,7 +375,7 @@
 				);
 				PREBINDING = NO;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				SDKROOT = iphoneos3.0;
+				SDKROOT = iphonesimulator3.0;
 			};
 			name = Debug;
 		};
