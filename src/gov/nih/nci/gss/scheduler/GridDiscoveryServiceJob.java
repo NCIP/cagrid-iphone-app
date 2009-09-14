@@ -11,7 +11,6 @@ import gov.nih.nci.gss.StatusChange;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
 import gov.nih.nci.gss.util.HibernateUtil;
-import gov.nih.nci.system.dao.orm.ORMDAOImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,16 +22,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.quartz.Job;
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * 
@@ -49,7 +45,10 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	
 	private static Session hibernateSession = null;
 
-	/*
+    private static final String SERVICE_HQL_DELETE = 
+        "delete from gov.nih.nci.gss.GridService service";
+
+    /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
@@ -61,7 +60,11 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		
 		populateAllServices();
 
-		for (GridService gs : gridNodes) {
+        // Delete all current grid services
+        Query q = hibernateSession.createQuery(SERVICE_HQL_DELETE);
+        q.executeUpdate();
+
+        for (GridService gs : gridNodes) {
 			logger.info("Saving GridService: " + gs.getName());
 			createService(gs);
 		}
@@ -127,6 +130,11 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			hibernateSession.save(service);
 			hibernateSession.save(sc);
 			tx.commit();
+		} catch (ConstraintViolationException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logger.warn("Duplicate grid service found: " + service.getUrl());
 		} catch (RuntimeException e) {
 			if (tx != null) {
 				tx.rollback();
