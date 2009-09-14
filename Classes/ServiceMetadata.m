@@ -8,7 +8,8 @@
 
 #import "ServiceMetadata.h"
 
-#define BASE_URL @"http://biowiki.dnsalias.net:8000/gss10/json"
+//#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
+#define BASE_URL @"http://localhost:18080/gss10/json"
 
 @implementation ServiceMetadata
 @synthesize services;
