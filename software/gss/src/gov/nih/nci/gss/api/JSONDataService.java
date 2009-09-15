@@ -1,6 +1,7 @@
 package gov.nih.nci.gss.api;
 
 import gov.nih.nci.gss.DataService;
+import gov.nih.nci.gss.DataServiceGroup;
 import gov.nih.nci.gss.DomainClass;
 import gov.nih.nci.gss.DomainModel;
 import gov.nih.nci.gss.GridService;
@@ -276,9 +277,14 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
         jsonService.put("type", service.getType());
-        jsonService.put("cab2b_type", service.getCab2bType());
         jsonService.put("url", service.getUrl());
 
+        if (service instanceof DataService) {
+            DataService dataService = (DataService)service;
+            DataServiceGroup group = dataService.getGroup();
+            if (group != null) jsonService.put("group", group.getName());
+        }
+        
         Collection<StatusChange> scs = service.getStatusHistory(); 
         if (scs.size() > 1) {
             log.warn("More than 1 status change was returned for service with id="+service.getId());

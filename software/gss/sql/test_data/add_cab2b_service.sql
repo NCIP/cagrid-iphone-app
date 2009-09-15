@@ -26,7 +26,7 @@ INSERT INTO GRID_SERVICE
     DESCRIPTION, 
     NAME, 
     TYPE,
-    CAB2B_TYPE,
+    DATA_SERVICE_GROUP_ID,
     URL,
     VERSION,
     HOSTING_CENTER_ID)
@@ -36,7 +36,7 @@ INSERT INTO GRID_SERVICE
     "A queryable caArray service",
     "CaArraySvc", 
     "caArray",
-    "Microarray data",
+    1,
     "http://array.nci.nih.gov:80/wsrf/services/cagrid/CaArraySvc",
     "1.0",
     2000
@@ -49,6 +49,6 @@ INSERT INTO STATUS_CHANGE
 
      
 
-UPDATE GRID_SERVICE SET CAB2B_TYPE = "Microarray data" WHERE NAME = "CaArraySvc";
+UPDATE GRID_SERVICE SET DATA_SERVICE_GROUP_ID = 1 WHERE NAME = "CaArraySvc";
 
 
