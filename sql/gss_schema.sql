@@ -24,6 +24,18 @@ CREATE TABLE `DOMAIN_MODEL` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
+DROP TABLE IF EXISTS `DATA_SERVICE_GROUP`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `DATA_SERVICE_GROUP` (
+  `ID` bigint(20) NOT NULL,
+  `NAME` varchar(512) NOT NULL,
+  `CAB2B_NAME` varchar(512) NOT NULL,
+  `DATA_PRIMARY_KEY` varchar(512) NOT NULL,
+  PRIMARY KEY  (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
 DROP TABLE IF EXISTS `GRID_SERVICE`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
@@ -34,7 +46,7 @@ CREATE TABLE `GRID_SERVICE` (
   `NAME` varchar(512) NOT NULL,
   `PUBLISH_DATE` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `TYPE` varchar(255) default NULL,
-  `CAB2B_TYPE` varchar(255) default NULL,
+  `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,
   `VERSION` varchar(255) default NULL,
   `HOSTING_CENTER_ID` bigint(20) NULL,
