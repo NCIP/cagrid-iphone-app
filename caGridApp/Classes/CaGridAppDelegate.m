@@ -29,6 +29,7 @@
 	queryNavController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemSearch tag:0];	
 	NSMutableArray *controllers = [NSMutableArray arrayWithArray:tabBarController.viewControllers];
 	tabBarController.viewControllers = [controllers arrayByAddingObject:queryNavController];
+	[queryRequestController loadQueries];
 	[queryRequestController release];
 	[queryNavController release];
     

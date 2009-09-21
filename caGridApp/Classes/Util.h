@@ -28,4 +28,6 @@
 
 + (void) displayCustomError:(NSString *)title withMessage:(NSString *)message;
 
++ (NSString *)getPathFor:(NSString *)filename;
+    
 @end
