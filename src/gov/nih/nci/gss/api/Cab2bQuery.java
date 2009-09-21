@@ -29,8 +29,10 @@ public class Cab2bQuery implements Runnable, Serializable {
     
     private transient final QueryService queryService;
     
-    private final Cab2bQueryParams params;
+    private final QueryParams params;
 
+    private String jobId;
+    
     private boolean isDone;
     
     private String resultJson;
@@ -42,7 +44,8 @@ public class Cab2bQuery implements Runnable, Serializable {
      * @param params the parameters to use
      * @param service the QueryService to notify when the query is done
      */
-    public Cab2bQuery(Cab2bQueryParams params, QueryService service) {
+    public Cab2bQuery(String jobId, QueryParams params, QueryService service) {
+    	this.jobId = jobId;
         this.params = params;
         this.queryService = service;
     }
@@ -55,20 +58,22 @@ public class Cab2bQuery implements Runnable, Serializable {
     	DefaultHttpClient httpclient = new DefaultHttpClient();
         
         try {
-            log.info("Executing query: "+params.hashCode());
-            
-            List<NameValuePair> getParams = new ArrayList<NameValuePair>();
-            getParams.add(new BasicNameValuePair("searchString", params.getSearchString()));
-            getParams.add(new BasicNameValuePair("modelGroup", params.getModelGroup()));
-            getParams.add(new BasicNameValuePair("serviceUrl", params.getServiceUrl()));
+            log.info("Executing query: "+getJobId());
 
-            String url = queryService.getQueryURL()+"?"+URLEncodedUtils.format(getParams, HTTP.UTF_8);
+        	String modelGroup = queryService.getCab2bTranslator().getModelGroupForServiceGroup(params.getServiceGroup());
+        	
+            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+            parameters.add(new BasicNameValuePair("searchString", params.getSearchString()));
+            parameters.add(new BasicNameValuePair("modelGroup", modelGroup));
+            parameters.add(new BasicNameValuePair("serviceUrl", params.getServiceUrl()));
+
+            String url = queryService.getQueryURL()+"?"+URLEncodedUtils.format(parameters, HTTP.UTF_8);
             
             HttpGet httpget = new HttpGet(url);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             String result = httpclient.execute(httpget, responseHandler);
 
-            log.info("Completed query: "+params.hashCode()+", Response length: "+result.length());
+            log.info("Completed query "+getJobId()+", Response length: "+result.length());
             
             synchronized (this) {
                 this.resultJson = result;
@@ -93,7 +98,7 @@ public class Cab2bQuery implements Runnable, Serializable {
      * Return the parameters for this query.
      * @return
      */
-    public Cab2bQueryParams getQueryParams() {
+    public QueryParams getQueryParams() {
         return params;
     }
 
@@ -106,6 +111,14 @@ public class Cab2bQuery implements Runnable, Serializable {
     }
 
     /**
+     * The unique identifier of this query job.
+     * @return
+     */
+    public String getJobId() {
+		return jobId;
+	}
+
+	/**
      * Returns the resulting JSON. 
      * Note: this may contain an application-specific error.
      * @return

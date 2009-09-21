@@ -4,12 +4,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.log4j.Logger;
+import java.util.Random;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
+import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 
 /**
  * Manages background queries and caches results. 
@@ -37,11 +39,17 @@ public class QueryService {
         log.info("Configured EhCache: "+cacheName);
     }
 
-    private Map<Cab2bQueryParams, Cab2bQuery> runningQueries;
+    private Map<String, Cab2bQuery> runningQueries;
     
     private String cab2b2QueryURL;
     
-    public QueryService() throws Exception {
+    private Random random = new Random();
+    
+
+    /** Service that translates caB2B values */
+    private Cab2bTranslator cab2bTranslator;
+    
+    public QueryService(SessionFactory sessionFactory) throws Exception {
         
         InputStream is = null;
         Properties properties = new Properties();
@@ -56,8 +64,9 @@ public class QueryService {
         finally {
             if (is != null) is.close();
         }
-        
-        this.runningQueries = new HashMap<Cab2bQueryParams, Cab2bQuery>();
+
+        this.cab2bTranslator = new Cab2bTranslator(sessionFactory);
+        this.runningQueries = new HashMap<String, Cab2bQuery>();
         log.info("QueryService configured and ready.");
     }
 
@@ -70,35 +79,59 @@ public class QueryService {
      * If refresh is false then this method may immediately return an executed
      * query found in the cache. 
      * @param params Query parameters.
-     * @param refresh If true, ignore the query cache and execute the query
-     * even if we have cached results.
      * @return
      */
-    public synchronized Cab2bQuery executeQuery(Cab2bQueryParams params, 
-            boolean refresh) {
+    public synchronized Cab2bQuery executeQuery(QueryParams params) {
+
+        log.info("Creating new query");
+        String jobId = null;
+        while (jobId == null || runningQueries.containsKey(jobId) || cache.get(jobId) != null) {
+        	jobId = generateJobId();
+        	log.info("Generated jobId "+jobId);
+        }
+        
+        Cab2bQuery query = new Cab2bQuery(jobId, params, this);
+        new Thread(query).start();
+        runningQueries.put(query.getJobId(), query);
+        return query;
+    }
+    
+
+    /**
+     * Return the specified query. It may be in progress or complete. If the 
+     * jobId is unknown, the return value is null.
+     * @param jobId the id of the query job
+     * @return
+     */
+    public synchronized Cab2bQuery retrieveQuery(String jobId) {
 
         log.info("Num running queries: "+runningQueries.size());
         log.info("Num cached queries: "+cache.getSize()+
             " (mem:"+cache.getMemoryStoreSize()+", disk:"+cache.getDiskStoreSize()+")");
         
-        Element queryElement = cache.get(params);
-        if (queryElement != null && !refresh) {
+        Element queryElement = cache.get(jobId);
+        if (queryElement != null) {
             // it's done
             log.info("Found query in cache");
             return (Cab2bQuery)queryElement.getValue();
         }
-        else if (runningQueries.containsKey(params)) {
+        else if (runningQueries.containsKey(jobId)) {
             // it's already running
             log.info("Query is still running");
-            return runningQueries.get(params);
+            return runningQueries.get(jobId);
         }
         else {
-            log.info("Creating new query");
-            Cab2bQuery query = new Cab2bQuery(params, this);
-            new Thread(query).start();
-            runningQueries.put(params, query);
-            return query;
+            log.info("Unknown query job "+jobId);
+            return null;
         }
+    }
+    
+    /**
+     * Generate and return a unique job identifier.
+     * @return job id
+     */
+    private String generateJobId() {
+    	return String.valueOf(Math.abs(random.nextInt()));
     }
     
     /**
@@ -112,11 +145,11 @@ public class QueryService {
             		"isDone=false for query with params: "+query.getQueryParams());
         }
         
-        Cab2bQueryParams params = query.getQueryParams();
-        runningQueries.remove(params);
+        String jobId = query.getJobId();
+        log.info("Caching query: "+jobId);
         
-        log.info("Caching query: "+params.hashCode());
-        cache.put(new Element(params, query));
+        runningQueries.remove(jobId);
+        cache.put(new Element(jobId, query));
 
         // let any waiting thread know that the data is ready
         synchronized (query) {
@@ -128,5 +161,9 @@ public class QueryService {
     protected String getQueryURL() {
         return cab2b2QueryURL;
     }
+
+	public Cab2bTranslator getCab2bTranslator() {
+		return cab2bTranslator;
+	}
     
 }

@@ -286,14 +286,14 @@
     <!--
     The cache for storing completed caB2B queries.  
     This cache contains a maximum in memory of 100 elements, and will expire
-    an element if it lives for more an hour. If there are more than 100 
+    an element if it lives for more than 6 hours. If there are more than 100 
     elements it will overflow to the disk cache. 
     -->
     <cache name="caB2BQueryCache"
-           maxElementsInMemory="50"
+           maxElementsInMemory="20"
            eternal="false"
            overflowToDisk="true"
-           timeToLiveSeconds="3600"
+           timeToLiveSeconds="21600"
            diskPersistent="true"
            memoryStoreEvictionPolicy="LFU"
             />
