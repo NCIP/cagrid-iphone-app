@@ -7,29 +7,24 @@
 //
 
 #import "FavoritesController.h"
-
+#import "Util.h"
 
 @implementation FavoritesController
 @synthesize favorites;
 
 #define favoritesFilename @"favorites.plist"
 
-- (NSString *)dataFilePath {
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *docsDir = [paths objectAtIndex:0];
-	return [docsDir stringByAppendingPathComponent:favoritesFilename];
-}
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-	NSLog(@"Saving favorites to file %@",[self dataFilePath]);
-	[favorites writeToFile:[self dataFilePath] atomically:YES];
+	NSLog(@"Saving favorites to file");
+	[favorites writeToFile:[Util getPathFor:favoritesFilename] atomically:YES];
 }
 
 
 // To be called when the app is started
 - (void)loadFavorites {
 	
-	NSString *filePath = [self dataFilePath];
+	NSString *filePath = [Util getPathFor:favoritesFilename];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
 		NSLog(@"Reading favorites from file");
 		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];

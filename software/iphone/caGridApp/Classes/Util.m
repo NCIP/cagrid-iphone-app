@@ -72,4 +72,10 @@
 	[alert autorelease];
 }
 
++ (NSString *)getPathFor:(NSString *)filename {
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *docsDir = [paths objectAtIndex:0];
+	return [docsDir stringByAppendingPathComponent:filename];
+}
+
 @end
