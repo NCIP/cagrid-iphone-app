@@ -54,25 +54,15 @@ public class Cab2bQuery implements Runnable, Serializable {
      * Implements Runnable.
      */
     public void run() {
-
-    	DefaultHttpClient httpclient = new DefaultHttpClient();
         
         try {
             log.info("Executing query: "+getJobId());
 
-        	String modelGroup = queryService.getCab2bTranslator().getModelGroupForServiceGroup(params.getServiceGroup());
-        	
-            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-            parameters.add(new BasicNameValuePair("searchString", params.getSearchString()));
-            parameters.add(new BasicNameValuePair("modelGroup", modelGroup));
-            parameters.add(new BasicNameValuePair("serviceUrl", params.getServiceUrl()));
-
-            String url = queryService.getQueryURL()+"?"+URLEncodedUtils.format(parameters, HTTP.UTF_8);
+            String result = queryService.getCab2b().search(
+            		params.getSearchString(), 
+            		params.getServiceGroup(), 
+            		params.getServiceUrl());
             
-            HttpGet httpget = new HttpGet(url);
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String result = httpclient.execute(httpget, responseHandler);
-
             log.info("Completed query "+getJobId()+", Response length: "+result.length());
             
             synchronized (this) {
@@ -88,9 +78,6 @@ public class Cab2bQuery implements Runnable, Serializable {
                 this.isDone = true;
                 queryService.queryCompleted(this);
             }
-        }
-        finally {
-        	httpclient.getConnectionManager().shutdown();
         }
     }
 

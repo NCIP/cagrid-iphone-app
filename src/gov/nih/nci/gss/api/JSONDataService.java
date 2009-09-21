@@ -8,6 +8,7 @@ import gov.nih.nci.gss.GridService;
 import gov.nih.nci.gss.HostingCenter;
 import gov.nih.nci.gss.PointOfContact;
 import gov.nih.nci.gss.StatusChange;
+import gov.nih.nci.gss.util.Cab2bAPI;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
@@ -494,7 +495,7 @@ public class JSONDataService extends HttpServlet {
             return getJSONError(e.getClass().getName(), e.getMessage());
         }
 
-		Cab2bTranslator translator = queryService.getCab2bTranslator();
+		Cab2bTranslator translator = queryService.getCab2b().getCab2bTranslator();
 		
     	JSONObject json = new JSONObject(query.getResultJson());
     	String modelGroupName = json.getString("modelGroupName");

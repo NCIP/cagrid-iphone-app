@@ -1,5 +1,7 @@
 package gov.nih.nci.gss.api;
 
+import gov.nih.nci.gss.util.Cab2bAPI;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,32 +43,13 @@ public class QueryService {
 
     private Map<String, Cab2bQuery> runningQueries;
     
-    private String cab2b2QueryURL;
-    
     private Random random = new Random();
-    
 
-    /** Service that translates caB2B values */
-    private Cab2bTranslator cab2bTranslator;
+    private Cab2bAPI cab2b;
     
     public QueryService(SessionFactory sessionFactory) throws Exception {
-        
-        InputStream is = null;
-        Properties properties = new Properties();
-        
-        try {
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                "gss.properties");
-            properties.load(is);
-            this.cab2b2QueryURL = properties.getProperty("cab2b.query.url")+"/search";
-            log.info("Configured cab2b2QueryURL="+cab2b2QueryURL);
-        }
-        finally {
-            if (is != null) is.close();
-        }
-
-        this.cab2bTranslator = new Cab2bTranslator(sessionFactory);
-        this.runningQueries = new HashMap<String, Cab2bQuery>();
+    	this.cab2b = new Cab2bAPI(sessionFactory);
+    	this.runningQueries = new HashMap<String, Cab2bQuery>();
         log.info("QueryService configured and ready.");
     }
 
@@ -155,15 +138,14 @@ public class QueryService {
         synchronized (query) {
             query.notifyAll();
         }
-        
     }
 
-    protected String getQueryURL() {
-        return cab2b2QueryURL;
-    }
-
-	public Cab2bTranslator getCab2bTranslator() {
-		return cab2bTranslator;
+    /**
+     * Returns the caB2B remote API.
+     * @return
+     */
+	public Cab2bAPI getCab2b() {
+		return cab2b;
 	}
     
 }
