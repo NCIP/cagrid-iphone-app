@@ -1,4 +1,6 @@
 
+TRUNCATE TABLE DATA_SERVICE_GROUP;
+
 INSERT INTO DATA_SERVICE_GROUP (ID,NAME,CAB2B_NAME,DATA_PRIMARY_KEY) 
     VALUES (1,'microarray','Microarray Data','Public Experiment Identifier');
 
