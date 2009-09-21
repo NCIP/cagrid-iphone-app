@@ -8,6 +8,7 @@ import gov.nih.nci.gss.GridService;
 import gov.nih.nci.gss.HostingCenter;
 import gov.nih.nci.gss.PointOfContact;
 import gov.nih.nci.gss.StatusChange;
+import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
 
@@ -16,7 +17,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +48,22 @@ public class JSONDataService extends HttpServlet {
 
     private static Logger log = Logger.getLogger(JSONDataService.class);
 
+    // TODO: externalize this
+    private static final String HOST_KEY = "Hosting Institution";
+    
+    private enum Verb {
+    	GET,
+    	POST
+    };
+    
+    private enum QueryStatus {
+    	RUNNING,
+    	EXPIRED,
+    	UNKNOWN,
+    	FOUND
+    };
+    
+    
     /** Date format for serializing dates into JSON. 
      * Must match the data format used by the iPhone client */
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz");
@@ -72,12 +90,8 @@ public class JSONDataService extends HttpServlet {
     /** Service that manages background queries and results */
     private QueryService queryService;
     
-    /** Decouples scope names from caB2B model group names */
-    private Map<String,String> scope2ModelGroup;
     
-    /**
-     * Initialize the servlet.
-     */
+    
     @Override
     public void init() throws ServletException {
         
@@ -85,16 +99,11 @@ public class JSONDataService extends HttpServlet {
             WebApplicationContext ctx =  
                 WebApplicationContextUtils.getWebApplicationContext(getServletContext());
             this.sessionFactory = ((ORMDAOImpl)ctx.getBean("ORMDAO")).getHibernateTemplate().getSessionFactory();
-            this.queryService = new QueryService();
-            
-            // TODO: externalize this mapping somewhere (database?)
-            this.scope2ModelGroup = new HashMap<String,String>();
-            scope2ModelGroup.put("microarray","Microarray Data");
-            scope2ModelGroup.put("imaging","Imaging Data");
-            scope2ModelGroup.put("biospecimen","Biospecimen Data");
+            this.queryService = new QueryService(sessionFactory);
             
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
+            
             
         }
         catch (Exception e) {
@@ -102,54 +111,62 @@ public class JSONDataService extends HttpServlet {
         }
     }
 
-    /**
-     * Handles Get requests.
-     */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-
-        PrintWriter pw = new PrintWriter(response.getOutputStream());
-        response.setContentType("application/json");
-        String result = "";
-        
-        String path = request.getPathInfo();
-        if (path == null) {
-            result = getJSONUsage();
-        }
-        else {
-            String[] pathList = path.split("/");
-
-            if (pathList.length < 2) {
-                result = getJSONUsage();
-            }
-            else {
-                String noun = pathList[1];                
-                result = getRESTResponse(noun, pathList, request);
-            }
-
-        }
-
-        pw.print(result);
-        pw.close();
+    	doREST(Verb.GET, request, response);
     }
     
-    /**
-     * Handles Post requests by calling doGet.
-     */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        doGet(request, response);
+    	doREST(Verb.POST, request, response);
     }
     
-    /**
-     * Unload servlet.
-     */
     @Override
     public void destroy() {
         queryService.close();
         super.destroy();
+    }
+
+    /**
+     * 
+     * @param verb
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void doREST(Verb verb, HttpServletRequest request, 
+    		HttpServletResponse response) throws ServletException, IOException {
+
+        PrintWriter pw = new PrintWriter(response.getOutputStream());
+		try {
+			response.setContentType("application/json");
+
+			String path = request.getPathInfo();
+			if (path == null) {
+				pw.print(getJSONUsage());
+			}
+			else {
+			    String[] pathList = path.split("/");
+
+			    if (pathList.length < 2) {
+			    	pw.print(getJSONUsage());
+			    }
+			    else {
+			        String noun = pathList[1];                
+			        pw.print(getRESTResponse(verb, noun, pathList, request));
+			    }
+			}
+		} 
+		catch (Exception e) {
+            log.error("JSON service error",e);
+            pw.print(getJSONError(e.getClass().getName(), e.getMessage()));
+		}
+		finally {
+			pw.close();
+		}
     }
     
     /**
@@ -159,110 +176,141 @@ public class JSONDataService extends HttpServlet {
      * @param request
      * @return
      */
-    private String getRESTResponse(String noun, String[] pathList, 
-            HttpServletRequest request) {
-        
-        try {
-            if ("service".equals(noun)) {
-                // Return details about services, or a single service
-                
-                String id = null;
-                if (pathList.length > 2) {
-                    id = pathList[2];
-                }
-                
-                boolean includeMetadata = "1".equals(request.getParameter("metadata"));
-                boolean includeModel = "1".equals(request.getParameter("model"));
-                return getServiceJSON(id, includeMetadata, includeModel);
+    private String getRESTResponse(Verb verb, String noun, String[] pathList, 
+            HttpServletRequest request) throws Exception {
+    
+    	if (verb != Verb.GET) {
+            return getJSONError("MethodError", "Only the GET method is supported.");
+    	}
+    	
+        if ("service".equals(noun)) {
+            // Return details about services, or a single service
+            
+            String id = null;
+            if (pathList.length > 2) {
+                id = pathList[2];
             }
-            else if ("query".equals(noun)) {
-                // Query grid services using caB2B 
-                
-                String searchString = request.getParameter("searchString");
-                String scope = request.getParameter("scope");
-                String serviceId = request.getParameter("serviceId");
-                String serviceUrl = request.getParameter("serviceUrl");
-                boolean refresh = "1".equals(request.getParameter("refresh"));
+            
+            boolean includeMetadata = "1".equals(request.getParameter("metadata"));
+            boolean includeModel = "1".equals(request.getParameter("model"));
+            return getServiceJSON(id, includeMetadata, includeModel);
+        }
+        else if ("runQuery".equals(noun)) { 
+            // Query grid services using caB2B 
 
-                if (searchString == null && "".equals(searchString)) {
-                    return getJSONError("UsageError", "Must specify query string.");
-                }
-                
-                Cab2bQueryParams queryParams = null; 
+            String clientId = request.getParameter("clientId");
+            String searchString = request.getParameter("searchString");
+            String serviceGroup = request.getParameter("serviceGroup");
+            String serviceId = request.getParameter("serviceId");
+            String serviceUrl = request.getParameter("serviceUrl");
 
-                if (serviceUrl != null && !"".equals(serviceUrl)) {
-                    queryParams = new Cab2bQueryParams(searchString, 
-                        null, serviceUrl);
-                }
-                else if (serviceId != null && !"".equals(serviceId)) {
-
-                    Session s = sessionFactory.openSession();
-                    String hql = GET_SERVICE_HQL_SELECT+" where service.id = ?";
-                    List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
-                    
-                    if (services.isEmpty()) {
-                        return getJSONError("UsageError", "Unknown service id: "+serviceId);
-                    }
-                    
-                    if (services.size() > 1) {
-                        log.error("More than one matching service for service id: "+serviceId);
-                    }
-                    
-                    queryParams = new Cab2bQueryParams(searchString, 
-                        null, services.get(0).getUrl());
-                }
-                else if (scope != null && !"".equals(scope)) {
-                    
-                    if (!scope2ModelGroup.containsKey(scope)) {
-                        return getJSONError("UsageError", "Unrecognized scope '"+scope+"'");
-                    }
-                    
-                    queryParams = new Cab2bQueryParams(searchString, 
-                        scope2ModelGroup.get(scope), null);
-                }
-                else {
-                    return getJSONError("UsageError", "Must provide scope or serviceId or serviceUrl.");
-                }
-
-                log.info("Executing "+queryParams+" ("+queryParams.hashCode()+")");
-                Cab2bQuery query = queryService.executeQuery(queryParams, refresh);
-                
-                // What if the query isn't completed?
-                if (!query.isDone()) {
-                    
-                    // Return nothing and let the client poll
-                    if ("1".equals(request.getParameter("async"))) {
-                        log.info("Returning asyncronously for query: "+queryParams.hashCode());
-                        JSONObject jsonObj = new JSONObject();
-                        jsonObj.put("status", "RUNNING");
-                        return jsonObj.toString();
-                    }
-                    
-                    // Block until the query is completed
-                    synchronized (query) {
-                        try {
-                            log.info("Blocking until query is complete: "+queryParams.hashCode());
-                            query.wait();
-                        }
-                        catch (InterruptedException e) {
-                            log.error("Interrupted wait",e);
-                        }
-                    }
-                }
-
-                return getQueryResultsJSON(query);
+            if (StringUtil.isEmpty(clientId)) {
+                return getJSONError("UsageError", "Specify your clientId.");
             }
-        }
-        catch (Exception e) {
-            log.error("JSON service error",e);
-            return getJSONError(e.getClass().getName(), e.getMessage());
-        }
+
+            if (StringUtil.isEmpty(searchString)) {
+                return getJSONError("UsageError", "Specify a searchString to search on.");
+            }
+            
+            QueryParams queryParams = null; 
+
+            if (!StringUtil.isEmpty(serviceUrl)) {
+                queryParams = new QueryParams(clientId, searchString, 
+                    null, serviceUrl);
+            }
+            else if (!StringUtil.isEmpty(serviceId)) {
+
+                Session s = sessionFactory.openSession();
+                String hql = GET_SERVICE_HQL_SELECT+" where service.id = ?";
+                List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
+                
+                if (services.isEmpty()) {
+                    return getJSONError("UsageError", "Unknown service id: "+serviceId);
+                }
+                
+                if (services.size() > 1) {
+                    log.error("More than one matching service for service id: "+serviceId);
+                }
+                
+                queryParams = new QueryParams(clientId, searchString, null, 
+                		services.get(0).getUrl());
+            }
+            else if (!StringUtil.isEmpty(serviceGroup)) {
+                
+                if (serviceGroup == null) {
+                    return getJSONError("UsageError", "Unrecognized serviceGroup '"+serviceGroup+"'");
+                }
+                
+                queryParams = new QueryParams(clientId, searchString, serviceGroup, null);
+            }
+            else {
+                return getJSONError("UsageError", "Specify serviceGroup or serviceId or serviceUrl.");
+            }
+
+            Cab2bQuery query = queryService.executeQuery(queryParams);
+
+            log.info("Executing "+queryParams+" as job " +query.getJobId());
+            
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("status", QueryStatus.RUNNING);
+            jsonObj.put("job_id", query.getJobId());
+            return jsonObj.toString();
+    	}
+        else if ("query".equals(noun)) {
+
+            String clientId = request.getParameter("clientId");
+            String jobId = request.getParameter("jobId");
+            boolean collapse = "1".equals(request.getParameter("collapse"));
+
+            if (StringUtil.isEmpty(clientId)) {
+                return getJSONError("UsageError", "Specify your clientId.");
+            }
+
+            if (StringUtil.isEmpty(jobId)) {
+                return getJSONError("UsageError", "Specify a jobId.");
+            }
+            
+            Cab2bQuery query = queryService.retrieveQuery(jobId);
+            
+            if (query == null) {
+                return getJSONStatus(QueryStatus.UNKNOWN);
+            }
+            
+            if (!query.getQueryParams().getClientId().equals(clientId)) {
+                return getJSONStatus(QueryStatus.UNKNOWN);
+            }
+            
+            log.info("Got query "+jobId+": "+query.getQueryParams());
+            
+            // What if the query isn't completed?
+            if (!query.isDone()) {
+                
+                // Return nothing and let the client poll
+                if ("1".equals(request.getParameter("async"))) {
+                    log.info("Returning asyncronously for query: "+jobId);
+                    return getJSONStatus(QueryStatus.RUNNING);	 
+                }
+                
+                // Block until the query is completed
+                synchronized (query) {
+                    try {
+                        log.info("Blocking until query is complete: "+jobId);
+                        query.wait();
+                    }
+                    catch (InterruptedException e) {
+                        log.error("Interrupted wait",e);
+                    }
+                }
+            }
+
+            return getQueryResultsJSON(query,collapse);
+    	}
         
         // If the noun was good we would've returned by now
         return getJSONError("UsageError", "Unrecognized noun '"+noun+"'");
     }
 
-    /**
+	/**
      * Returns a JSON object representing the basic attributes of a service.
      * @param service
      * @return
@@ -434,7 +482,8 @@ public class JSONDataService extends HttpServlet {
      * @param query
      * @return
      */
-    private String getQueryResultsJSON(Cab2bQuery query) {
+    private String getQueryResultsJSON(Cab2bQuery query, boolean collapse) 
+    		throws JSONException {
         
         if (!query.isDone()) {
             throw new IllegalStateException("Query has not completed: "+query);
@@ -444,9 +493,57 @@ public class JSONDataService extends HttpServlet {
         if (e != null) {
             return getJSONError(e.getClass().getName(), e.getMessage());
         }
+
+		Cab2bTranslator translator = queryService.getCab2bTranslator();
+		
+    	JSONObject json = new JSONObject(query.getResultJson());
+    	String modelGroupName = json.getString("modelGroupName");
+		String serviceGroup = translator.getServiceGroupForModelGroup(modelGroupName);
+		json.remove("modelGroupName");
+    	if (modelGroupName != null) {
+    		json.put("serviceGroup", serviceGroup);
+    	}
+    	
+        if (collapse) {
+        	Map<String,JSONObject> unique = new LinkedHashMap<String,JSONObject>();
+        	
+        	// the key to discriminate on for duplicates
+        	String primaryKey = translator.getPrimaryKeyForServiceGroup(serviceGroup);
+        	
+        	JSONObject queries = json.getJSONObject("results");
+        	for(Iterator i = queries.keys(); i.hasNext(); ) {
+        		String queryName = (String)i.next();
+        		JSONObject urls = queries.getJSONObject(queryName);
+        		for(Iterator j = urls.keys(); j.hasNext(); ) {
+            		String url = (String)j.next();
+            		JSONArray objs = urls.getJSONArray(url);
+            		
+            		for(int k=0; k<objs.length(); k++) {
+            			JSONObject obj = objs.getJSONObject(k);
+            			String key = null;
+            			try {
+                			String host = obj.getString(HOST_KEY);
+                			String id = obj.getString(primaryKey);
+                			key = host+"~~"+id;	
+            			}
+            			catch (JSONException x) {
+            				log.error("Error getting unique key",x);
+            				key = obj.toString();
+            			}
+            			if (!unique.containsKey(key)) unique.put(key, obj);
+            		}
+        		}
+        	}
+        	
+        	JSONArray allResults = new JSONArray();
+        	for(JSONObject obj : unique.values()) {
+        		allResults.put(obj);
+        	}
+        	json.put("results", allResults);
+        	
+        }
         
-        return query.getResultJson();
-        
+        return json.toString();
     }
     
     /**
@@ -458,6 +555,18 @@ public class JSONDataService extends HttpServlet {
     }
     
     /**
+     * Get a JSON string with a simple query status message.
+     * @param status
+     * @return
+     * @throws JSONException
+     */
+    private String getJSONStatus(Object status) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("status", status);
+        return jsonObj.toString();
+    }
+    
+    /**
      * Returns a JSON string with usage instructions, or an error if a problem
      * occurs.
      * @return JSON-formatted String
@@ -465,5 +574,6 @@ public class JSONDataService extends HttpServlet {
     private String getJSONUsage() {
         return usage;
     }
+    
     
 }
