@@ -12,6 +12,8 @@
 #import "ServiceMetadata.h"
 #import "Util.h"
 
+#define queriesFilename @"queries.plist"
+
 @implementation QueryRequestController
 @synthesize searchBarOutlet;
 @synthesize requestsTable;
@@ -23,10 +25,37 @@
 #pragma mark -
 #pragma mark Object Methods
 
+- (void)applicationWillTerminate:(NSNotification *)notification {
+	NSLog(@"Saving queries to file");
+	[queryRequests writeToFile:[Util getPathFor:queriesFilename] atomically:YES];
+}
+
+
+// To be called when the app is started
+- (void)loadQueries {
+	
+	NSString *filePath = [Util getPathFor:queriesFilename];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+		NSLog(@"Reading queries from file");
+		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
+		self.queryRequests = array;
+		[array release];
+	}
+	else {
+		self.queryRequests = [NSMutableArray array];
+	}
+}
+
 - (void)viewDidLoad {
-    self.queryRequests = [NSMutableArray array];
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    smdata.delegate = self;    
+	
+    ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
+    smdata.delegate = self;
+    
+	// Listen for application termination event
+	UIApplication *app = [UIApplication sharedApplication];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate:) 
+												 name:UIApplicationWillTerminateNotification object:app];
+    
     [super viewDidLoad];
 }
 

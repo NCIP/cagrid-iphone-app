@@ -30,4 +30,6 @@
 
 - (void)resetView;
 
+- (void)loadQueries;
+
 @end
