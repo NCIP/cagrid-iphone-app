@@ -12,6 +12,9 @@
 
 @interface ServiceMetadata : NSObject {
 	
+    // device id
+	@private NSString *deviceId;
+    
     // services
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *serviceLookup;		
@@ -27,6 +30,7 @@
     
 }
 
+@property (nonatomic, retain) NSString *deviceId;
 @property (nonatomic, retain) NSMutableArray *services;
 @property (nonatomic, retain) NSMutableDictionary *serviceLookup;
 @property (nonatomic, retain) NSMutableDictionary *metadata;

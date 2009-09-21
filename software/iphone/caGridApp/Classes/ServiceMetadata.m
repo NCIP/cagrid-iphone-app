@@ -9,9 +9,10 @@
 #import "ServiceMetadata.h"
 
 //#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
-#define BASE_URL @"http://localhost:18080/gss10/json"
+#define BASE_URL @"http://biowiki.dnsalias.net:46210/gss10/json"
 
 @implementation ServiceMetadata
+@synthesize deviceId;
 @synthesize services;
 @synthesize serviceLookup;
 @synthesize metadata;
@@ -20,10 +21,16 @@
 
 - (id) init {
 	if (self = [super init]) {
+        
+        self.deviceId = [[UIDevice currentDevice] uniqueIdentifier];
+        NSLog(@"device id = %@",deviceId);
+        
 		self.metadata = [NSMutableDictionary dictionary];
+        
         NSNumberFormatter *nformat = [[NSNumberFormatter alloc] init];
         self.nf = nformat;
         [nformat release];
+        
         connectionRequestMap = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
    	}
 	return self;
@@ -65,8 +72,21 @@
 - (void) generateComputedFieldsForService:(NSMutableDictionary *)service {
     
     // parse certain fields into native objects
-    [service setObject:[Util getDateFromString:[service valueForKey:@"publish_date"]] forKey:@"publish_date_obj"];
-    [service setObject: [nf numberFromString:[service valueForKey:@"version"]] forKey:@"version_number"];
+    [service setObject:[Util getDateFromString:[service objectForKey:@"publish_date"]] forKey:@"publish_date_obj"];
+    [service setObject: [nf numberFromString:[service objectForKey:@"version"]] forKey:@"version_number"];
+    
+    NSString *group = [service objectForKey:@"group"];
+    if (group != nil) {
+    	if ([group isEqualToString:@"microarray"])  {
+            [service setObject:@"Microarray Data" forKey:@"group_name"];
+        }
+        else if ([group isEqualToString:@"biospecimen"])  {
+            [service setObject:@"Biospecimen Data" forKey:@"group_name"];                
+        }
+    	else if ([group isEqualToString:@"imaging"])  {
+            [service setObject:@"Imaging Data" forKey:@"group_name"];                         
+        }        
+    }
     
     NSString *host = [[service valueForKey:@"hosting_center"] valueForKey:@"short_name"];
     [service setObject: host == nil ? @"" : host forKey:@"hosting_center_name"];
@@ -175,20 +195,21 @@
 	return service;
 }
 
-- (void)executeQuery:(NSMutableDictionary *)request {
+- (void) notifyDelegateOfError:(NSString *)error message:(NSString *)message forRequest:(NSMutableDictionary *)request {
+    if ([self.delegate respondsToSelector:@selector(requestHadError:)]) {
+        [request setObject:[self getError:@"QueryError" withMessage:@"Could not run query"] forKey:@"error"];
+        [self.delegate requestHadError:request];
+    }
+    else {
+        NSLog(@"WARNING: Delegate doesn't respond to requestHadError:");
+    }
+}
 
-    NSString *searchString = [request objectForKey:@"searchString"];
-    NSString *serviceUrl = [request objectForKey:@"serviceUrl"];
-    NSString *scope = [[request objectForKey:@"scope"] lowercaseString];
-        
-    if (serviceUrl == nil) serviceUrl = @"";
-    if (scope == nil) scope = @"";
+- (void)monitorQuery:(NSMutableDictionary *)request {
     
-    // TODO: this is temporary
-    //scope = @"";
-    //serviceUrl = @"http://array.nci.nih.gov:80/wsrf/services/cagrid/CaArraySvc";
+    NSString *jobId = [request objectForKey:@"jobId"];
     
-	NSString *queryStr = [NSString stringWithFormat:@"%@/query?searchString=%@&serviceUrl=%@&scope=%@",BASE_URL,searchString,serviceUrl,scope];
+	NSString *queryStr = [NSString stringWithFormat:@"%@/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     NSLog(@"Getting %@",escapedQueryStr);
@@ -202,17 +223,51 @@
         CFDictionaryAddValue(connectionRequestMap, conn, request);
     }
 	else {
-        if ([self.delegate respondsToSelector:@selector(requestHadError:)]) {
-            [request setObject:[self getError:@"ConnectionError" withMessage:@"Could not create connection"] forKey:@"error"];
-            [self.delegate requestHadError:request];
-        }
-        else {
-            NSLog(@"WARNING: Delegate doesn't respond to requestHadError:");
-        }
+        NSLog(@"Connection was null");
+        [self notifyDelegateOfError:@"ConnectionError" message:@"Could not create monitor connection" forRequest:request];
+        return;
     }
 }
 
-
+- (void) executeQuery:(NSMutableDictionary *)request {
+	
+    NSString *searchString = [request objectForKey:@"searchString"];
+    NSString *serviceUrl = [request objectForKey:@"serviceUrl"];
+    NSString *scope = [[request objectForKey:@"scope"] lowercaseString];
+    
+    if (serviceUrl == nil) serviceUrl = @"";
+    if (scope == nil) scope = @"";
+    
+	NSString *queryStr = [NSString stringWithFormat:@"%@/runQuery?clientId=%@&searchString=%@&serviceUrl=%@&serviceGroup=%@",BASE_URL,deviceId,searchString,serviceUrl,scope];
+	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    
+    NSLog(@"Getting %@",escapedQueryStr);
+    
+	NSError *error = nil;
+    
+	NSURL *jsonURL = [NSURL URLWithString:escapedQueryStr];
+	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
+    
+    if (error) {
+        NSLog(@"Could not execute query: %@",error);
+        [self notifyDelegateOfError:@"QueryError" message:@"Could not execute query." forRequest:request];
+        return;
+    }
+    
+    NSMutableDictionary *root = [jsonData JSONValue];
+    NSString *jobId = [root objectForKey:@"job_id"];
+    NSString *status = [root objectForKey:@"status"];
+    
+    if (jobId == nil || [jobId isEqualToString:@""]) {
+        NSLog(@"Server did not return job identifier. Status was %@.",status);
+        [self notifyDelegateOfError:@"QueryError" message:@"Server did not return job identifier." forRequest:request];
+        return;
+    }
+    
+    [request setObject:jobId forKey:@"jobId"];
+    [self monitorQuery: request];
+}
+    
 #pragma mark -
 #pragma mark REST API Methods
 
@@ -243,6 +298,12 @@
     CFDictionaryRemoveValue(connectionRequestMap, connection);
 	[connection release];
 	
+    if ([error code] == -1001) {
+        NSLog(@"Connection dropped, retrying");
+        [self monitorQuery:request];
+        return;
+    }
+    
 	NSString *message = [NSString stringWithFormat:@"Connection failed! Error - %@ %@",
 						 [error localizedDescription],[[error userInfo] objectForKey:NSErrorFailingURLStringKey]];
 	
@@ -269,6 +330,11 @@
 	NSMutableDictionary *json = [content JSONValue];
 	[content release];
     
+    if (json == nil) {
+        [self notifyDelegateOfError:@"ConnectionError" message:@"Could not create monitor connection" forRequest:request];
+        return;
+    }
+    
     NSMutableDictionary *results = [json objectForKey:@"results"];
     
     if (results == nil) {     
@@ -277,16 +343,17 @@
         return;
     }
     
-    NSMutableArray *allResults = [NSMutableArray array];
-    for(NSString *searchType in [results allKeys]) {
-    	NSMutableDictionary *urls = [results objectForKey:searchType];
-	    for(NSString *url in [urls allKeys]) {        
-        	NSMutableArray *results = [urls objectForKey:url];
-            [allResults addObjectsFromArray:results];
-        }
-    }
+//    NSMutableArray *allResults = [NSMutableArray array];
+//    for(NSString *searchType in [results allKeys]) {
+//    	NSMutableDictionary *urls = [results objectForKey:searchType];
+//	    for(NSString *url in [urls allKeys]) {        
+//        	NSMutableArray *results = [urls objectForKey:url];
+//            [allResults addObjectsFromArray:results];
+//        }
+//    }    
+//    [request setObject:allResults forKey:@"results"];
     
-    [request setObject:allResults forKey:@"results"];
+    [request setObject:results forKey:@"results"];
     
 	if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
 		[self.delegate requestCompleted:results];

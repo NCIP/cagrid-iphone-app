@@ -58,7 +58,7 @@
     
     NSString *key = [keys objectAtIndex:[indexPath row]];
     cell.titleLabel.text = key;
-    cell.descLabel.text = [result objectForKey:key];
+    cell.descLabel.text = [NSString stringWithFormat:@"%@", [result objectForKey:key]];
 	return cell;
 }
 
