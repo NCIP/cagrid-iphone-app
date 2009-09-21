@@ -118,7 +118,7 @@ public class Cab2bAPI {
             parameters.add(new BasicNameValuePair("modelGroup", modelGroup));
             parameters.add(new BasicNameValuePair("serviceUrl", serviceUrl));
 
-            String url = cab2b2QueryURL+"search/?"+URLEncodedUtils.format(parameters, HTTP.UTF_8);
+            String url = cab2b2QueryURL+"/search/?"+URLEncodedUtils.format(parameters, HTTP.UTF_8);
             HttpGet httpget = new HttpGet(url);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             return httpclient.execute(httpget, responseHandler);
