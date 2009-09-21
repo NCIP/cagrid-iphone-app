@@ -111,7 +111,7 @@ didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 			[navController pushViewController:serviceListController animated:YES];
 			break;
 		case 3: // Searchable
-			categorySearchController.discriminator = @"cab2b_type";
+			categorySearchController.discriminator = @"group_name";
 			[categorySearchController.tableView reloadData];
 			[navController pushViewController:categorySearchController animated:YES];			
 			break;   

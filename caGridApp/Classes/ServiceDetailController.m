@@ -320,7 +320,7 @@
 		UIButton *queryButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 		queryButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
     
-		queryButton.enabled = [service objectForKey:@"cab2b_type"] != nil;
+		queryButton.enabled = [service objectForKey:@"group"] != nil;
 		[queryButton setTitle:@"Query" forState:UIControlStateNormal];
 		[queryButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
 		[queryButton addTarget:self action:@selector(queryAction:) forControlEvents:UIControlEventTouchUpInside];		

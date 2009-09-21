@@ -51,12 +51,28 @@
     NSString *title = nil;
     NSString *desc = nil;
     
-    // TODO: type recognition
+    // TODO: get this from 
     if ([result objectForKey:@"Experiment Title"] != nil) {
 		title = [result objectForKey:@"Experiment Title"];
-		desc = [result objectForKey:@"Assay Type"];
     }
+    else if ([result objectForKey:@"Barcode"] != nil) {
+		title = [result objectForKey:@"Barcode"];
 
+    }
+    else if ([result objectForKey:@"Image Study Instance UID"] != nil) {
+		title = [result objectForKey:@"Image Study Instance UID"];
+    }
+	
+    // subtitle
+    
+    NSString *hcrc = [result objectForKey:@"Hosting Cancer Research Center"];
+    if (hcrc != nil) {
+    	desc = hcrc;
+    }
+    else {
+        desc = [result objectForKey:@"Hosting Institution"];
+    }
+    
     cell.titleLabel.text = title;
     cell.descLabel.text = desc;
 	return cell;
