@@ -85,7 +85,7 @@
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        NSLog(@"%@",error);
+        NSLog(@"loadData error: %@",error);
         if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
             [Util displayNetworkError];
         }
@@ -106,7 +106,7 @@
         NSString *message = [root objectForKey:@"message"];
         if (error == nil) error = @"Error loading data";
         if (message == nil) message = @"Service data could not be retrieved";
-    	NSLog(@"%@: %@",error,message);
+    	NSLog(@"loadData error: %@ - %@",error,message);
         [Util displayCustomError:error withMessage:message];
     }
     
@@ -138,7 +138,7 @@
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        NSLog(@"%@",error);
+        NSLog(@"loadMetadataForService error: %@",error);
         if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
             [Util displayNetworkError];
         }
@@ -159,7 +159,7 @@
         NSString *message = [root objectForKey:@"message"];
         if (error == nil) error = @"Error loading data";
         if (message == nil) message = @"Service data could not be retrieved";
-    	NSLog(@"%@: %@",error,message);
+    	NSLog(@"loadMetadataForService error: %@ - %@",error,message);
         [Util displayCustomError:error withMessage:message];
     }
     
