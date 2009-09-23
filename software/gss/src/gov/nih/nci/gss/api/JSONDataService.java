@@ -495,9 +495,13 @@ public class JSONDataService extends HttpServlet {
             return getJSONError(e.getClass().getName(), e.getMessage());
         }
 
-		Cab2bTranslator translator = queryService.getCab2b().getCab2bTranslator();
-		
     	JSONObject json = new JSONObject(query.getResultJson());
+
+        if (json.has("error")) {
+            return query.getResultJson();
+        }
+
+		Cab2bTranslator translator = queryService.getCab2b().getCab2bTranslator();
     	String modelGroupName = json.getString("modelGroupName");
 		String serviceGroup = translator.getServiceGroupForModelGroup(modelGroupName);
 		json.remove("modelGroupName");
