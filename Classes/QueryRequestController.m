@@ -21,6 +21,7 @@
 @synthesize resultsController;
 @synthesize queryRequests;
 @synthesize service;
+@synthesize requestToRetry;
 
 #pragma mark -
 #pragma mark Object Methods
@@ -34,20 +35,7 @@
 // To be called when the app is started
 - (void)loadQueries {
 	
-	NSString *filePath = [Util getPathFor:queriesFilename];
-	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-		NSLog(@"Reading queries from file");
-		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
-		self.queryRequests = array;
-		[array release];
-	}
-	else {
-		self.queryRequests = [NSMutableArray array];
-	}
-}
-
-- (void)viewDidLoad {
-	
+    // Register as the delegate for ServiceMetadata
     ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
     smdata.delegate = self;
     
@@ -56,7 +44,24 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate:) 
 												 name:UIApplicationWillTerminateNotification object:app];
     
-    [super viewDidLoad];
+	NSString *filePath = [Util getPathFor:queriesFilename];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+		NSLog(@"Reading queries from file");
+		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
+		self.queryRequests = array;
+		[array release];
+        
+        for(int i=0; i<[queryRequests count]; i++) {
+            NSMutableDictionary *request = [queryRequests objectAtIndex:i];
+            if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
+                // query never came back so restart it
+                [[ServiceMetadata sharedSingleton] executeQuery:request];
+            }
+        }
+    }
+	else {
+		self.queryRequests = [NSMutableArray array];
+	}
 }
 
 - (void)resetView {
@@ -173,8 +178,22 @@
     NSString *errorType = [error objectForKey:@"error"];
     NSString *message = [error objectForKey:@"message"];
     NSLog(@"%@: %@",errorType,message);
-    [Util displayDataError];
     [self.requestsTable reloadData];
+}
+
+
+#pragma mark -
+#pragma mark AlertView Delegate Methods
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSString *buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
+    if ([buttonTitle isEqualToString:@"Retry"]) {
+        [requestToRetry removeObjectForKey:@"results"];
+        [requestToRetry removeObjectForKey:@"error"];        
+        [[ServiceMetadata sharedSingleton] executeQuery:requestToRetry];
+        [self.requestsTable reloadData];
+    }
+    self.requestToRetry = nil;
 }
 
 
@@ -234,7 +253,14 @@
     if ([queryRequest objectForKey:@"results"] == nil) {
     	NSMutableDictionary *error = [queryRequest objectForKey:@"error"];
         if (error != nil) {
-            [Util displayCustomError:[error objectForKey:@"error"] withMessage:[error objectForKey:@"message"]];
+            self.requestToRetry = queryRequest;
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[error objectForKey:@"error"] 
+                                                            message:[error objectForKey:@"message"] 
+                                                           delegate:self 
+                                                  cancelButtonTitle:@"Cancel" 
+                                                  otherButtonTitles:@"Retry",nil];
+            [alert show];
+            [alert autorelease];
         }
     	return;
     }

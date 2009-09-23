@@ -8,6 +8,8 @@
 
 #import "Util.h"
 
+// has the user been alerted that there is a network problem?
+static BOOL alerted = NO;
 
 @implementation Util
 
@@ -42,24 +44,21 @@
 }
 
 + (void) displayNetworkError {
-	NSLog(@"Could not connect to the network");
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
-													message:@"Could not connect to the network." 
-												   delegate:self 
-										  cancelButtonTitle:@"OK" 
-										  otherButtonTitles:nil];
-	[alert show];
-	[alert autorelease];
+    
+    if (!alerted) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
+                                                        message:@"Could not connect to the network." 
+                                                       delegate:self 
+                                              cancelButtonTitle:@"OK" 
+                                              otherButtonTitles:nil];
+        [alert show];
+        [alert autorelease];
+        alerted = YES;
+    }
 }
 
-+ (void) displayDataError {
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error parsing data" 
-													message:@"Could not process data. Please try again later." 
-												   delegate:self 
-										  cancelButtonTitle:@"OK" 
-										  otherButtonTitles:nil];
-	[alert show];
-	[alert autorelease];
++ (void) clearNetworkErrorState {
+ 	alerted = NO;   
 }
 
 + (void) displayCustomError:(NSString *)title withMessage:(NSString *)message {

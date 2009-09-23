@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface Util : NSObject {
 }
 
@@ -21,10 +22,9 @@
 + (NSDate *)getDateFromString:(NSString *)dateString;
 
 /** Display an error popup indicating that data could not be retrieved */
-+ (void)displayNetworkError;
++ (void) displayNetworkError;
 
-/** Display an error popup indicating that data could not be parsed */
-+ (void)displayDataError;
++ (void) clearNetworkErrorState;
 
 + (void) displayCustomError:(NSString *)title withMessage:(NSString *)message;
 

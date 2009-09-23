@@ -55,20 +55,6 @@
     return errorDict;
 }
 
-- (BOOL) testConnectivity {
-	
-	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:BASE_URL];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
-	[jsonData release];
-	
-	if (error) {
-        NSLog(@"testConnectivity returned error: %@",error);
-		return NO;
-	}
-	return YES;
-}
-
 - (void) generateComputedFieldsForService:(NSMutableDictionary *)service {
     
     // parse certain fields into native objects
@@ -97,29 +83,31 @@
 	NSError *error = nil;
 	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service",BASE_URL]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
-	//NSString *path = [[NSBundle mainBundle] pathForResource:@"services" ofType:@"js"];
-	//NSString *jsonData = [NSString stringWithContentsOfFile:path];
-
+    
     if (error) {
-        NSLog(@"testConnectivity returned error: %@",error);
-        if (!alerted) {
-	    	[Util displayNetworkError];
-    	    alerted = YES;
+        NSLog(@"%@",error);
+        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+            [Util displayNetworkError];
         }
+        else {
+            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+        }
+        return;
     }
     else {
-        alerted = NO;
+        [Util clearNetworkErrorState];
     }
     
     NSMutableDictionary *root = [jsonData JSONValue];
-    
 	self.services = [root objectForKey:@"services"];
     
     if (self.services == nil) {
         NSString *error = [root objectForKey:@"error"];
         NSString *message = [root objectForKey:@"message"];
-    	NSLog(@"Error from REST API. %@: %@",error,message);
-        [Util displayDataError]; 
+        if (error == nil) error = @"Error loading data";
+        if (message == nil) message = @"Service data could not be retrieved";
+    	NSLog(@"%@: %@",error,message);
+        [Util displayCustomError:error withMessage:message];
     }
     
 	self.serviceLookup = [NSMutableDictionary dictionary];
@@ -149,21 +137,33 @@
 	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service/%@?metadata=1",BASE_URL,serviceId]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
-//	NSString *path = [[NSBundle mainBundle] pathForResource:@"servicedetail" ofType:@"js"];
-//	NSString *jsonData = [NSString stringWithContentsOfFile:path];
-    
     if (error) {
-        if (!alerted) {
-	    	[Util displayNetworkError];
-    	    alerted = YES;
+        NSLog(@"%@",error);
+        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+            [Util displayNetworkError];
         }
+        else {
+            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+        }
+        return;
     }
     else {
-        alerted = NO;
+        [Util clearNetworkErrorState];
     }
     
-	NSMutableArray *serviceArray = (NSMutableArray *)[[jsonData JSONValue] objectForKey:@"services"];
-
+    NSMutableDictionary *root = [jsonData JSONValue];
+	NSMutableArray *serviceArray = [root objectForKey:@"services"];
+    
+    if (serviceArray == nil) {
+        NSString *error = [root objectForKey:@"error"];
+        NSString *message = [root objectForKey:@"message"];
+        if (error == nil) error = @"Error loading data";
+        if (message == nil) message = @"Service data could not be retrieved";
+    	NSLog(@"%@: %@",error,message);
+        [Util displayCustomError:error withMessage:message];
+    }
+    
+    
 	if ([serviceArray count] < 1) {
 		NSLog(@"ERROR: no service metadata returned for service with id=%@",serviceId);
 		return;
@@ -195,14 +195,18 @@
 	return service;
 }
 
-- (void) notifyDelegateOfError:(NSString *)error message:(NSString *)message forRequest:(NSMutableDictionary *)request {
+- (void) notifyDelegateOfErrorForRequest:(NSMutableDictionary *)request {  
     if ([self.delegate respondsToSelector:@selector(requestHadError:)]) {
-        [request setObject:[self getError:@"QueryError" withMessage:@"Could not run query"] forKey:@"error"];
         [self.delegate requestHadError:request];
     }
     else {
         NSLog(@"WARNING: Delegate doesn't respond to requestHadError:");
     }
+}
+
+- (void) notifyDelegateOfError:(NSString *)error message:(NSString *)message forRequest:(NSMutableDictionary *)request {  
+    [request setObject:[self getError:error withMessage:message] forKey:@"error"];
+    [self notifyDelegateOfErrorForRequest:request];
 }
 
 - (void)monitorQuery:(NSMutableDictionary *)request {
@@ -244,14 +248,32 @@
     NSLog(@"Getting %@",escapedQueryStr);
     
 	NSError *error = nil;
-    
 	NSURL *jsonURL = [NSURL URLWithString:escapedQueryStr];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
-        NSLog(@"Could not execute query: %@",error);
-        [self notifyDelegateOfError:@"QueryError" message:@"Could not execute query." forRequest:request];
+        NSLog(@"%@",error);
+        NSString *errorType = @"Query Error";
+        NSString *message = @"Could not execute query";
+        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+        	message = @"Could not connect to the network.";
+        }
+        
+        // This is a little complex, but we want the user to see the loading animation for a little bit, 
+        // so that they know we tried and failed to connect.
+        
+        SEL selector = @selector(notifyDelegateOfError:message:forRequest:);
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
+        [invocation setSelector:selector];
+        [invocation setTarget:self];
+        [invocation setArgument:&errorType atIndex:2];
+        [invocation setArgument:&message atIndex:3];
+        [invocation setArgument:&request atIndex:4];
+        [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
         return;
+    }
+    else {
+        [Util clearNetworkErrorState];
     }
     
     NSMutableDictionary *root = [jsonData JSONValue];
@@ -260,7 +282,16 @@
     
     if (jobId == nil || [jobId isEqualToString:@""]) {
         NSLog(@"Server did not return job identifier. Status was %@.",status);
-        [self notifyDelegateOfError:@"QueryError" message:@"Server did not return job identifier." forRequest:request];
+        NSString *errorType = @"Server Error";
+        NSString *message = @"Query could not execute";
+        SEL selector = @selector(notifyDelegateOfError:message:forRequest:);
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
+        [invocation setSelector:selector];
+        [invocation setTarget:self];
+        [invocation setArgument:&errorType atIndex:2];
+        [invocation setArgument:&message atIndex:3];
+        [invocation setArgument:&request atIndex:4];
+        [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
         return;
     }
     
@@ -278,7 +309,7 @@
         [receivedData setLength:0];
     }
     else {
-        NSLog(@"Got response from unknown connection.");
+        NSLog(@"WARNING: Got response from unknown connection.");
     }
 }
 
@@ -289,7 +320,7 @@
         [receivedData appendData:data];
     }
     else {
-        NSLog(@"Got response from unknown connection.");
+        NSLog(@"WARNING: Got response from unknown connection.");
     }
 }
 
@@ -298,22 +329,14 @@
     CFDictionaryRemoveValue(connectionRequestMap, connection);
 	[connection release];
 	
-    if ([error code] == -1001) {
+    if ([error domain] == NSURLErrorDomain && [error code] == NSURLErrorTimedOut) {
         NSLog(@"Connection dropped, retrying");
         [self monitorQuery:request];
         return;
     }
     
-	NSString *message = [NSString stringWithFormat:@"Connection failed! Error - %@ %@",
-						 [error localizedDescription],[[error userInfo] objectForKey:NSErrorFailingURLStringKey]];
-	
-	if ([self.delegate respondsToSelector:@selector(requestHadError:)]) {
-        [request setObject:[self getError:@"ConnectionError" withMessage:message] forKey:@"error"];
-		[self.delegate requestHadError:request];
-	}
-	else {
-		NSLog(@"WARNING: Delegate doesn't respond to requestHadError:");
-	}
+	NSString *message = [NSString stringWithFormat:@"Could not retrieve query results: %@",[error localizedDescription]];
+    [self notifyDelegateOfError:@"Connection Error" message:message forRequest:request];
 }
 
 
@@ -327,19 +350,25 @@
     
     // TODO: can we get JSONValue directly from receivedData?
 	NSString *content = [[NSString alloc] initWithBytes:[receivedData mutableBytes] length:[receivedData length] encoding:NSUTF8StringEncoding];
-	NSMutableDictionary *json = [content JSONValue];
+	NSMutableDictionary *root = [content JSONValue];
 	[content release];
     
-    if (json == nil) {
-        [self notifyDelegateOfError:@"ConnectionError" message:@"Could not create monitor connection" forRequest:request];
+    if (root == nil) {
+        [self notifyDelegateOfError:@"Connection Error" message:@"Could not retrieve query results" forRequest:request];
         return;
     }
     
-    NSMutableDictionary *results = [json objectForKey:@"results"];
+    NSMutableDictionary *results = [root objectForKey:@"results"];
     
-    if (results == nil) {     
-        [request setObject:json forKey:@"error"];
-   		[self.delegate requestHadError:request];
+    if (results == nil) {
+        NSString *status = [root objectForKey:@"status"];
+        if ([status isEqualToString:@"UNKNOWN"]) {
+            [self notifyDelegateOfError:@"Query Error" message:@"Query results have expired" forRequest:request];
+        }
+        else {
+            [request setObject:root forKey:@"error"];
+            [self notifyDelegateOfErrorForRequest:request];
+        }
         return;
     }
     
