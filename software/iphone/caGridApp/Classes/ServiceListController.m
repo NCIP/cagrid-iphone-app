@@ -151,15 +151,6 @@
 		[detailController displayService:metadata];
 		[navController pushViewController:detailController animated:YES];
 	}
-    else {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
-                                                        message:@"Could not retrieve service details" 
-                                                       delegate:self 
-                                              cancelButtonTitle:@"OK" 
-                                              otherButtonTitles:nil];
-        [alert show];
-        [alert autorelease];
-    }
 }
 
 

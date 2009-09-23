@@ -24,8 +24,6 @@
 	@private id delegate;    
 	@private CFMutableDictionaryRef connectionRequestMap;
     
-    // has the user been alerted that there is a problem?
-	@private BOOL alerted;
 	@private NSNumberFormatter *nf;
     
 }
@@ -43,13 +41,13 @@
 
 - (void) loadMetadataForService:(NSString *)serviceId;
 
-- (BOOL) testConnectivity;
-
 - (NSMutableArray *)getServices;
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
+
+- (void)monitorQuery:(NSMutableDictionary *)request;
 
 - (void)executeQuery:(NSMutableDictionary *)request;
 
