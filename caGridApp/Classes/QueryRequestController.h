@@ -18,7 +18,7 @@
     QueryResultsController *resultsController;
 	NSMutableArray *queryRequests;
     NSMutableDictionary *service;
-    
+    NSMutableDictionary *requestToRetry;    
 }
 
 @property (nonatomic, retain) UISearchBar *searchBarOutlet;
@@ -27,6 +27,7 @@
 @property (nonatomic, retain) QueryResultsController *resultsController;
 @property (nonatomic, retain) NSMutableArray *queryRequests;
 @property (nonatomic, retain) NSMutableDictionary *service;
+@property (nonatomic, retain) NSMutableDictionary *requestToRetry;
 
 - (void)resetView;
 
