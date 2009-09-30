@@ -8,14 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@class QueryResultsController;
+@class QueryServicesController;
 
 @interface QueryRequestController : UIViewController <UISearchBarDelegate> {
 	
     IBOutlet UISearchBar *searchBarOutlet;
     IBOutlet UITableView *requestsTable;
 	UINavigationController *navController;
-    QueryResultsController *resultsController;
+    QueryServicesController *serviceResultsController;
 	NSMutableArray *queryRequests;
     NSMutableDictionary *service;
     NSMutableDictionary *requestToRetry;    
@@ -24,7 +24,7 @@
 @property (nonatomic, retain) UISearchBar *searchBarOutlet;
 @property (nonatomic, retain) UITableView *requestsTable;
 @property (nonatomic, retain) UINavigationController *navController;
-@property (nonatomic, retain) QueryResultsController *resultsController;
+@property (nonatomic, retain) QueryServicesController *serviceResultsController;
 @property (nonatomic, retain) NSMutableArray *queryRequests;
 @property (nonatomic, retain) NSMutableDictionary *service;
 @property (nonatomic, retain) NSMutableDictionary *requestToRetry;

@@ -125,7 +125,7 @@
 	// Populate the cell
 	
 	cell.titleLabel.text = [NSString stringWithFormat:@"%@ %@",[service objectForKey:@"name"],[service objectForKey:@"version"]];
-	cell.ownerLabel.text = [[service objectForKey:@"hosting_center"] objectForKey:@"short_name"];
+	cell.descLabel.text = [[service objectForKey:@"hosting_center"] objectForKey:@"short_name"];
 	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"icon_%@.png",[Util getIconNameForClass:class andStatus:status]]];
 	
 	return cell;
@@ -156,7 +156,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView
 		heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	return GRID_SERVICE_CELL_HEIGHT;
+	return DEFAULT_2VAL_CELL_HEIGHT;
 }
 
 

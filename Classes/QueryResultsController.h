@@ -13,12 +13,15 @@
 @interface QueryResultsController : UITableViewController {
 	UINavigationController *navController;
     QueryResultDetailController *detailController;
-	NSMutableDictionary *request;
+	NSMutableDictionary *service;
+    NSMutableArray *results;
 }
 
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) QueryResultDetailController *detailController;
-@property (nonatomic, retain) NSMutableDictionary *request;
+@property (nonatomic, retain) NSMutableDictionary *service;
+@property (nonatomic, retain) NSMutableArray *results;
 
+- (void)displayResults:(NSMutableArray *)resultArray forService:(NSMutableDictionary *)serviceDict;
 
 @end

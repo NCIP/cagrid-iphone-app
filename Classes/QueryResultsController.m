@@ -13,7 +13,13 @@
 @implementation QueryResultsController
 @synthesize navController;
 @synthesize detailController;
-@synthesize request;
+@synthesize results;
+@synthesize service;
+
+- (void)displayResults:(NSMutableArray *)resultArray forService:(NSMutableDictionary *)serviceDict {
+	self.results = resultArray;
+    self.service = serviceDict;
+}
 
 - (void)viewDidLoad {
 	self.title = @"Results";
@@ -21,7 +27,9 @@
 
 - (void)dealloc {
 	self.navController = nil;
-	self.request = nil;
+	self.detailController = nil;
+	self.results = nil;
+	self.service = nil;
     [super dealloc];
 }
 
@@ -31,7 +39,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  		numberOfRowsInSection:(NSInteger)section {
-	return [[request objectForKey:@"results"] count];
+	return [results count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -46,7 +54,7 @@
 		cell = [nib objectAtIndex:0];
 	}
     
-    NSMutableDictionary *result = [[request objectForKey:@"results"] objectAtIndex:[indexPath row]];
+    NSMutableDictionary *result = [results objectAtIndex:[indexPath row]];
     
     NSString *title = nil;
     NSString *desc = nil;
@@ -57,7 +65,6 @@
     }
     else if ([result objectForKey:@"Barcode"] != nil) {
 		title = [result objectForKey:@"Barcode"];
-
     }
     else if ([result objectForKey:@"Image Study Instance UID"] != nil) {
 		title = [result objectForKey:@"Image Study Instance UID"];
@@ -87,7 +94,7 @@
 		detailController.navController = navController;
 	}
 	
-    NSMutableDictionary *result = [[request objectForKey:@"results"] objectAtIndex:[indexPath row]];
+    NSMutableDictionary *result = [results objectAtIndex:[indexPath row]];
     [detailController displayResult:result];
 	
 	[navController pushViewController:detailController animated:YES];	
