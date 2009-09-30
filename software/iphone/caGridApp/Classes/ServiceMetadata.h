@@ -17,7 +17,8 @@
     
     // services
 	@private NSMutableArray *services;
-	@private NSMutableDictionary *serviceLookup;		
+	@private NSMutableDictionary *servicesById;	
+	@private NSMutableDictionary *servicesByUrl;		
 	@private NSMutableDictionary *metadata;
     
     // searching
@@ -30,7 +31,8 @@
 
 @property (nonatomic, retain) NSString *deviceId;
 @property (nonatomic, retain) NSMutableArray *services;
-@property (nonatomic, retain) NSMutableDictionary *serviceLookup;
+@property (nonatomic, retain) NSMutableDictionary *servicesById;
+@property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
 @property (nonatomic, retain) NSMutableDictionary *metadata;
 @property (nonatomic, retain) id delegate;
 @property (nonatomic, retain)  NSNumberFormatter *nf;
@@ -44,6 +46,8 @@
 - (NSMutableArray *)getServices;
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
+
+- (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl;
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
 

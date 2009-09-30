@@ -7,7 +7,7 @@
 //
 
 #import "QueryRequestController.h"
-#import "QueryResultsController.h"
+#import "QueryServicesController.h"
 #import "QueryRequestCell.h"
 #import "ServiceMetadata.h"
 #import "Util.h"
@@ -18,7 +18,7 @@
 @synthesize searchBarOutlet;
 @synthesize requestsTable;
 @synthesize navController;
-@synthesize resultsController;
+@synthesize serviceResultsController;
 @synthesize queryRequests;
 @synthesize service;
 @synthesize requestToRetry;
@@ -101,7 +101,9 @@
                       [service objectForKey:@"hosting_center_name"]];
         self.searchBarOutlet.showsScopeBar = NO;
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
-				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+				initWithTitle:@"Search all" 
+				style:UIBarButtonItemStyleBordered 
+//				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
 				target:self 
 				action:@selector(clickDoneButton:)];
         
@@ -265,14 +267,12 @@
     	return;
     }
     
-	if (resultsController == nil) {
-		self.resultsController = [[QueryResultsController alloc] init];
-		resultsController.navController = navController;
+	if (serviceResultsController == nil) {
+		self.serviceResultsController = [[QueryServicesController alloc] init];
+		serviceResultsController.navController = navController;
 	}
-    resultsController.request = queryRequest;
-	
-	[resultsController.tableView reloadData];
-	[navController pushViewController:resultsController animated:YES];	
+    [serviceResultsController displayRequest:queryRequest];	
+	[navController pushViewController:serviceResultsController animated:YES];	
 }
 
 - (CGFloat)tableView:(UITableView *)tableView

@@ -6,21 +6,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TwoValueCell.h"
 
 #define GRID_SERVICE_CELL_HEIGHT 44
 
-@interface GridServiceCell : UITableViewCell {
-	IBOutlet UILabel *titleLabel;
-	IBOutlet UILabel *descLabel;
-	IBOutlet UILabel *ownerLabel;
-	IBOutlet UILabel *statusLabel;
+@interface GridServiceCell : TwoValueCell {
 	IBOutlet UIImageView *icon;
 }
 
-@property (nonatomic, retain) UILabel *titleLabel;
-@property (nonatomic, retain) UILabel *descLabel;
-@property (nonatomic, retain) UILabel *ownerLabel;
-@property (nonatomic, retain) UILabel *statusLabel;
 @property (nonatomic, retain) UIImageView *icon;
 
 @end

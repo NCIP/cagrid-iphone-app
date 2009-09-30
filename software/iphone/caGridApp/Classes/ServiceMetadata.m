@@ -14,7 +14,8 @@
 @implementation ServiceMetadata
 @synthesize deviceId;
 @synthesize services;
-@synthesize serviceLookup;
+@synthesize servicesById;
+@synthesize servicesByUrl;
 @synthesize metadata;
 @synthesize delegate;
 @synthesize nf;
@@ -110,13 +111,15 @@
         [Util displayCustomError:error withMessage:message];
     }
     
-	self.serviceLookup = [NSMutableDictionary dictionary];
+	self.servicesById = [NSMutableDictionary dictionary];
+    self.servicesByUrl = [NSMutableDictionary dictionary];
 	
 	for(NSMutableDictionary *service in services) {
 		[self generateComputedFieldsForService:service];
 		
-		// populate lookup table
-		[serviceLookup setObject:service forKey:[service valueForKey:@"id"]];
+		// populate lookup tables
+		[servicesById setObject:service forKey:[service valueForKey:@"id"]];
+		[servicesByUrl setObject:service forKey:[service valueForKey:@"url"]];
 	}
 	
 	// sort by name, hosting center, and finally version descending
@@ -183,7 +186,12 @@
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId {
 	if (services == nil) [self loadData];
-	return [serviceLookup objectForKey:serviceId];
+	return [servicesById objectForKey:serviceId];
+}
+
+- (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl {
+    if (services == nil) [self loadData];
+	return [servicesByUrl objectForKey:serviceUrl];
 }
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId {
@@ -383,6 +391,7 @@
 //    [request setObject:allResults forKey:@"results"];
     
     [request setObject:results forKey:@"results"];
+    [request setObject:[root objectForKey:@"failedUrls"] forKey:@"failedUrls"];
     
 	if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
 		[self.delegate requestCompleted:results];
