@@ -36,7 +36,14 @@
 		A9693B091003B1C600FA59F5 /* ServiceMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693B081003B1C600FA59F5 /* ServiceMetadata.m */; };
 		A9693B6A1003BCA100FA59F5 /* services.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B691003BCA100FA59F5 /* services.js */; };
 		A9693B8A1003BE6800FA59F5 /* servicedetail.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B891003BE6800FA59F5 /* servicedetail.js */; };
-		A9AE08230FF2C39D002A773F /* Categories.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9AE08220FF2C39D002A773F /* Categories.xib */; };
+		A97A87AD106C6BCD00C09566 /* QueryRequestCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A87A9106C6BCD00C09566 /* QueryRequestCell.m */; };
+		A97A87AE106C6BCD00C09566 /* TwoValueCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A87AC106C6BCD00C09566 /* TwoValueCell.m */; };
+		A97A8816106C6DA800C09566 /* QueryServicesController.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A8815106C6DA800C09566 /* QueryServicesController.m */; };
+		A99EB87C1072BD6400BB2A95 /* FullAttributeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */; };
+		A99EB87D1072BD6400BB2A95 /* QueryRequestCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */; };
+		A99EB87E1072BD6400BB2A95 /* QueryResultCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */; };
+		A99EB8AA1072BE7000BB2A95 /* QueryServiceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB8A91072BE7000BB2A95 /* QueryServiceCell.xib */; };
+		A99EB8B21072BF0800BB2A95 /* QueryServiceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A99EB8B11072BF0800BB2A95 /* QueryServiceCell.m */; };
 		A9D898EB1014E66300301DA0 /* icon_large_as_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */; };
 		A9D898EC1014E66300301DA0 /* icon_ds_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E41014E66300301DA0 /* icon_ds_active.png */; };
 		A9D898ED1014E66300301DA0 /* icon_as_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E51014E66300301DA0 /* icon_as_active.png */; };
@@ -63,7 +70,7 @@
 		9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryRequestController.m; sourceTree = "<group>"; };
 		9D4CCF8E103A6B66000EAA83 /* SearchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchController.h; sourceTree = "<group>"; };
 		9D4CCF8F103A6B66000EAA83 /* SearchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchController.m; sourceTree = "<group>"; };
-		9DA624021055ECAE00117D95 /* QueryRequestView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = QueryRequestView.xib; path = ../QueryRequestView.xib; sourceTree = "<group>"; };
+		9DA624021055ECAE00117D95 /* QueryRequestView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryRequestView.xib; sourceTree = "<group>"; };
 		9DA624061055ECC900117D95 /* QueryResultDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryResultDetailController.h; sourceTree = "<group>"; };
 		9DA624071055ECC900117D95 /* QueryResultDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryResultDetailController.m; sourceTree = "<group>"; };
 		9DA624081055ECC900117D95 /* QueryResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryResultsController.h; sourceTree = "<group>"; };
@@ -97,7 +104,18 @@
 		A9693B081003B1C600FA59F5 /* ServiceMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceMetadata.m; sourceTree = "<group>"; };
 		A9693B691003BCA100FA59F5 /* services.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = services.js; sourceTree = "<group>"; };
 		A9693B891003BE6800FA59F5 /* servicedetail.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = servicedetail.js; sourceTree = "<group>"; };
-		A9AE08220FF2C39D002A773F /* Categories.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Categories.xib; sourceTree = "<group>"; };
+		A97A87A8106C6BCD00C09566 /* QueryRequestCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryRequestCell.h; sourceTree = "<group>"; };
+		A97A87A9106C6BCD00C09566 /* QueryRequestCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryRequestCell.m; sourceTree = "<group>"; };
+		A97A87AB106C6BCD00C09566 /* TwoValueCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwoValueCell.h; sourceTree = "<group>"; };
+		A97A87AC106C6BCD00C09566 /* TwoValueCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwoValueCell.m; sourceTree = "<group>"; };
+		A97A8814106C6DA800C09566 /* QueryServicesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryServicesController.h; sourceTree = "<group>"; };
+		A97A8815106C6DA800C09566 /* QueryServicesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryServicesController.m; sourceTree = "<group>"; };
+		A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FullAttributeView.xib; sourceTree = "<group>"; };
+		A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryRequestCell.xib; sourceTree = "<group>"; };
+		A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryResultCell.xib; sourceTree = "<group>"; };
+		A99EB8A91072BE7000BB2A95 /* QueryServiceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryServiceCell.xib; sourceTree = "<group>"; };
+		A99EB8B01072BF0800BB2A95 /* QueryServiceCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryServiceCell.h; sourceTree = "<group>"; };
+		A99EB8B11072BF0800BB2A95 /* QueryServiceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryServiceCell.m; sourceTree = "<group>"; };
 		A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_as_inactive.png; sourceTree = "<group>"; };
 		A9D898E41014E66300301DA0 /* icon_ds_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ds_active.png; sourceTree = "<group>"; };
 		A9D898E51014E66300301DA0 /* icon_as_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_as_active.png; sourceTree = "<group>"; };
@@ -125,30 +143,13 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				9DA62412105C1AB700117D95 /* FullAttributeController.h */,
-				9DA62413105C1AB700117D95 /* FullAttributeController.m */,
-				9DA624061055ECC900117D95 /* QueryResultDetailController.h */,
-				9DA624071055ECC900117D95 /* QueryResultDetailController.m */,
-				9DA624081055ECC900117D95 /* QueryResultsController.h */,
-				9DA624091055ECC900117D95 /* QueryResultsController.m */,
-				9DA624021055ECAE00117D95 /* QueryRequestView.xib */,
+				A97A87B0106C6C6600C09566 /* Utilities */,
+				A97A87AF106C6C3F00C09566 /* Cells */,
 				A94A05F7100D2B0D00A7822B /* Controllers */,
-				A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */,
-				A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */,
-				A935435B101BD97000988B88 /* GridServicePropCell.h */,
-				A935435C101BD97000988B88 /* GridServicePropCell.m */,
-				A9693B071003B1C600FA59F5 /* ServiceMetadata.h */,
-				A9693B081003B1C600FA59F5 /* ServiceMetadata.m */,
 				1D3623240D0F684500981E51 /* CaGridAppDelegate.h */,
 				1D3623250D0F684500981E51 /* CaGridAppDelegate.m */,
-				9D4CCF8C103A6B66000EAA83 /* QueryRequestController.h */,
-				9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */,
-				9D4CCF8E103A6B66000EAA83 /* SearchController.h */,
-				9D4CCF8F103A6B66000EAA83 /* SearchController.m */,
-				A9693AE11003A93300FA59F5 /* Label2.h */,
-				A9693AE21003A93300FA59F5 /* Label2.m */,
-				A93543ED101BF06300988B88 /* Util.h */,
-				A93543EE101BF06300988B88 /* Util.m */,
+				A9693B071003B1C600FA59F5 /* ServiceMetadata.h */,
+				A9693B081003B1C600FA59F5 /* ServiceMetadata.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -185,6 +186,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8D1107310486CEB800E47090 /* Info.plist */,
 				A93543451019362C00988B88 /* folder.png */,
 				A9D898E61014E66300301DA0 /* icon_large_as_active.png */,
 				A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */,
@@ -196,12 +198,15 @@
 				A9D898EA1014E66300301DA0 /* icon_as_inactive.png */,
 				A9693B891003BE6800FA59F5 /* servicedetail.js */,
 				A9693B691003BCA100FA59F5 /* services.js */,
-				A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */,
-				A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */,
-				282CCBFD0DB6C98000C4EA27 /* SearchView.xib */,
 				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
-				8D1107310486CEB800E47090 /* Info.plist */,
-				A9AE08220FF2C39D002A773F /* Categories.xib */,
+				282CCBFD0DB6C98000C4EA27 /* SearchView.xib */,
+				9DA624021055ECAE00117D95 /* QueryRequestView.xib */,
+				A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */,
+				A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */,
+				A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */,
+				A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */,
+				A99EB8A91072BE7000BB2A95 /* QueryServiceCell.xib */,
+				A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -231,8 +236,48 @@
 				A94A0525100CD48C00A7822B /* CategoryTypeController.m */,
 				A94A073B1012262100A7822B /* FavoritesController.h */,
 				A94A073C1012262100A7822B /* FavoritesController.m */,
+				9D4CCF8E103A6B66000EAA83 /* SearchController.h */,
+				9D4CCF8F103A6B66000EAA83 /* SearchController.m */,
+				9D4CCF8C103A6B66000EAA83 /* QueryRequestController.h */,
+				9D4CCF8D103A6B66000EAA83 /* QueryRequestController.m */,
+				A97A8814106C6DA800C09566 /* QueryServicesController.h */,
+				A97A8815106C6DA800C09566 /* QueryServicesController.m */,
+				9DA624081055ECC900117D95 /* QueryResultsController.h */,
+				9DA624091055ECC900117D95 /* QueryResultsController.m */,
+				9DA624061055ECC900117D95 /* QueryResultDetailController.h */,
+				9DA624071055ECC900117D95 /* QueryResultDetailController.m */,
+				9DA62412105C1AB700117D95 /* FullAttributeController.h */,
+				9DA62413105C1AB700117D95 /* FullAttributeController.m */,
 			);
 			name = Controllers;
+			sourceTree = "<group>";
+		};
+		A97A87AF106C6C3F00C09566 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				A97A87AB106C6BCD00C09566 /* TwoValueCell.h */,
+				A97A87AC106C6BCD00C09566 /* TwoValueCell.m */,
+				A97A87A8106C6BCD00C09566 /* QueryRequestCell.h */,
+				A97A87A9106C6BCD00C09566 /* QueryRequestCell.m */,
+				A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */,
+				A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */,
+				A935435B101BD97000988B88 /* GridServicePropCell.h */,
+				A935435C101BD97000988B88 /* GridServicePropCell.m */,
+				A99EB8B01072BF0800BB2A95 /* QueryServiceCell.h */,
+				A99EB8B11072BF0800BB2A95 /* QueryServiceCell.m */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
+		A97A87B0106C6C6600C09566 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A9693AE11003A93300FA59F5 /* Label2.h */,
+				A9693AE21003A93300FA59F5 /* Label2.m */,
+				A93543ED101BF06300988B88 /* Util.h */,
+				A93543EE101BF06300988B88 /* Util.m */,
+			);
+			name = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -279,7 +324,6 @@
 			files = (
 				28AD73880D9D96C1002E5188 /* MainWindow.xib in Resources */,
 				282CCBFE0DB6C98000C4EA27 /* SearchView.xib in Resources */,
-				A9AE08230FF2C39D002A773F /* Categories.xib in Resources */,
 				A9693A501002E3DF00FA59F5 /* GridServiceCell.xib in Resources */,
 				A9693A681002FB6100FA59F5 /* GridServicePropCell.xib in Resources */,
 				A9693B6A1003BCA100FA59F5 /* services.js in Resources */,
@@ -294,6 +338,10 @@
 				A9D898F21014E66300301DA0 /* icon_as_inactive.png in Resources */,
 				A93543461019362C00988B88 /* folder.png in Resources */,
 				9DA624031055ECAE00117D95 /* QueryRequestView.xib in Resources */,
+				A99EB87C1072BD6400BB2A95 /* FullAttributeView.xib in Resources */,
+				A99EB87D1072BD6400BB2A95 /* QueryRequestCell.xib in Resources */,
+				A99EB87E1072BD6400BB2A95 /* QueryResultCell.xib in Resources */,
+				A99EB8AA1072BE7000BB2A95 /* QueryServiceCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,6 +370,10 @@
 				9DA6240A1055ECC900117D95 /* QueryResultDetailController.m in Sources */,
 				9DA6240B1055ECC900117D95 /* QueryResultsController.m in Sources */,
 				9DA62414105C1AB700117D95 /* FullAttributeController.m in Sources */,
+				A97A87AD106C6BCD00C09566 /* QueryRequestCell.m in Sources */,
+				A97A87AE106C6BCD00C09566 /* TwoValueCell.m in Sources */,
+				A97A8816106C6DA800C09566 /* QueryServicesController.m in Sources */,
+				A99EB8B21072BF0800BB2A95 /* QueryServiceCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
