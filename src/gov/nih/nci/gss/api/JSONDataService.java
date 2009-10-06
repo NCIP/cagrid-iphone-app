@@ -8,6 +8,8 @@ import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
+import gov.nih.nci.gss.util.Cab2bTranslator;
+import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
@@ -90,7 +92,7 @@ public class JSONDataService extends HttpServlet {
     /** Service that manages background queries and results */
     private QueryService queryService;
     
-    
+    private NamingUtil namingUtil;
     
     @Override
     public void init() throws ServletException {
@@ -104,7 +106,7 @@ public class JSONDataService extends HttpServlet {
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
             
-            
+            this.namingUtil = new NamingUtil(sessionFactory);
         }
         catch (Exception e) {
             throw new ServletException(e);
@@ -324,7 +326,9 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("name", service.getName());
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
-        jsonService.put("simple_name", service.getSimpleName());
+        // TODO: move this into the scheduled job
+        jsonService.put("simple_name", namingUtil.getSimpleName(service.getName()));
+        //jsonService.put("simple_name", service.getSimpleName());
         jsonService.put("url", service.getUrl());
 
         if (service instanceof DataService) {
@@ -555,7 +559,8 @@ public class JSONDataService extends HttpServlet {
      * @return JSON-formatted String
      */
     private String getJSONError(String exception, String message) {
-        return "{\"error\":\""+exception+"\",\"message\":\""+message+"\"}";
+        return "{\"error\":"+JSONObject.quote(exception)+
+                ",\"message\":"+JSONObject.quote(message)+"}";
     }
     
     /**

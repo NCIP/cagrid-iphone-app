@@ -1,4 +1,4 @@
-package gov.nih.nci.gss.api;
+package gov.nih.nci.gss.util;
 
 import gov.nih.nci.gss.domain.DataServiceGroup;
 

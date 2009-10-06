@@ -119,9 +119,9 @@ SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `SIMPLE_NAMES`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `SIMPLE_NAMES` (
+CREATE TABLE `SIMPLE_NAME` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(512) default NULL,
+  `PATTERN` varchar(512) default NULL,
   `SIMPLE_NAME` varchar(512) default NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

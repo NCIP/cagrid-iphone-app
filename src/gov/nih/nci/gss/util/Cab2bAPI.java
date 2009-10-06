@@ -1,6 +1,5 @@
 package gov.nih.nci.gss.util;
 
-import gov.nih.nci.gss.api.Cab2bTranslator;
 
 import java.io.InputStream;
 import java.util.ArrayList;
