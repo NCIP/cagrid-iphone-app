@@ -1,6 +1,6 @@
 package gov.nih.nci.gss.api;
 
-import gov.nih.nci.gss.DataServiceGroup;
+import gov.nih.nci.gss.domain.DataServiceGroup;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +34,7 @@ public class Cab2bTranslator {
         Session s = sessionFactory.openSession();
         try {
         	log.info("Configuring data service groups:");
-            List<DataServiceGroup> groups = s.createQuery("from gov.nih.nci.gss.DataServiceGroup").list();
+            List<DataServiceGroup> groups = s.createCriteria(DataServiceGroup.class).list();
             
             for(DataServiceGroup group : groups) {
             	log.info(group.getName()+" -> "+group.getCab2bName()+

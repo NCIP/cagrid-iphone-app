@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS `DATA_SERVICE_GROUP`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `DATA_SERVICE_GROUP` (
-  `ID` bigint(20) NOT NULL,
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(512) NOT NULL,
   `CAB2B_NAME` varchar(512) NOT NULL,
   `DATA_PRIMARY_KEY` varchar(512) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE `GRID_SERVICE` (
   `DESCRIPTION` varchar(2000) default NULL,
   `NAME` varchar(512) NOT NULL,
   `PUBLISH_DATE` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `TYPE` varchar(255) default NULL,
+  `SIMPLE_NAME` varchar(255) default NULL,
   `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,
   `VERSION` varchar(255) default NULL,
@@ -116,3 +116,13 @@ CREATE TABLE `STATUS_CHANGE` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
+DROP TABLE IF EXISTS `SIMPLE_NAMES`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `SIMPLE_NAMES` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(512) default NULL,
+  `SIMPLE_NAME` varchar(512) default NULL,
+  PRIMARY KEY  (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;

@@ -2,10 +2,8 @@ package gov.nih.nci.gss.api;
 
 import gov.nih.nci.gss.util.Cab2bAPI;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
 import net.sf.ehcache.Cache;

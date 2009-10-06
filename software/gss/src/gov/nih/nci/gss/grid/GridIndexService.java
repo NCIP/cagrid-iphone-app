@@ -3,34 +3,28 @@ package gov.nih.nci.gss.grid;
 import gov.nih.nci.cagrid.discovery.client.DiscoveryClient;
 import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
-import gov.nih.nci.cagrid.metadata.dataservice.UMLClass;
 import gov.nih.nci.cagrid.metadata.common.Address;
-import gov.nih.nci.cagrid.metadata.common.PointOfContact;
 import gov.nih.nci.cagrid.metadata.common.ResearchCenter;
 import gov.nih.nci.cagrid.metadata.dataservice.DomainModel;
+import gov.nih.nci.cagrid.metadata.dataservice.UMLClass;
 import gov.nih.nci.cagrid.metadata.exceptions.InvalidResourcePropertyException;
 import gov.nih.nci.cagrid.metadata.exceptions.QueryInvalidException;
 import gov.nih.nci.cagrid.metadata.exceptions.RemoteResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.exceptions.ResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.service.Service;
-import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
+import gov.nih.nci.gss.domain.AnalyticalService;
+import gov.nih.nci.gss.domain.DataService;
+import gov.nih.nci.gss.domain.DomainClass;
+import gov.nih.nci.gss.domain.GridService;
+import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.util.Constants;
-import gov.nih.nci.gss.DomainClass;
-import gov.nih.nci.gss.GridService;
-import gov.nih.nci.gss.DataService;
-import gov.nih.nci.gss.AnalyticalService;
-import gov.nih.nci.gss.HostingCenter;
 
-import java.net.ConnectException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI.MalformedURIException;
@@ -156,7 +150,7 @@ public class GridIndexService {
     	newService.setDescription(serviceData.getDescription());
     	newService.setVersion(serviceData.getVersion());
     	newService.setUrl(serviceER.getAddress().toString());
-    	newService.setType(translateServiceType(serviceData.getName()));
+    	newService.setSimpleName(translateServiceType(serviceData.getName()));
     	
     	// Get POC objects
 		newService.setPointOfContacts(populatePOCList(serviceData.getPointOfContactCollection().getPointOfContact()));
@@ -173,8 +167,8 @@ public class GridIndexService {
     	return newService;
     }
     
-    private static gov.nih.nci.gss.DomainModel populateDomainModel(DomainModel model) {
-    	gov.nih.nci.gss.DomainModel newModel = new gov.nih.nci.gss.DomainModel();
+    private static gov.nih.nci.gss.domain.DomainModel populateDomainModel(DomainModel model) {
+        gov.nih.nci.gss.domain.DomainModel newModel = new gov.nih.nci.gss.domain.DomainModel();
     	
     	newModel.setDescription(model.getProjectDescription());
     	newModel.setLongName(model.getProjectLongName());
@@ -194,12 +188,12 @@ public class GridIndexService {
 		return newModel;
 	}
 
-	private static Collection<gov.nih.nci.gss.PointOfContact> populatePOCList(gov.nih.nci.cagrid.metadata.common.PointOfContact[] POCs) {
+	private static Collection<gov.nih.nci.gss.domain.PointOfContact> populatePOCList(gov.nih.nci.cagrid.metadata.common.PointOfContact[] POCs) {
 
-    	Collection<gov.nih.nci.gss.PointOfContact> POClist = new HashSet<gov.nih.nci.gss.PointOfContact>();
+    	Collection<gov.nih.nci.gss.domain.PointOfContact> POClist = new HashSet<gov.nih.nci.gss.domain.PointOfContact>();
 		
 		for (gov.nih.nci.cagrid.metadata.common.PointOfContact POC : POCs) {
-			gov.nih.nci.gss.PointOfContact newPOC = new gov.nih.nci.gss.PointOfContact();
+			gov.nih.nci.gss.domain.PointOfContact newPOC = new gov.nih.nci.gss.domain.PointOfContact();
 			
 			newPOC.setAffiliation(POC.getAffiliation());
 			newPOC.setEmail(POC.getEmail());
@@ -217,7 +211,7 @@ public class GridIndexService {
 	}
 
 	private static HostingCenter populateHostingCenter(ServiceMetadata metadata) {
-		gov.nih.nci.gss.HostingCenter newCenter = new gov.nih.nci.gss.HostingCenter();
+		gov.nih.nci.gss.domain.HostingCenter newCenter = new gov.nih.nci.gss.domain.HostingCenter();
 
 		ResearchCenter center = metadata.getHostingResearchCenter().getResearchCenter();
 		

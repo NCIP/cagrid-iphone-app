@@ -3,11 +3,11 @@
  */
 package gov.nih.nci.gss.scheduler;
 
-import gov.nih.nci.gss.DataService;
-import gov.nih.nci.gss.GridService;
-import gov.nih.nci.gss.HostingCenter;
-import gov.nih.nci.gss.PointOfContact;
-import gov.nih.nci.gss.StatusChange;
+import gov.nih.nci.gss.domain.DataService;
+import gov.nih.nci.gss.domain.GridService;
+import gov.nih.nci.gss.domain.HostingCenter;
+import gov.nih.nci.gss.domain.PointOfContact;
+import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
 import gov.nih.nci.gss.util.HibernateUtil;
