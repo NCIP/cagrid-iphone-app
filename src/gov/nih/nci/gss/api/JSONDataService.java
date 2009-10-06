@@ -1,14 +1,13 @@
 package gov.nih.nci.gss.api;
 
-import gov.nih.nci.gss.DataService;
-import gov.nih.nci.gss.DataServiceGroup;
-import gov.nih.nci.gss.DomainClass;
-import gov.nih.nci.gss.DomainModel;
-import gov.nih.nci.gss.GridService;
-import gov.nih.nci.gss.HostingCenter;
-import gov.nih.nci.gss.PointOfContact;
-import gov.nih.nci.gss.StatusChange;
-import gov.nih.nci.gss.util.Cab2bAPI;
+import gov.nih.nci.gss.domain.DataService;
+import gov.nih.nci.gss.domain.DataServiceGroup;
+import gov.nih.nci.gss.domain.DomainClass;
+import gov.nih.nci.gss.domain.DomainModel;
+import gov.nih.nci.gss.domain.GridService;
+import gov.nih.nci.gss.domain.HostingCenter;
+import gov.nih.nci.gss.domain.PointOfContact;
+import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
@@ -70,7 +69,7 @@ public class JSONDataService extends HttpServlet {
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz");
     
     private static final String GET_SERVICE_HQL_SELECT = 
-             "select service from gov.nih.nci.gss.GridService service ";
+             "select service from gov.nih.nci.gss.domain.GridService service ";
 
     private static final String GET_SERVICE_HQL_JOIN_STATUS = 
             "left join fetch service.statusHistory status ";
@@ -78,7 +77,7 @@ public class JSONDataService extends HttpServlet {
     private static final String GET_SERVICE_HQL_WHERE_STATUS = 
              "where ((status.changeDate is null) or (status.changeDate = (" +
              "  select max(changeDate) " +
-             "  from gov.nih.nci.gss.StatusChange s " +
+             "  from gov.nih.nci.gss.domain.StatusChange s " +
              "  where s.gridService = service " +
              "))) ";
     
@@ -325,7 +324,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("name", service.getName());
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
-        jsonService.put("type", service.getType());
+        jsonService.put("simple_name", service.getSimpleName());
         jsonService.put("url", service.getUrl());
 
         if (service instanceof DataService) {
