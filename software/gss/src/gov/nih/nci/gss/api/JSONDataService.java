@@ -69,7 +69,7 @@ public class JSONDataService extends HttpServlet {
     /** Date format for serializing dates into JSON. 
      * Must match the data format used by the iPhone client */
     private static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz");
-    
+
     private static final String GET_SERVICE_HQL_SELECT = 
              "select service from gov.nih.nci.gss.domain.GridService service ";
 
@@ -82,6 +82,9 @@ public class JSONDataService extends HttpServlet {
              "  from gov.nih.nci.gss.domain.StatusChange s " +
              "  where s.gridService = service " +
              "))) ";
+
+    private static final String GET_HOST_HQL_SELECT = 
+             "select host from gov.nih.nci.gss.domain.HostingCenter host ";
     
     /** JSON string describing the usage of this service */
     private String usage;
@@ -196,6 +199,16 @@ public class JSONDataService extends HttpServlet {
             boolean includeMetadata = "1".equals(request.getParameter("metadata"));
             boolean includeModel = "1".equals(request.getParameter("model"));
             return getServiceJSON(id, includeMetadata, includeModel);
+        }
+        if ("host".equals(noun)) {
+            // Return details about hosts, or a single hosts
+            
+            String id = null;
+            if (pathList.length > 2) {
+                id = pathList[2];
+            }
+            
+            return getHostJSON(id);
         }
         else if ("runQuery".equals(noun)) { 
             // Query grid services using caB2B 
@@ -331,6 +344,13 @@ public class JSONDataService extends HttpServlet {
         //jsonService.put("simple_name", service.getSimpleName());
         jsonService.put("url", service.getUrl());
 
+        HostingCenter host = service.getHostingCenter();
+        if (host != null) {
+            jsonService.put("host_id", host.getId());
+            jsonService.put("host_short_name", host.getShortName());
+        }
+        
+
         if (service instanceof DataService) {
             DataService dataService = (DataService)service;
             DataServiceGroup group = dataService.getGroup();
@@ -391,11 +411,6 @@ public class JSONDataService extends HttpServlet {
                 
                 // service host short name
 
-                HostingCenter host = service.getHostingCenter();
-                JSONObject hostObj = new JSONObject();
-                jsonService.put("hosting_center", hostObj);
-                if (host != null) hostObj.put("short_name", host.getShortName());
-                
                 if (includeMetadata) {
                     
                     // service details
@@ -416,6 +431,10 @@ public class JSONDataService extends HttpServlet {
                     jsonService.put("pocs", jsonPocs);
                     
                     // service host details
+
+                    HostingCenter host = service.getHostingCenter();
+                    JSONObject hostObj = new JSONObject();
+                    jsonService.put("hosting_center", hostObj);
                     
                     if (host != null) {
                     
@@ -479,6 +498,72 @@ public class JSONDataService extends HttpServlet {
         return json.toString();
     }
 
+    /**
+     * Returns a JSON string with all the metadata about a particular host.
+     * @return JSON-formatted String
+     * @throws JSONException
+     * @throws ApplicationException
+     */
+    private String getHostJSON(String hostId) 
+            throws JSONException, ApplicationException {
+
+        Session s = sessionFactory.openSession();
+        JSONObject json = new JSONObject();
+        
+        try {
+            // Create the HQL query
+            StringBuffer hql = new StringBuffer(GET_HOST_HQL_SELECT);
+            if (hostId != null) hql.append("where host.id = ?");
+            
+            // Create the Hibernate Query
+            Query q = s.createQuery(hql.toString());
+            if (hostId != null) q.setString(0, hostId);
+            
+            // Execute the query
+            List<HostingCenter> hosts = q.list();
+            
+            JSONArray jsonArray = new JSONArray();
+            json.put("hosts", jsonArray);
+            
+            for (HostingCenter host : hosts) {
+
+                JSONObject hostObj = new JSONObject();
+                jsonArray.put(hostObj);
+                                
+                // service host details
+                
+                hostObj.put("id", host.getId());
+                hostObj.put("short_name", host.getShortName());
+                hostObj.put("long_name", host.getLongName());
+                hostObj.put("country_code", host.getCountryCode());
+                hostObj.put("state_province", host.getStateProvince());
+                hostObj.put("locality", host.getLocality());
+                hostObj.put("postal_code", host.getPostalCode());
+                hostObj.put("street", host.getStreet());
+                
+                // service host pocs
+
+                JSONArray jsonPocs = new JSONArray();
+                for (PointOfContact poc : host.getPointOfContacts()) {
+                    JSONObject jsonPoc = new JSONObject();
+                    jsonPoc.put("name", poc.getName());
+                    jsonPoc.put("role", poc.getRole());
+                    jsonPoc.put("affiliation", poc.getAffiliation());
+                    jsonPoc.put("email", poc.getEmail());
+                    jsonPocs.put(jsonPoc);
+                }
+                hostObj.put("pocs", jsonPocs);
+                
+            }
+
+        }
+        finally {
+            s.close();
+        }
+        
+        return json.toString();
+    }
+    
     /**
      * Returns a JSON string with the results (or error) produced by the given
      * query. The query should have already finished executing. If not, an
