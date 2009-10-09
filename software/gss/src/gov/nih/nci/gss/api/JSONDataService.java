@@ -335,7 +335,7 @@ public class JSONDataService extends HttpServlet {
             throws JSONException {
 
         JSONObject jsonService = new JSONObject();
-        jsonService.put("id", service.getId());
+        jsonService.put("id", service.getId().toString());
         jsonService.put("name", service.getName());
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
@@ -346,7 +346,7 @@ public class JSONDataService extends HttpServlet {
 
         HostingCenter host = service.getHostingCenter();
         if (host != null) {
-            jsonService.put("host_id", host.getId());
+            jsonService.put("host_id", host.getId().toString());
             jsonService.put("host_short_name", host.getShortName());
         }
         
@@ -532,7 +532,7 @@ public class JSONDataService extends HttpServlet {
                                 
                 // service host details
                 
-                hostObj.put("id", host.getId());
+                hostObj.put("id", host.getId().toString());
                 hostObj.put("short_name", host.getShortName());
                 hostObj.put("long_name", host.getLongName());
                 hostObj.put("country_code", host.getCountryCode());
