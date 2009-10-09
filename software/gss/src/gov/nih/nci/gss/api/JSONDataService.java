@@ -437,7 +437,8 @@ public class JSONDataService extends HttpServlet {
                     jsonService.put("hosting_center", hostObj);
                     
                     if (host != null) {
-                    
+
+                        hostObj.put("short_name", host.getShortName());
                         hostObj.put("long_name", host.getLongName());
                         hostObj.put("country_code", host.getCountryCode());
                         hostObj.put("state_province", host.getStateProvince());
