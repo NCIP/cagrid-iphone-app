@@ -14,15 +14,7 @@
 
 #define favoritesFilename @"favorites.plist"
 
-
-- (void)applicationWillTerminate:(NSNotification *)notification {
-	NSLog(@"Saving favorites to file");
-	[favorites writeToFile:[Util getPathFor:favoritesFilename] atomically:YES];
-}
-
-
-// To be called when the app is started
-- (void)loadFavorites {
+- (void)loadFromFile {
 	
 	NSString *filePath = [Util getPathFor:favoritesFilename];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
@@ -36,11 +28,16 @@
 	}
 }
 
-- (void)loadData {
+- (void)saveToFile {
+	NSLog(@"Saving favorites to file");
+	[favorites writeToFile:[Util getPathFor:favoritesFilename] atomically:YES];
+}
+
+- (void)reload {
 	
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
 		
-    self.filtered = [NSMutableArray array];
+    self.serviceList = [NSMutableArray array];
     
     for(NSString *serviceId in self.favorites) {
         NSMutableDictionary *service = [smdata getServiceById:serviceId];
@@ -53,10 +50,10 @@
             [service setObject:@"" forKey:@"version"];                
             [service setObject:serviceId forKey:@"id"];                
         }
-        if (service != nil) [filtered addObject:service];
+        if (service != nil) [serviceList addObject:service];
     }
     
-    [self.tableView reloadData];
+    [self.serviceTable reloadData];
 }
 
 - (void)viewDidLoad {
@@ -70,13 +67,6 @@
 								   action:@selector(toggleEdit:)];
 	self.navigationItem.rightBarButtonItem = editButton;
 	[editButton release];
-	
-	// Listen for application termination event
-	
-	UIApplication *app = [UIApplication sharedApplication];
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(applicationWillTerminate:) 
-												 name:UIApplicationWillTerminateNotification object:app];
 	
 	[super viewDidLoad];
 }
@@ -101,16 +91,16 @@
 		return;
 	}
 	
-	[self.filtered addObject:service];
+	[self.serviceList addObject:service];
 	[self.favorites addObject:serviceId];
-	[self.tableView reloadData];
+	[self.serviceTable reloadData];
 }
 
 -(void)removeFavorite:(NSString *)serviceId {
 	NSUInteger index = [self.favorites indexOfObject:serviceId];
 	[self.favorites removeObjectAtIndex:index];
-	[self.filtered removeObjectAtIndex:index];
-	[self.tableView reloadData];
+	[self.serviceList removeObjectAtIndex:index];
+	[self.serviceTable reloadData];
 }
 
 -(BOOL)isFavorite:(NSString *)serviceId {
@@ -121,8 +111,8 @@
 #pragma mark Actions
 
 -(IBAction)toggleEdit:(id)sender {
-	[self.tableView setEditing:!self.tableView.editing animated:YES];
-	self.navigationItem.rightBarButtonItem.title = self.tableView.editing ? @"Done" : @"Edit";
+	[self.serviceTable setEditing:!self.serviceTable.editing animated:YES];
+	self.navigationItem.rightBarButtonItem.title = self.serviceTable.editing ? @"Done" : @"Edit";
 }
 
 #pragma mark -
@@ -133,7 +123,7 @@
 		forRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	NSUInteger row = [indexPath row];
-	[self.filtered removeObjectAtIndex:row];
+	[self.serviceList removeObjectAtIndex:row];
 	[self.favorites removeObjectAtIndex:row];
 	[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
 					 withRowAnimation:UITableViewRowAnimationFade];

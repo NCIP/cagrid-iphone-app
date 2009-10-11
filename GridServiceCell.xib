@@ -49,7 +49,7 @@
 									<object class="IBUILabel" id="66639446">
 										<reference key="NSNextResponder" ref="713349773"/>
 										<int key="NSvFlags">292</int>
-										<string key="NSFrame">{{46, 5}, {236, 20}}</string>
+										<string key="NSFrame">{{46, 13}, {236, 20}}</string>
 										<reference key="NSSuperview" ref="713349773"/>
 										<object class="NSColor" key="IBUIBackgroundColor">
 											<int key="NSColorSpace">3</int>
@@ -61,7 +61,7 @@
 										<string key="IBUIText">caBIOService</string>
 										<object class="NSFont" key="IBUIFont">
 											<string key="NSName">Helvetica-Bold</string>
-											<double key="NSSize">1.400000e+01</double>
+											<double key="NSSize">1.500000e+01</double>
 											<int key="NSfFlags">16</int>
 										</object>
 										<object class="NSColor" key="IBUITextColor">
@@ -70,33 +70,8 @@
 										</object>
 										<nil key="IBUIHighlightedColor"/>
 										<int key="IBUIBaselineAdjustment">1</int>
+										<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 										<float key="IBUIMinimumFontSize">1.300000e+01</float>
-									</object>
-									<object class="IBUILabel" id="896268105">
-										<reference key="NSNextResponder" ref="713349773"/>
-										<int key="NSvFlags">292</int>
-										<string key="NSFrame">{{46, 21}, {236, 18}}</string>
-										<reference key="NSSuperview" ref="713349773"/>
-										<object class="NSColor" key="IBUIBackgroundColor">
-											<int key="NSColorSpace">3</int>
-											<bytes key="NSWhite">MSAwAA</bytes>
-										</object>
-										<bool key="IBUIOpaque">NO</bool>
-										<bool key="IBUIClipsSubviews">YES</bool>
-										<bool key="IBUIUserInteractionEnabled">NO</bool>
-										<string key="IBUIText">NCICB</string>
-										<object class="NSFont" key="IBUIFont">
-											<string key="NSName">ArialMT</string>
-											<double key="NSSize">1.200000e+01</double>
-											<int key="NSfFlags">16</int>
-										</object>
-										<object class="NSColor" key="IBUITextColor">
-											<int key="NSColorSpace">1</int>
-											<bytes key="NSRGB">MC4zNTY1NTczNyAwLjM1NjU1NzM3IDAuMzU2NTU3MzcAA</bytes>
-										</object>
-										<nil key="IBUIHighlightedColor"/>
-										<int key="IBUIBaselineAdjustment">1</int>
-										<float key="IBUIMinimumFontSize">1.200000e+01</float>
 									</object>
 									<object class="IBUIImageView" id="309469435">
 										<reference key="NSNextResponder" ref="713349773"/>
@@ -109,7 +84,35 @@
 										<bool key="IBUIUserInteractionEnabled">NO</bool>
 										<object class="NSCustomResource" key="IBUIImage">
 											<string key="NSClassName">NSImage</string>
-											<string key="NSResourceName">icon_ds_active.png</string>
+											<string key="NSResourceName">database.png</string>
+										</object>
+									</object>
+									<object class="IBUIImageView" id="626931417">
+										<reference key="NSNextResponder" ref="713349773"/>
+										<int key="NSvFlags">292</int>
+										<string key="NSFrame">{{24, 22}, {16, 16}}</string>
+										<reference key="NSSuperview" ref="713349773"/>
+										<bool key="IBUIOpaque">NO</bool>
+										<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+										<int key="IBUIContentMode">4</int>
+										<bool key="IBUIUserInteractionEnabled">NO</bool>
+										<object class="NSCustomResource" key="IBUIImage">
+											<string key="NSClassName">NSImage</string>
+											<string key="NSResourceName">yellow_star_sm.png</string>
+										</object>
+									</object>
+									<object class="IBUIImageView" id="473738901">
+										<reference key="NSNextResponder" ref="713349773"/>
+										<int key="NSvFlags">292</int>
+										<string key="NSFrame">{{15, 9}, {16, 16}}</string>
+										<reference key="NSSuperview" ref="713349773"/>
+										<bool key="IBUIOpaque">NO</bool>
+										<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+										<int key="IBUIContentMode">4</int>
+										<bool key="IBUIUserInteractionEnabled">NO</bool>
+										<object class="NSCustomResource" key="IBUIImage">
+											<string key="NSClassName">NSImage</string>
+											<string key="NSResourceName">tick.png</string>
 										</object>
 									</object>
 								</object>
@@ -125,7 +128,7 @@
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 							</object>
 						</object>
-						<string key="NSFrameSize">{300, 43}</string>
+						<string key="NSFrameSize">{287, 43}</string>
 						<reference key="NSSuperview" ref="316789821"/>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">3</int>
@@ -147,7 +150,7 @@
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 				<int key="IBUISeparatorStyle">1</int>
 				<int key="IBUISelectionStyle">2</int>
-				<int key="IBUIAccessoryType">1</int>
+				<int key="IBUIAccessoryType">2</int>
 				<reference key="IBUIContentView" ref="288339065"/>
 				<string key="IBUIReuseIdentifier">GridServiceCell</string>
 			</object>
@@ -173,11 +176,19 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">descLabel</string>
+						<string key="label">favIcon</string>
 						<reference key="source" ref="316789821"/>
-						<reference key="destination" ref="896268105"/>
+						<reference key="destination" ref="626931417"/>
 					</object>
-					<int key="connectionID">38</int>
+					<int key="connectionID">43</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">tickIcon</string>
+						<reference key="source" ref="316789821"/>
+						<reference key="destination" ref="473738901"/>
+					</object>
+					<int key="connectionID">44</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -217,8 +228,9 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="309469435"/>
+							<reference ref="626931417"/>
+							<reference ref="473738901"/>
 							<reference ref="66639446"/>
-							<reference ref="896268105"/>
 						</object>
 						<reference key="parent" ref="316789821"/>
 					</object>
@@ -233,8 +245,13 @@
 						<reference key="parent" ref="713349773"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">29</int>
-						<reference key="object" ref="896268105"/>
+						<int key="objectID">41</int>
+						<reference key="object" ref="626931417"/>
+						<reference key="parent" ref="713349773"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">42</int>
+						<reference key="object" ref="473738901"/>
 						<reference key="parent" ref="713349773"/>
 					</object>
 				</object>
@@ -249,14 +266,16 @@
 					<string>2.IBPluginDependency</string>
 					<string>21.IBPluginDependency</string>
 					<string>22.IBPluginDependency</string>
-					<string>29.IBPluginDependency</string>
 					<string>34.IBPluginDependency</string>
+					<string>41.IBPluginDependency</string>
+					<string>42.IBPluginDependency</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>UIResponder</string>
 					<string>GridServiceCell</string>
-					<string>{{17, 218}, {320, 44}}</string>
+					<string>{{78, 328}, {320, 44}}</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -284,7 +303,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">38</int>
+			<int key="maxID">44</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -293,8 +312,19 @@
 					<string key="className">GridServiceCell</string>
 					<string key="superclassName">TwoValueCell</string>
 					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">icon</string>
-						<string key="NS.object.0">UIImageView</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSMutableArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>favIcon</string>
+							<string>icon</string>
+							<string>tickIcon</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIImageView</string>
+							<string>UIImageView</string>
+							<string>UIImageView</string>
+						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>

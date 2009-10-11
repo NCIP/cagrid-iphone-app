@@ -86,7 +86,7 @@
 - (void)displayService:(NSMutableDictionary *)serviceDict {
 	
 	self.service = serviceDict;
-	self.title = [service objectForKey:@"name"];
+	self.title = [service objectForKey:@"display_name"];
 	self.sections = [NSMutableArray array];
 	self.headers = [NSMutableArray array];
 	self.heights = [NSMutableDictionary dictionary];
@@ -212,12 +212,21 @@
 		cell.descLabel.frame = descFrame;
 		cell.bounds = cellFrame;
 		
-		cell.titleLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];
-		cell.typeLabel.text = [class isEqualToString: @"DataService"] ? @"Data Service" : @"Analytical Service";
-		cell.statusLabel.text = @"Up since 1/2/2009";
+		cell.titleLabel.text = [service valueForKey:@"display_name"];
+		cell.typeLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];
+		cell.statusLabel.text = @"Serving data since 1/2/2009";
 		cell.descLabel.text = desc;
-		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"icon_large_%@.png",[Util getIconNameForClass:class andStatus:status]]];
+		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
 		
+		CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
+		FavoritesController *fc = appDelegate.favoritesController;
+		if ([fc isFavorite:[service objectForKey:@"id"]]) {
+        	[cell.favIcon setHidden:NO];
+        }
+        else {
+        	[cell.favIcon setHidden:YES];
+        }
+        
 		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
 		
 		return cell; 

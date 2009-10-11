@@ -10,9 +10,13 @@
 @implementation GridServiceCell
 
 @synthesize icon;
+@synthesize tickIcon;
+@synthesize favIcon;
 
 - (void)dealloc {
 	self.icon = nil;
+    self.tickIcon = nil;
+    self.favIcon = nil;
     [super dealloc];
 }
 

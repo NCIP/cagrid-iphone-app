@@ -9,6 +9,7 @@
 #import "CaGridAppDelegate.h"
 #import "FavoritesController.h"
 #import "QueryRequestController.h"
+#import "ServiceMetadata.h"
 
 @implementation CaGridAppDelegate
 
@@ -17,21 +18,18 @@
 @synthesize favoritesController;
 @synthesize queryRequestController;
 
+- (void)applicationWillTerminate:(UIApplication *)application {
+    NSLog(@"Application is about to terminate... write everything to files.");
+	[favoritesController saveToFile];
+   	[queryRequestController saveToFile];
+	[[ServiceMetadata sharedSingleton] saveToFile];    
+}
+
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 	
-    // Add the tab bar controller's current view as a subview of the window
-	[favoritesController loadFavorites];
-    
-	// add search controller tab (can't get it to work in IB like the rest of the tabs)    
-	self.queryRequestController = [[QueryRequestController alloc] initWithNibName:@"QueryRequestView" bundle:nil];
-	UINavigationController *queryNavController = [[UINavigationController alloc] initWithRootViewController:queryRequestController];
-	queryRequestController.navController = queryNavController;
-	queryNavController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemSearch tag:0];	
-	NSMutableArray *controllers = [NSMutableArray arrayWithArray:tabBarController.viewControllers];
-	tabBarController.viewControllers = [controllers arrayByAddingObject:queryNavController];
-	[queryRequestController loadQueries];
-	[queryRequestController release];
-	[queryNavController release];
+	[favoritesController loadFromFile];
+	[queryRequestController loadFromFile];
+	[ServiceMetadata sharedSingleton];
     
 	// add main view
     [window addSubview:tabBarController.view];
@@ -47,12 +45,17 @@
 	}
 	
     // end editing mode
-	if (favoritesController.tableView.editing) {
+	if (favoritesController.serviceTable.editing) {
 		[favoritesController toggleEdit:nil];
 	}
     
-    // end service query mode
-    [queryRequestController resetView];
+    // scroll to the top
+    UINavigationController *navController = (UINavigationController *)viewController;
+    
+    if ([navController.topViewController class] == [ServiceListController class]) {
+        ServiceListController *slc = (ServiceListController *)navController.topViewController;
+	    [slc.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
+    }
 }
 
 - (void)dealloc {

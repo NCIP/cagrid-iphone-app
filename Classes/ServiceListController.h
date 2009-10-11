@@ -12,26 +12,24 @@
 
 @class ServiceDetailController;
 
-@interface ServiceListController : UITableViewController <UISearchDisplayDelegate, UISearchBarDelegate> {
+@interface ServiceListController : UIViewController <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate> {
 	
+    IBOutlet UITableView *serviceTable;
 	IBOutlet UINavigationController *navController;
 	ServiceDetailController *detailController;
+	NSMutableArray *serviceList;
+    NSString *filterString;
 	NSMutableArray *filtered;
-	NSString *filterKey;
-	NSString *filterValue;
-	NSMutableArray *searched;
 
 }
 
+@property (nonatomic, retain) UITableView *serviceTable;
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) ServiceDetailController *detailController;
+@property (nonatomic, retain) NSMutableArray *serviceList;
+@property (nonatomic, retain) NSString *filterString;
 @property (nonatomic, retain) NSMutableArray *filtered;
-@property (nonatomic, retain) NSString *filterKey;
-@property (nonatomic, retain) NSString *filterValue;
-@property (nonatomic, retain) NSMutableArray *searched;
 
-- (void)filter:(NSString *)key forValue:(NSString *)value;
-
-- (void)loadData;
+- (void)reload;
 
 @end
