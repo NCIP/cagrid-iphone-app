@@ -15,6 +15,7 @@
 	IBOutlet UILabel *typeLabel;
 	IBOutlet UILabel *statusLabel;
 	IBOutlet UIImageView *icon;
+	IBOutlet UIImageView *favIcon;
 }
 
 @property (nonatomic, retain) UILabel *titleLabel;
@@ -22,5 +23,6 @@
 @property (nonatomic, retain) UILabel *typeLabel;
 @property (nonatomic, retain) UILabel *statusLabel;
 @property (nonatomic, retain) UIImageView *icon;
+@property (nonatomic, retain) UIImageView *favIcon;
 
 @end

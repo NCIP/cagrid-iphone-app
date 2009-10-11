@@ -16,6 +16,7 @@
 @synthesize typeLabel;
 @synthesize statusLabel;
 @synthesize icon;
+@synthesize favIcon;
 
 - (void)dealloc {
 	self.titleLabel = nil;
@@ -23,6 +24,7 @@
 	self.typeLabel = nil;
 	self.statusLabel = nil;
 	self.icon = nil;
+	self.favIcon = nil;
     [super dealloc];
 }
 

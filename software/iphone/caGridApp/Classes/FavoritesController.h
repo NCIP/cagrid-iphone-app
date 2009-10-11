@@ -15,9 +15,11 @@
 
 @property (nonatomic, retain) NSMutableArray *favorites;
 
+- (void)saveToFile;
+    
 -(IBAction)toggleEdit:(id)sender;
 
-- (void)loadFavorites;
+- (void)loadFromFile;
 	
 -(void)addFavorite:(NSString *)serviceId;
 

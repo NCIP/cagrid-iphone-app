@@ -12,16 +12,14 @@
 
 @interface QueryRequestController : UIViewController <UISearchBarDelegate> {
 	
-    IBOutlet UISearchBar *searchBarOutlet;
     IBOutlet UITableView *requestsTable;
-	UINavigationController *navController;
+	IBOutlet UINavigationController *navController;
     QueryServicesController *serviceResultsController;
 	NSMutableArray *queryRequests;
     NSMutableDictionary *service;
     NSMutableDictionary *requestToRetry;    
 }
 
-@property (nonatomic, retain) UISearchBar *searchBarOutlet;
 @property (nonatomic, retain) UITableView *requestsTable;
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) QueryServicesController *serviceResultsController;
@@ -31,6 +29,8 @@
 
 - (void)resetView;
 
-- (void)loadQueries;
+- (void)loadFromFile;
+
+- (void)saveToFile;
 
 @end

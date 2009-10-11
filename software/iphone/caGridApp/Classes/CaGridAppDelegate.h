@@ -15,7 +15,7 @@
     IBOutlet UIWindow *window;
     IBOutlet UITabBarController *tabBarController;
 	IBOutlet FavoritesController *favoritesController;
-    QueryRequestController *queryRequestController;
+    IBOutlet QueryRequestController *queryRequestController;
 }
 
 @property (nonatomic, retain) UIWindow *window;

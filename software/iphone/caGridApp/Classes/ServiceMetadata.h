@@ -19,13 +19,18 @@
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *servicesById;	
 	@private NSMutableDictionary *servicesByUrl;		
-	@private NSMutableDictionary *metadata;
+	@private NSMutableDictionary *servicesByGroup;
+    @private NSMutableDictionary *selectedServices;
     
+    // hosts
+	@private NSMutableArray *hosts;
+	@private NSMutableDictionary *hostsById;
+
     // searching
-	@private id delegate;    
 	@private CFMutableDictionaryRef connectionRequestMap;
-    
 	@private NSNumberFormatter *nf;
+    
+    @private id delegate;    
     
 }
 
@@ -33,23 +38,44 @@
 @property (nonatomic, retain) NSMutableArray *services;
 @property (nonatomic, retain) NSMutableDictionary *servicesById;
 @property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
-@property (nonatomic, retain) NSMutableDictionary *metadata;
+@property (nonatomic, retain) NSMutableDictionary *servicesByGroup;
+@property (nonatomic, retain) NSMutableDictionary *selectedServices;
+@property (nonatomic, retain) NSMutableArray *hosts;
+@property (nonatomic, retain) NSMutableDictionary *hostsById;
+@property (nonatomic, retain) NSNumberFormatter *nf;
 @property (nonatomic, retain) id delegate;
-@property (nonatomic, retain)  NSNumberFormatter *nf;
 
 + (ServiceMetadata *)sharedSingleton;
 
-- (void) loadData;
+- (void) loadFromFile;
+
+- (void) saveToFile;
+
+- (void) loadServices;
+
+- (void) loadHosts;
 
 - (void) loadMetadataForService:(NSString *)serviceId;
 
 - (NSMutableArray *)getServices;
 
+- (NSMutableArray *)getHosts;
+
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
+
+- (NSMutableDictionary *)getHostById:(NSString *)hostId;
 
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl;
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
+
+- (BOOL)isSelectedForSearch:(NSString *)serviceId;
+
+- (void)selectForSearch:(NSString *)serviceId;
+
+- (void)deselectForSearch:(NSString *)serviceId;
+
+- (NSMutableArray *)getServicesOfType:(DataType)dataType;
 
 - (void)monitorQuery:(NSMutableDictionary *)request;
 

@@ -16,32 +16,38 @@ static BOOL alerted = NO;
 + (NSString *) getIconNameForClass:(NSString *)class andStatus:(NSString *)status {
 	
 	if ([class isEqualToString:@"DataService"]) {
-		if ([[status lowercaseString] isEqualToString:@"active"]) {
-			return @"ds_active";
-		}
-		else {
-			return @"ds_inactive";	
-		}
+        return @"database";
+//		if ([[status lowercaseString] isEqualToString:@"active"]) {
+//			return @"ds_active";
+//		}
+//		else {
+//			return @"ds_inactive";	
+//		}
 	}
 	else {
-		if ([[status lowercaseString] isEqualToString:@"active"]) {
-			return @"as_active";
-		}
-		else {
-			return @"as_inactive";		
-		}		
+        return @"chart_bar";
+//		if ([[status lowercaseString] isEqualToString:@"active"]) {
+//			return @"as_active";
+//		}
+//		else {
+//			return @"as_inactive";		
+//		}		
 	}	
 }
 
-+ (BOOL) string:(NSString *)searchString isFoundIn:(NSString *)text {
-	return ([text rangeOfString:searchString options:(NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch)].location != NSNotFound);
+
++ (BOOL)string:(NSString *)searchStr isFoundIn:(NSString *)text {
+    if (searchStr == nil || text == nil) return NO;
+	return ([text rangeOfString:searchStr options:(NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch)].location != NSNotFound);
 }
+
 
 + (NSDate *) getDateFromString:(NSString *)dateString {
 	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
 	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2009-02-01 19:50:41 PST
 	return [dateFormat dateFromString:dateString];
 }
+
 
 + (void) displayNetworkError {
     
@@ -57,9 +63,11 @@ static BOOL alerted = NO;
     }
 }
 
+
 + (void) clearNetworkErrorState {
  	alerted = NO;   
 }
+
 
 + (void) displayCustomError:(NSString *)title withMessage:(NSString *)message {
 	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title 
@@ -71,10 +79,45 @@ static BOOL alerted = NO;
 	[alert autorelease];
 }
 
+
 + (NSString *)getPathFor:(NSString *)filename {
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *docsDir = [paths objectAtIndex:0];
 	return [docsDir stringByAppendingPathComponent:filename];
+}
+
+
++ (NSString *)getLabelForDataType:(DataType)dataType {
+    
+    switch (dataType) {
+        case DataTypeMicroarray:
+            return @"Microarray";
+        case DataTypeImaging:
+            return @"Imaging";
+        case DataTypeBiospecimen:
+            return @"Biospecimen";
+        case DataTypeNanoparticle:
+            return @"Nanoparticle";
+        default:
+            return @"Unknown";
+    }
+}
+
+
++ (NSString *)getNameForDataType:(DataType)dataType {
+    
+    switch (dataType) {
+        case DataTypeMicroarray:
+            return @"microarray";
+        case DataTypeImaging:
+            return @"imaging";
+        case DataTypeBiospecimen:
+            return @"biospecimen";
+        case DataTypeNanoparticle:
+            return @"nanoparticle";
+        default:
+            return nil;
+    }
 }
 
 @end

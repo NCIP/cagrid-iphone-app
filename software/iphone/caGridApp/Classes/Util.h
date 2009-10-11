@@ -8,6 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum {
+    DataTypeMicroarray   = 0,
+    DataTypeImaging      = 1,
+    DataTypeBiospecimen  = 2,
+    DataTypeNanoparticle = 3
+} DataType;
 
 @interface Util : NSObject {
 }
@@ -29,5 +35,9 @@
 + (void) displayCustomError:(NSString *)title withMessage:(NSString *)message;
 
 + (NSString *)getPathFor:(NSString *)filename;
-    
+
++ (NSString *)getLabelForDataType:(DataType)dataType;
+
++ (NSString *)getNameForDataType:(DataType)dataType;
+
 @end
