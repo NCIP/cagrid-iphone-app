@@ -9,15 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "TwoValueCell.h"
 
-#define QUERY_REQUEST_CELL_HEIGHT 44
+#define QUERY_REQUEST_CELL_HEIGHT 60
 
 @interface QueryRequestCell : TwoValueCell {
     
+    IBOutlet UILabel *locations;
 	IBOutlet UIActivityIndicatorView *indicator;
     IBOutlet UIImageView *alertImageView;
     
 }
 
+@property (nonatomic, retain) UILabel *locations;
 @property (nonatomic, retain) UIActivityIndicatorView *indicator;
 @property (nonatomic, retain) UIImageView *alertImageView;
 

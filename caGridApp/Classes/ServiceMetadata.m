@@ -11,14 +11,20 @@
 //#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
 #define BASE_URL @"http://biowiki.dnsalias.net:46210/gss10/json"
 
+#define servicesFilename @"cached.plist"
+
 @implementation ServiceMetadata
 @synthesize deviceId;
 @synthesize services;
 @synthesize servicesById;
 @synthesize servicesByUrl;
-@synthesize metadata;
-@synthesize delegate;
+@synthesize servicesByGroup;
+@synthesize selectedServices;
+@synthesize hosts;
+@synthesize hostsById;
 @synthesize nf;
+@synthesize delegate;
+
 
 - (id) init {
 	if (self = [super init]) {
@@ -26,7 +32,13 @@
         self.deviceId = [[UIDevice currentDevice] uniqueIdentifier];
         NSLog(@"device id = %@",deviceId);
         
-		self.metadata = [NSMutableDictionary dictionary];
+		self.services = [NSMutableArray array];
+        self.servicesById = [NSMutableDictionary dictionary];
+        self.servicesByUrl = [NSMutableDictionary dictionary];
+        self.servicesByGroup = [NSMutableDictionary dictionary];        
+        self.selectedServices = [NSMutableDictionary dictionary];                
+		self.hosts = [NSMutableArray array];        
+        self.hostsById = [NSMutableDictionary dictionary];
         
         NSNumberFormatter *nformat = [[NSNumberFormatter alloc] init];
         self.nf = nformat;
@@ -37,17 +49,21 @@
 	return self;
 }
 
+
 + (ServiceMetadata *)sharedSingleton {
 	static ServiceMetadata *sharedSingleton;
 	@synchronized(self) {
 		if (!sharedSingleton) {
 			sharedSingleton = [[ServiceMetadata alloc] init];
-			[sharedSingleton loadData];
+			//[sharedSingleton loadFromFile];
+			[sharedSingleton loadServices];
+			[sharedSingleton loadHosts];
 		}
 		return sharedSingleton;
 	}
 	return nil;
 }
+
 
 -(NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message {
 	NSMutableDictionary *errorDict = [NSMutableDictionary dictionary];
@@ -56,11 +72,20 @@
     return errorDict;
 }
 
+
 - (void) generateComputedFieldsForService:(NSMutableDictionary *)service {
     
     // parse certain fields into native objects
     [service setObject:[Util getDateFromString:[service objectForKey:@"publish_date"]] forKey:@"publish_date_obj"];
     [service setObject: [nf numberFromString:[service objectForKey:@"version"]] forKey:@"version_number"];
+    
+    NSString *host = [service objectForKey:@"host_short_name"];
+    if (host == nil) {
+        [service setObject: [service objectForKey:@"simple_name"] forKey:@"display_name"];
+    }
+    else {
+	    [service setObject: [NSString stringWithFormat:@"%@ at %@",[service objectForKey:@"simple_name"],host] forKey:@"display_name"];
+    }
     
     NSString *group = [service objectForKey:@"group"];
     if (group != nil) {
@@ -74,12 +99,73 @@
             [service setObject:@"Imaging Data" forKey:@"group_name"];                         
         }        
     }
-    
-    NSString *host = [[service valueForKey:@"hosting_center"] valueForKey:@"short_name"];
-    [service setObject: host == nil ? @"" : host forKey:@"hosting_center_name"];
 }
 
-- (void) loadData {
+
+- (void) updateService:(NSMutableDictionary *)service {
+    [self generateComputedFieldsForService:service];
+    [self.servicesById setObject:service forKey:[service valueForKey:@"id"]];
+	[self.servicesByUrl setObject:service forKey:[service valueForKey:@"url"]];
+}
+
+
+- (void) updateServiceDerivedObjects {
+    
+    [self.servicesById removeAllObjects];
+    [self.servicesByUrl removeAllObjects];
+    [self.servicesByGroup removeAllObjects];
+    
+    for(NSMutableDictionary *service in self.services) {
+        [self updateService:service];
+        
+        NSString *group = [service objectForKey:@"group"];
+        if (group != nil) {
+        	NSMutableArray *array = [servicesByGroup objectForKey:group];            
+            if (array == nil) {
+              	array = [NSMutableArray array];
+                [servicesByGroup setObject:array forKey:group];
+            }
+            [array addObject:service];   
+        }
+    }
+}
+
+- (void) updateHostDerivedObjects {
+    
+    [self.hostsById removeAllObjects];
+    
+    for(NSMutableDictionary *host in self.hosts) {
+		[self.hostsById setObject:host forKey:[host valueForKey:@"id"]];
+    }
+}
+
+
+- (void)loadFromFile {
+	
+	NSString *filePath = [Util getPathFor:servicesFilename];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+		NSLog(@"Reading services and hosts from file");
+		NSDictionary *dict = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
+        self.services = [dict objectForKey:@"services"];
+        self.hosts = [dict objectForKey:@"hosts"];
+        self.selectedServices = [dict objectForKey:@"selectedServices"];        
+		[self updateServiceDerivedObjects];
+        [self updateHostDerivedObjects];
+		[dict release];
+	}
+}
+
+- (void) saveToFile {
+	NSLog(@"Saving services to file");
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+	[dict setObject:self.services forKey:@"services"];
+	[dict setObject:self.hosts forKey:@"hosts"];
+	[dict setObject:self.selectedServices forKey:@"selectedServices"];   
+	[services writeToFile:[Util getPathFor:servicesFilename] atomically:YES];
+}
+
+
+- (void) loadServices {
 	
 	NSError *error = nil;
 	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service",BASE_URL]];
@@ -100,27 +186,20 @@
     }
     
     NSMutableDictionary *root = [jsonData JSONValue];
-	self.services = [root objectForKey:@"services"];
+	NSMutableArray *serviceDict = [root objectForKey:@"services"];    
     
-    if (self.services == nil) {
+    if (serviceDict == nil) {
         NSString *error = [root objectForKey:@"error"];
         NSString *message = [root objectForKey:@"message"];
         if (error == nil) error = @"Error loading data";
         if (message == nil) message = @"Service data could not be retrieved";
     	NSLog(@"loadData error: %@ - %@",error,message);
         [Util displayCustomError:error withMessage:message];
+        return;
     }
     
-	self.servicesById = [NSMutableDictionary dictionary];
-    self.servicesByUrl = [NSMutableDictionary dictionary];
-	
-	for(NSMutableDictionary *service in services) {
-		[self generateComputedFieldsForService:service];
-		
-		// populate lookup tables
-		[servicesById setObject:service forKey:[service valueForKey:@"id"]];
-		[servicesByUrl setObject:service forKey:[service valueForKey:@"url"]];
-	}
+    self.services = serviceDict;
+	[self updateServiceDerivedObjects];
 	
 	// sort by name, hosting center, and finally version descending
 	[services sortUsingDescriptors:[NSArray arrayWithObjects:
@@ -130,6 +209,52 @@
 						nil]];
 	
 	//NSLog(@"services: %@",services);
+	[jsonData release];
+}
+
+
+- (void) loadHosts {
+	
+	NSError *error = nil;
+	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/host",BASE_URL]];
+	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
+    
+    if (error) {
+        NSLog(@"loadData error: %@",error);
+        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+            [Util displayNetworkError];
+        }
+        else {
+            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+        }
+        return;
+    }
+    else {
+        [Util clearNetworkErrorState];
+    }
+    
+    NSMutableDictionary *root = [jsonData JSONValue];
+	NSMutableArray *hostDict = [root objectForKey:@"hosts"];    
+    
+    if (hostDict == nil) {
+        NSString *error = [root objectForKey:@"error"];
+        NSString *message = [root objectForKey:@"message"];
+        if (error == nil) error = @"Error loading data";
+        if (message == nil) message = @"Service data could not be retrieved";
+    	NSLog(@"loadData error: %@ - %@",error,message);
+        [Util displayCustomError:error withMessage:message];
+        return;
+    }
+    
+    self.hosts = hostDict;
+    [self updateHostDerivedObjects];
+	
+	// sort by name
+	[self.hosts sortUsingDescriptors:[NSArray arrayWithObjects:
+                                    [[[NSSortDescriptor alloc] initWithKey:@"long_name" ascending:YES] autorelease],
+                                    nil]];
+	
+	//NSLog(@"hosts: %@",hosts);
 	[jsonData release];
 }
 
@@ -166,41 +291,88 @@
         [Util displayCustomError:error withMessage:message];
     }
     
-    
 	if ([serviceArray count] < 1) {
 		NSLog(@"ERROR: no service metadata returned for service with id=%@",serviceId);
 		return;
 	}
 	
-	NSMutableDictionary *service = [serviceArray objectAtIndex:0];
-    [self generateComputedFieldsForService:service];
-	[self.metadata setValue:service forKey:serviceId];	
-	
+	NSMutableDictionary *metadata = [serviceArray objectAtIndex:0];
+	[metadata setValue:@"1" forKey:@"metadataLoaded"];
+    
+    NSMutableDictionary *service = nil;
+    for(NSMutableDictionary *s in self.services) {
+        if ([[s objectForKey:@"id"] isEqualToString:[metadata objectForKey:@"id"]]) {
+        	service = s;
+            break;
+        }
+    }
+    
+    if (service != nil) {        
+        for(NSString *key in [metadata allKeys]) {
+        	if (![key isEqualToString:@"id"]) {
+            	[service setObject:[metadata objectForKey:key] forKey:key];
+            }
+        }
+    }
+    else {
+        NSLog(@"WARNING: service not found in service list, adding to the end.");
+        service = metadata;
+    	[services addObject:service];    
+    }
+    
+    [self updateService:service];
+    
 	[jsonData release];
 }
     
 - (NSMutableArray *)getServices {
-	if (services == nil) [self loadData];
 	return services;
 }
 
+- (NSMutableArray *)getHosts {
+	return hosts;
+}
+
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId {
-	if (services == nil) [self loadData];
 	return [servicesById objectForKey:serviceId];
 }
 
+- (NSMutableDictionary *)getHostById:(NSString *)hostId {
+	return [hostsById objectForKey:hostId];
+}
+
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl {
-    if (services == nil) [self loadData];
 	return [servicesByUrl objectForKey:serviceUrl];
 }
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId {
-	NSMutableDictionary *service = (NSMutableDictionary *)[metadata objectForKey:serviceId];
-	if (service == nil) {
+	NSMutableDictionary *service = (NSMutableDictionary *)[servicesById objectForKey:serviceId];
+	if ([service objectForKey:@"metadataLoaded"] == nil) {
 		[self loadMetadataForService:serviceId];
-		service = (NSMutableDictionary *)[metadata objectForKey:serviceId];
+		service = (NSMutableDictionary *)[servicesById objectForKey:serviceId];
 	}
 	return service;
+}
+
+
+- (BOOL)isSelectedForSearch:(NSString *)serviceId {
+    return [selectedServices objectForKey:serviceId] != nil;
+}
+
+
+- (void)selectForSearch:(NSString *)serviceId {
+    [selectedServices setObject:@"" forKey:serviceId];
+}
+
+
+- (void)deselectForSearch:(NSString *)serviceId {
+    [selectedServices removeObjectForKey:serviceId];    
+}
+
+
+- (NSMutableArray *)getServicesOfType:(DataType)dataType {
+    NSString *dataTypeName = [Util getNameForDataType:dataType];
+    return [self.servicesByGroup objectForKey:dataTypeName];
 }
 
 - (void) notifyDelegateOfErrorForRequest:(NSMutableDictionary *)request {  

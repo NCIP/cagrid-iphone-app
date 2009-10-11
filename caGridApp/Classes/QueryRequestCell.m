@@ -11,10 +11,12 @@
 
 @implementation QueryRequestCell
 
+@synthesize locations;
 @synthesize indicator;
 @synthesize alertImageView;
 
 - (void)dealloc {
+    self.locations = nil;
 	self.indicator = nil;
     self.alertImageView = nil;
     [super dealloc];

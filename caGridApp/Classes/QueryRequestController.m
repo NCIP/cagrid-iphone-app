@@ -15,7 +15,6 @@
 #define queriesFilename @"queries.plist"
 
 @implementation QueryRequestController
-@synthesize searchBarOutlet;
 @synthesize requestsTable;
 @synthesize navController;
 @synthesize serviceResultsController;
@@ -26,23 +25,11 @@
 #pragma mark -
 #pragma mark Object Methods
 
-- (void)applicationWillTerminate:(NSNotification *)notification {
-	NSLog(@"Saving queries to file");
-	[queryRequests writeToFile:[Util getPathFor:queriesFilename] atomically:YES];
-}
-
-
-// To be called when the app is started
-- (void)loadQueries {
+- (void)loadFromFile {
 	
     // Register as the delegate for ServiceMetadata
     ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
     smdata.delegate = self;
-    
-	// Listen for application termination event
-	UIApplication *app = [UIApplication sharedApplication];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate:) 
-												 name:UIApplicationWillTerminateNotification object:app];
     
 	NSString *filePath = [Util getPathFor:queriesFilename];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
@@ -64,60 +51,65 @@
 	}
 }
 
+- (void)saveToFile {
+	NSLog(@"Saving queries to file");
+	[queryRequests writeToFile:[Util getPathFor:queriesFilename] atomically:YES];
+}
+
+
 - (void)resetView {
     self.service = nil;
+        
+	//self.searchBarOutlet.showsScopeBar = YES;
+//    self.navigationItem.rightBarButtonItem = nil;//
+    //
+//    [UIView beginAnimations:@"frame" context:nil];	
+//    [UIView setAnimationDuration:0.3];
+//   	[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
     
-    self.title = @"Search";        
-	self.searchBarOutlet.showsScopeBar = YES;
-    self.navigationItem.rightBarButtonItem = nil;
-    
-    [UIView beginAnimations:@"frame" context:nil];	
-    [UIView setAnimationDuration:0.3];
-   	[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-    
-	CGRect sframe = searchBarOutlet.frame;
-    sframe.size.height = 88;
-	searchBarOutlet.frame = sframe;
-    
-    CGRect tframe = requestsTable.frame;
-    tframe.size.height = 280;
-    tframe.origin.y = 88;
-	requestsTable.frame = tframe;
-    
-	[UIView commitAnimations];
+//	CGRect sframe = searchBarOutlet.frame;
+//    sframe.size.height = 88;
+//	searchBarOutlet.frame = sframe;
+//    
+//    CGRect tframe = requestsTable.frame;
+//    tframe.size.height = 280;
+//    tframe.origin.y = 88;
+//	requestsTable.frame = tframe;
+    //
+//	[UIView commitAnimations];
 }
 
 - (void)clickDoneButton:(id)sender {
     [self resetView];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-	if (service == nil) {
-        [self resetView];
-    }
-    else {
-        self.title = [NSString stringWithFormat:@"%@ at %@", 
-                      [service objectForKey:@"name"],
-                      [service objectForKey:@"hosting_center_name"]];
-        self.searchBarOutlet.showsScopeBar = NO;
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
-				initWithTitle:@"Search all" 
-				style:UIBarButtonItemStyleBordered 
-//				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-				target:self 
-				action:@selector(clickDoneButton:)];
-        
-        CGRect sframe = searchBarOutlet.frame;
-        sframe.size.height = 44;
-        searchBarOutlet.frame = sframe;
-        
-        CGRect tframe = requestsTable.frame;
-        tframe.size.height = 324;
-        tframe.origin.y = 44;
-        requestsTable.frame = tframe;
-    }
-    [super viewWillAppear:animated];
-}
+//- (void)viewWillAppear:(BOOL)animated {
+//	if (service == nil) {
+//        [self resetView];
+//    }
+//    else {
+//        self.title = [NSString stringWithFormat:@"%@ at %@", 
+//                      [service objectForKey:@"name"],
+//                      [service objectForKey:@"hosting_center_name"]];
+//        //self.searchBarOutlet.showsScopeBar = NO;
+//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
+//				initWithTitle:@"Search all" 
+//				style:UIBarButtonItemStyleBordered 
+////				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+//				target:self 
+//				action:@selector(clickDoneButton:)];
+//        
+////        CGRect sframe = searchBarOutlet.frame;
+////        sframe.size.height = 44;
+////        searchBarOutlet.frame = sframe;
+////        
+////        CGRect tframe = requestsTable.frame;
+////        tframe.size.height = 324;
+////        tframe.origin.y = 44;
+////        requestsTable.frame = tframe;
+//    }
+//    [super viewWillAppear:animated];
+//}
 
 - (void)dealloc {
     self.navController = nil;
@@ -128,11 +120,9 @@
 #pragma mark -
 #pragma mark Search Bar Methods
 
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
-	[searchBar resignFirstResponder];
-    
-    NSString *searchString = [searchBar text];
-    NSString *scope = [[searchBar scopeButtonTitles] objectAtIndex:[searchBar selectedScopeButtonIndex]];
+- (void)searchFor:(NSString *)searchString inDataType:(DataType)dataType {
+	
+    NSString *scope = [Util getLabelForDataType:dataType];
     
     NSLog(@"Search %@ for %@",scope,searchString);
     
@@ -152,20 +142,6 @@
     [self.requestsTable reloadData];
     
     [[ServiceMetadata sharedSingleton] executeQuery:queryRequest];
-}
-
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {	
-	[searchBar resignFirstResponder];
-}
-
-- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
-	searchBar.showsCancelButton = YES;
-	return YES;
-}
-
-- (BOOL)searchBarShouldEndEditing:(UISearchBar *)searchBar {
-	searchBar.showsCancelButton = NO;
-	return YES;
 }
 
 #pragma mark -
@@ -237,13 +213,21 @@
 
     cell.titleLabel.text = [NSString stringWithFormat:@"\"%@\"", [queryRequest objectForKey:@"searchString"]];
     
+    NSString *locationList = nil;
     NSString *serviceName = [queryRequest objectForKey:@"service_name"];
     if (serviceName != nil) {
-        cell.descLabel.text = [NSString stringWithFormat:@"%@ at %@", serviceName, [queryRequest objectForKey:@"hosting_center_name"]];
+        locationList = [queryRequest objectForKey:@"hosting_center_name"];
     }
     else {
-        cell.descLabel.text = [NSString stringWithFormat:@"%@", [queryRequest objectForKey:@"scope"]];
+        locationList = @"all";
     }
+    
+    NSString *scope = [queryRequest objectForKey:@"scope"];
+    if (scope == nil) scope = @"Microarray";
+    // TODO: get the real scope
+    
+    cell.descLabel.text = [NSString stringWithFormat:@"%@ search on 09/20/2009 at 2:30pm", scope];
+    cell.locations = [NSString stringWithFormat:@"Locations: %@",locationList];
     
 	return cell;
 }
@@ -271,6 +255,7 @@
 		self.serviceResultsController = [[QueryServicesController alloc] init];
 		serviceResultsController.navController = navController;
 	}
+
     [serviceResultsController displayRequest:queryRequest];	
 	[navController pushViewController:serviceResultsController animated:YES];	
 }

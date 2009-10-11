@@ -8,103 +8,100 @@
 
 #import "ServiceListController.h"
 #import "ServiceDetailController.h"
+#import "FavoritesController.h"
+#import "CaGridAppDelegate.h"
 #import "Util.h"
 
 @implementation ServiceListController
 
+@synthesize serviceTable;
 @synthesize navController;
 @synthesize detailController;
+@synthesize serviceList;
+@synthesize filterString;
 @synthesize filtered;
-@synthesize filterKey;
-@synthesize filterValue;
-@synthesize searched;
+
+#pragma mark -
+#pragma mark Object Methods
+
+- (void)viewDidLoad {
+	self.serviceTable.allowsSelection = NO;
+	[super viewDidLoad];
+}
 
 - (void)dealloc {
+    self.serviceTable = nil;
+    self.navController = nil;
 	self.detailController = nil;
-	self.filtered = nil;
-	self.filterKey = nil;
-	self.filterValue = nil;
+	self.serviceList = nil;
+    self.filterString = nil;
+    self.filtered;
     [super dealloc];
 }
 
-- (void)filter:(NSString *)key forValue:(NSString *)value {
-	self.filterKey = key;
-	self.filterValue = value;
-	self.filtered = nil;
-}
-
-- (void)loadData {
+- (void)reload {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    NSMutableArray *original = [smdata getServices];
-    if (original != nil) {
-        if (self.filterKey == nil) {
-            self.filtered = original;
-        }
-        else {	
-            self.filtered = [NSMutableArray array];
-            for(int i=0; i<[original count]; i++) {
-                NSMutableDictionary *service = [original objectAtIndex:i];	
-                NSString *val = [service objectForKey:filterKey];
-                if (val == nil) val = @"";
-                if ([val isEqualToString:filterValue]) {
-                    [filtered addObject:service];
-                }
-            }
-        }
-        
-        self.searched = [NSMutableArray array];
-        
-        [self.tableView reloadData];
-    }
+    self.serviceList = [smdata getServices];
+    self.filtered = [NSMutableArray array];
+    [self.serviceTable reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.searchDisplayController setActive:NO animated:NO];
-    [self.tableView setContentOffset:CGPointMake(0,0) animated:YES];
-	if (self.filtered == nil) [self loadData];
+	if (self.serviceList == nil) [self reload];
 }
 
 
 #pragma mark -
 #pragma mark Content Filtering
 
-- (void)filterContentForSearchText:(NSString*)searchText {	
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
 	
-	[searched removeAllObjects];
-	
-	for(NSMutableDictionary *service in filtered) {
+    self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
+    
+	[filtered removeAllObjects];
+    
+	for(NSMutableDictionary *service in serviceList) {
 		if ([Util string:searchText isFoundIn:[service objectForKey:@"name"]] ||
-			[Util string:searchText isFoundIn:[service objectForKey:@"hosting_center_name"]]) {
-			[searched addObject:service];
+			[Util string:searchText isFoundIn:[service objectForKey:@"host_short_name"]]) {
+			[filtered addObject:service];
 		}		
 	}
-
+    
+    [self.serviceTable reloadData];
 }
 
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+	[searchBar resignFirstResponder];
+}
 
-#pragma mark -
-#pragma mark UISearchDisplayController Delegate Methods
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {	
+	[searchBar resignFirstResponder];
+}
 
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller 
-		shouldReloadTableForSearchString:(NSString *)searchString {
-    [self filterContentForSearchText:searchString];
-    // Return YES to cause the search result table view to be reloaded.
-    return YES;
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
+	searchBar.showsCancelButton = YES;
+	return YES;
+}
+
+- (BOOL)searchBarShouldEndEditing:(UISearchBar *)searchBar {
+	searchBar.showsCancelButton = NO;
+	return YES;
 }
 
 #pragma mark -
 #pragma mark Table View Data Source Methods
 
 - (NSInteger)tableView:(UITableView *)tableView 
-		numberOfRowsInSection:(NSInteger)section {
-    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+ 		numberOfRowsInSection:(NSInteger)section {
+
+    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
 	return [rows count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
     
 	// Get a cell
 
@@ -124,18 +121,27 @@
 	
 	// Populate the cell
 	
-	cell.titleLabel.text = [NSString stringWithFormat:@"%@ %@",[service objectForKey:@"name"],[service objectForKey:@"version"]];
-	cell.descLabel.text = [[service objectForKey:@"hosting_center"] objectForKey:@"short_name"];
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"icon_%@.png",[Util getIconNameForClass:class andStatus:status]]];
-	
+	cell.titleLabel.text = [service objectForKey:@"display_name"];
+	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
+    cell.tickIcon.hidden = YES;
+    
+    CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
+    FavoritesController *fc = appDelegate.favoritesController;
+    if ([fc isFavorite:[service objectForKey:@"id"]]) {
+        [cell.favIcon setHidden:NO];
+    }
+    else {
+        [cell.favIcon setHidden:YES];
+    }
+    
 	return cell;
 }
 
 
 - (void)tableView:(UITableView *)tableView
-		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
-    NSMutableArray *rows = (tableView == self.tableView) ? filtered : searched;
+    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
 
 	if (detailController == nil) {
 		self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
@@ -144,7 +150,7 @@
 	NSUInteger row = [indexPath row];
 	NSMutableDictionary *service = [rows objectAtIndex:row];
 	NSString *serviceId = [service objectForKey:@"id"];
-	
+
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
     NSMutableDictionary* metadata = [smdata getMetadataById:serviceId];
     if (metadata != nil) {
