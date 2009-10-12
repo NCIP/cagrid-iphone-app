@@ -2,7 +2,7 @@
 TRUNCATE TABLE DATA_SERVICE_GROUP;
 
 INSERT INTO DATA_SERVICE_GROUP (NAME,CAB2B_NAME,DATA_PRIMARY_KEY) 
-    VALUES ('microarray','Microarray Data','Public Experiment Identifier');
+    VALUES ('microarray','Microarray Data','Experiment Public Identifier');
 
 INSERT INTO DATA_SERVICE_GROUP (NAME,CAB2B_NAME,DATA_PRIMARY_KEY) 
     VALUES ('biospecimen','Biospecimen Data','Barcode');
