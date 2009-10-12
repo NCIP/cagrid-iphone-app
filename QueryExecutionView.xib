@@ -86,7 +86,7 @@
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<string key="IBUIText"/>
+						<string key="IBUIText">adenocarcinoma</string>
 						<int key="IBUIBorderStyle">3</int>
 						<string key="IBUIPlaceholder">(e.g. Adenocarcinoma)</string>
 						<object class="NSColor" key="IBUITextColor">

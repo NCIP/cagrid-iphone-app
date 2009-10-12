@@ -41,6 +41,17 @@
 						<int key="NSvFlags">256</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBUIView" id="238129724">
+								<reference key="NSNextResponder" ref="162062390"/>
+								<int key="NSvFlags">292</int>
+								<string key="NSFrameSize">{320, 60}</string>
+								<reference key="NSSuperview" ref="162062390"/>
+								<object class="NSColor" key="IBUIBackgroundColor">
+									<int key="NSColorSpace">1</int>
+									<bytes key="NSRGB">MC41MDE5NjA4MSAxIDAAA</bytes>
+								</object>
+								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+							</object>
 							<object class="IBUIView" id="563646488">
 								<reference key="NSNextResponder" ref="162062390"/>
 								<int key="NSvFlags">292</int>
@@ -141,10 +152,7 @@
 								<reference key="NSSuperview" ref="162062390"/>
 								<object class="NSColor" key="IBUIBackgroundColor">
 									<int key="NSColorSpace">3</int>
-									<bytes key="NSWhite">MQA</bytes>
-									<object class="NSColorSpace" key="NSCustomColorSpace">
-										<int key="NSID">2</int>
-									</object>
+									<bytes key="NSWhite">MSAwAA</bytes>
 								</object>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 							</object>
@@ -164,8 +172,8 @@
 				<string key="NSFrameSize">{320, 60}</string>
 				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
-					<int key="NSColorSpace">1</int>
-					<bytes key="NSRGB">MSAxIDEAA</bytes>
+					<int key="NSColorSpace">3</int>
+					<bytes key="NSWhite">MSAwAA</bytes>
 				</object>
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 				<int key="IBUISeparatorStyle">1</int>
@@ -216,6 +224,14 @@
 					</object>
 					<int key="connectionID">16</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">highlightView</string>
+						<reference key="source" ref="715781500"/>
+						<reference key="destination" ref="238129724"/>
+					</object>
+					<int key="connectionID">19</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -245,6 +261,7 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="563646488"/>
+							<reference ref="238129724"/>
 						</object>
 						<reference key="parent" ref="981677903"/>
 					</object>
@@ -286,6 +303,11 @@
 						<reference key="object" ref="223111398"/>
 						<reference key="parent" ref="563646488"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">18</int>
+						<reference key="object" ref="238129724"/>
+						<reference key="parent" ref="715781500"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -295,6 +317,7 @@
 					<string>-2.CustomClassName</string>
 					<string>12.IBPluginDependency</string>
 					<string>15.IBPluginDependency</string>
+					<string>18.IBPluginDependency</string>
 					<string>2.CustomClassName</string>
 					<string>2.IBEditorWindowLastContentRect</string>
 					<string>2.IBPluginDependency</string>
@@ -306,6 +329,7 @@
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>UIResponder</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>QueryRequestCell</string>
@@ -337,7 +361,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">16</int>
+			<int key="maxID">19</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -357,12 +381,14 @@
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>alertImageView</string>
+							<string>highlightView</string>
 							<string>indicator</string>
 							<string>locations</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>UIImageView</string>
+							<string>UIView</string>
 							<string>UIActivityIndicatorView</string>
 							<string>UILabel</string>
 						</object>

@@ -22,6 +22,7 @@
 		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
 		self.favorites = array;
 		[array release];
+        NSLog(@"... Loaded %d favorites",[favorites count]);
 	}
 	else {
 		self.favorites = [NSMutableArray array];
@@ -29,7 +30,7 @@
 }
 
 - (void)saveToFile {
-	NSLog(@"Saving favorites to file");
+	NSLog(@"Saving %d favorites to file",[favorites count]);
 	[favorites writeToFile:[Util getPathFor:favoritesFilename] atomically:YES];
 }
 
