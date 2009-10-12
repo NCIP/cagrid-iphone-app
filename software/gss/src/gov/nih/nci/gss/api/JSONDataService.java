@@ -592,14 +592,15 @@ public class JSONDataService extends HttpServlet {
 
 		Cab2bTranslator translator = queryService.getCab2b().getCab2bTranslator();
     	String modelGroupName = json.getString("modelGroupName");
-		String serviceGroup = translator.getServiceGroupForModelGroup(modelGroupName);
-		json.remove("modelGroupName");
+        String serviceGroup = translator.getServiceGroupForModelGroup(modelGroupName);
     	if (modelGroupName != null) {
+            json.remove("modelGroupName");
     		json.put("serviceGroup", serviceGroup);
     	}
     	
         if (collapse) {
-        	Map<String,JSONObject> unique = new LinkedHashMap<String,JSONObject>();
+        	Map<String,Map<String,JSONObject>> servers = 
+        	    new LinkedHashMap<String,Map<String,JSONObject>>();
         	
         	// the key to discriminate on for duplicates
         	String primaryKey = translator.getPrimaryKeyForServiceGroup(serviceGroup);
@@ -611,29 +612,40 @@ public class JSONDataService extends HttpServlet {
         		for(Iterator j = urls.keys(); j.hasNext(); ) {
             		String url = (String)j.next();
             		JSONArray objs = urls.getJSONArray(url);
-            		
+
+                    Map<String,JSONObject> serverUnique = servers.get(url);
+                        
+            		if (serverUnique == null) {
+            		    serverUnique = new LinkedHashMap<String,JSONObject>();
+            		    servers.put(url, serverUnique);
+            		}
+
             		for(int k=0; k<objs.length(); k++) {
             			JSONObject obj = objs.getJSONObject(k);
             			String key = null;
             			try {
-                			String host = obj.getString(HOST_KEY);
-                			String id = obj.getString(primaryKey);
-                			key = host+"~~"+id;	
+            			    key = obj.getString(primaryKey);
             			}
             			catch (JSONException x) {
             				log.error("Error getting unique key",x);
             				key = obj.toString();
             			}
-            			if (!unique.containsKey(key)) unique.put(key, obj);
+            			if (!serverUnique.containsKey(key)) {
+            			    serverUnique.put(key, obj);
+            			}
             		}
         		}
         	}
         	
-        	JSONArray allResults = new JSONArray();
-        	for(JSONObject obj : unique.values()) {
-        		allResults.put(obj);
+        	JSONObject jsonUrls = new JSONObject();
+        	for(String url : servers.keySet()) {
+        	    JSONArray jsonObjs = new JSONArray();
+        	    jsonUrls.put(url, jsonObjs);
+        	    for (JSONObject obj : servers.get(url).values()) {
+        	        jsonObjs.put(obj);
+        	    }
         	}
-        	json.put("results", allResults);
+        	json.put("results", jsonUrls);
         	
         }
         
