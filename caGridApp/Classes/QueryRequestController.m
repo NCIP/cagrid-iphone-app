@@ -10,7 +10,6 @@
 #import "QueryServicesController.h"
 #import "QueryRequestCell.h"
 #import "ServiceMetadata.h"
-#import "Util.h"
 
 #define queriesFilename @"queries.plist"
 
@@ -19,11 +18,21 @@
 @synthesize navController;
 @synthesize serviceResultsController;
 @synthesize queryRequests;
-@synthesize service;
 @synthesize requestToRetry;
+@synthesize requestLastAdded;
 
 #pragma mark -
 #pragma mark Object Methods
+
+- (void)dealloc {
+    self.requestsTable = nil;
+    self.navController = nil;
+    self.serviceResultsController = nil;
+    self.queryRequests = nil;
+    self.requestToRetry = nil;
+    self.requestLastAdded = nil;
+    [super dealloc];
+}
 
 - (void)loadFromFile {
 	
@@ -33,16 +42,17 @@
     
 	NSString *filePath = [Util getPathFor:queriesFilename];
 	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-		NSLog(@"Reading queries from file");
+		NSLog(@"Reading searches from file");
 		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
 		self.queryRequests = array;
 		[array release];
+        NSLog(@"... Loaded %d searches",[queryRequests count]);
         
         for(int i=0; i<[queryRequests count]; i++) {
             NSMutableDictionary *request = [queryRequests objectAtIndex:i];
             if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
-                // query never came back so restart it
-                [[ServiceMetadata sharedSingleton] executeQuery:request];
+                // query never came back so restart monitoring
+                [[ServiceMetadata sharedSingleton] monitorQuery:request];
             }
         }
     }
@@ -52,94 +62,59 @@
 }
 
 - (void)saveToFile {
-	NSLog(@"Saving queries to file");
+	NSLog(@"Saving %d searches to file",[queryRequests count]);
 	[queryRequests writeToFile:[Util getPathFor:queriesFilename] atomically:YES];
 }
 
-
-- (void)resetView {
-    self.service = nil;
-        
-	//self.searchBarOutlet.showsScopeBar = YES;
-//    self.navigationItem.rightBarButtonItem = nil;//
-    //
-//    [UIView beginAnimations:@"frame" context:nil];	
-//    [UIView setAnimationDuration:0.3];
-//   	[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-    
-//	CGRect sframe = searchBarOutlet.frame;
-//    sframe.size.height = 88;
-//	searchBarOutlet.frame = sframe;
-//    
-//    CGRect tframe = requestsTable.frame;
-//    tframe.size.height = 280;
-//    tframe.origin.y = 88;
-//	requestsTable.frame = tframe;
-    //
-//	[UIView commitAnimations];
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
 }
 
-- (void)clickDoneButton:(id)sender {
-    [self resetView];
-}
-
-//- (void)viewWillAppear:(BOOL)animated {
-//	if (service == nil) {
-//        [self resetView];
-//    }
-//    else {
-//        self.title = [NSString stringWithFormat:@"%@ at %@", 
-//                      [service objectForKey:@"name"],
-//                      [service objectForKey:@"hosting_center_name"]];
-//        //self.searchBarOutlet.showsScopeBar = NO;
-//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] 
-//				initWithTitle:@"Search all" 
-//				style:UIBarButtonItemStyleBordered 
-////				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-//				target:self 
-//				action:@selector(clickDoneButton:)];
-//        
-////        CGRect sframe = searchBarOutlet.frame;
-////        sframe.size.height = 44;
-////        searchBarOutlet.frame = sframe;
-////        
-////        CGRect tframe = requestsTable.frame;
-////        tframe.size.height = 324;
-////        tframe.origin.y = 44;
-////        requestsTable.frame = tframe;
-//    }
-//    [super viewWillAppear:animated];
-//}
-
-- (void)dealloc {
-    self.navController = nil;
-    self.queryRequests = nil;
-    [super dealloc];
-}
 
 #pragma mark -
 #pragma mark Search Bar Methods
 
 - (void)searchFor:(NSString *)searchString inDataType:(DataType)dataType {
 	
-    NSString *scope = [Util getLabelForDataType:dataType];
+    NSString *scope = [Util getNameForDataType:dataType];
     
     NSLog(@"Search %@ for %@",scope,searchString);
     
     NSMutableDictionary *queryRequest = [NSMutableDictionary dictionary];
     [queryRequest setObject:searchString forKey:@"searchString"];
     
-    if (service != nil) {
-	    [queryRequest setObject:[service objectForKey:@"url"] forKey:@"serviceUrl"];
-	    [queryRequest setObject:[service objectForKey:@"name"] forKey:@"service_name"];
-	    [queryRequest setObject:[service objectForKey:@"hosting_center_name"] forKey:@"hosting_center_name"];        
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    
+    NSMutableArray *services = [sm getServicesOfType:dataType];
+    NSMutableDictionary *selectedService = nil;
+    
+    int c = 0;
+    for(NSMutableDictionary *service in services) {
+    	if ([sm isSelectedForSearch:[service objectForKey:@"id"]]) {
+        	selectedService = service;
+            c++;
+        }
+    }
+    
+    if (!c) {
+    	// alert user
+        return;
+    }
+    
+    if (c > 1) {
+        // search all
+		[queryRequest setObject:scope forKey:@"scope"];
     }
     else {
-	    [queryRequest setObject:scope forKey:@"scope"];
+        [queryRequest setObject:[selectedService objectForKey:@"url"] forKey:@"serviceUrl"];
+        [queryRequest setObject:[selectedService objectForKey:@"name"] forKey:@"service_name"];
+        [queryRequest setObject:[selectedService objectForKey:@"host_short_name"] forKey:@"host_short_name"];        
     }
     
     [queryRequests insertObject:queryRequest atIndex:0];
     [self.requestsTable reloadData];
+    
+    self.requestLastAdded = queryRequest;
     
     [[ServiceMetadata sharedSingleton] executeQuery:queryRequest];
 }
@@ -186,8 +161,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	// Get a cell
+    NSMutableDictionary *queryRequest = [queryRequests objectAtIndex:[indexPath row]];
     
+	// Get a cell
 	static NSString *cellIdentifier = @"QueryRequestCell";	
 	QueryRequestCell *cell = (QueryRequestCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
@@ -196,8 +172,6 @@
 	}
     
     cell.alertImageView.hidden = YES;
-    
-    NSMutableDictionary *queryRequest = [queryRequests objectAtIndex:[indexPath row]];
         
     if ([queryRequest objectForKey:@"results"] != nil) {
 	    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -216,7 +190,7 @@
     NSString *locationList = nil;
     NSString *serviceName = [queryRequest objectForKey:@"service_name"];
     if (serviceName != nil) {
-        locationList = [queryRequest objectForKey:@"hosting_center_name"];
+        locationList = [queryRequest objectForKey:@"host_short_name"];
     }
     else {
         locationList = @"all";
@@ -228,6 +202,16 @@
     
     cell.descLabel.text = [NSString stringWithFormat:@"%@ search on 09/20/2009 at 2:30pm", scope];
     cell.locations = [NSString stringWithFormat:@"Locations: %@",locationList];
+    cell.highlightView.alpha = 0.0;
+    
+    if (queryRequest == self.requestLastAdded) {
+        self.requestLastAdded = nil;        
+		cell.highlightView.alpha = 1.0;        
+		[UIView beginAnimations:@"frame" context:nil];
+		[UIView setAnimationDuration:2.0];
+        cell.highlightView.alpha = 0.0;
+		[UIView commitAnimations];
+    }
     
 	return cell;
 }
@@ -256,7 +240,7 @@
 		serviceResultsController.navController = navController;
 	}
 
-    [serviceResultsController displayRequest:queryRequest];	
+    serviceResultsController.request = queryRequest;
 	[navController pushViewController:serviceResultsController animated:YES];	
 }
 

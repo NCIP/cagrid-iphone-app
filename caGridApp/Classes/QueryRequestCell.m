@@ -14,11 +14,13 @@
 @synthesize locations;
 @synthesize indicator;
 @synthesize alertImageView;
+@synthesize highlightView;
 
 - (void)dealloc {
     self.locations = nil;
 	self.indicator = nil;
     self.alertImageView = nil;
+    self.highlightView = nil;
     [super dealloc];
 }
 

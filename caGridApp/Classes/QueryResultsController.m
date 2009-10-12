@@ -14,11 +14,9 @@
 @synthesize navController;
 @synthesize detailController;
 @synthesize results;
-@synthesize service;
 
-- (void)displayResults:(NSMutableArray *)resultArray forService:(NSMutableDictionary *)serviceDict {
+- (void)displayResults:(NSMutableArray *)resultArray {
 	self.results = resultArray;
-    self.service = serviceDict;
 }
 
 - (void)viewDidLoad {
@@ -29,7 +27,6 @@
 	self.navController = nil;
 	self.detailController = nil;
 	self.results = nil;
-	self.service = nil;
     [super dealloc];
 }
 

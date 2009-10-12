@@ -152,10 +152,10 @@
 }
 
 - (void)queryAction:(id)sender {
-	
-    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-    delegate.queryRequestController.service = service;	
-    delegate.tabBarController.selectedIndex = 3;
+	//
+//    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
+//    delegate.queryRequestController.service = service;	
+//    delegate.tabBarController.selectedIndex = 3;
 }
 
 #pragma mark -

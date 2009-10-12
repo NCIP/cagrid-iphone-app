@@ -16,11 +16,13 @@
     IBOutlet UILabel *locations;
 	IBOutlet UIActivityIndicatorView *indicator;
     IBOutlet UIImageView *alertImageView;
+    IBOutlet UIView *highlightView;
     
 }
 
 @property (nonatomic, retain) UILabel *locations;
 @property (nonatomic, retain) UIActivityIndicatorView *indicator;
 @property (nonatomic, retain) UIImageView *alertImageView;
+@property (nonatomic, retain) UIView *highlightView;
 
 @end
