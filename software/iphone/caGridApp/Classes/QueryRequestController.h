@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Util.h"
 
 @class QueryServicesController;
 
@@ -16,21 +17,22 @@
 	IBOutlet UINavigationController *navController;
     QueryServicesController *serviceResultsController;
 	NSMutableArray *queryRequests;
-    NSMutableDictionary *service;
-    NSMutableDictionary *requestToRetry;    
+    NSMutableDictionary *requestToRetry; 
+    NSMutableDictionary *requestLastAdded;    
 }
 
 @property (nonatomic, retain) UITableView *requestsTable;
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) QueryServicesController *serviceResultsController;
 @property (nonatomic, retain) NSMutableArray *queryRequests;
-@property (nonatomic, retain) NSMutableDictionary *service;
 @property (nonatomic, retain) NSMutableDictionary *requestToRetry;
-
-- (void)resetView;
+@property (nonatomic, retain) NSMutableDictionary *requestLastAdded;
 
 - (void)loadFromFile;
 
 - (void)saveToFile;
+
+- (void)searchFor:(NSString *)searchString inDataType:(DataType)dataType;
+
 
 @end

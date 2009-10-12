@@ -152,11 +152,12 @@
 		[self updateServiceDerivedObjects];
         [self updateHostDerivedObjects];
 		[dict release];
+        NSLog(@"... Loaded %d services and %d hosts",[self.services count],[self.hosts count]);
 	}
 }
 
 - (void) saveToFile {
-	NSLog(@"Saving services to file");
+	NSLog(@"Saving %d services and %d hosts to file",[self.services count],[self.hosts count]);
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	[dict setObject:self.services forKey:@"services"];
 	[dict setObject:self.hosts forKey:@"hosts"];
@@ -203,8 +204,7 @@
 	
 	// sort by name, hosting center, and finally version descending
 	[services sortUsingDescriptors:[NSArray arrayWithObjects:
-						[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
-						[[[NSSortDescriptor alloc] initWithKey:@"hosting_center_name" ascending:YES] autorelease],
+						[[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
 						[[[NSSortDescriptor alloc] initWithKey:@"version_number" ascending:NO] autorelease],
 						nil]];
 	

@@ -9,6 +9,8 @@
 #import "QueryExecutionController.h"
 #import "ServicePickerController.h"
 #import "ServiceMetadata.h"
+#import "CaGridAppDelegate.h"
+#import "QueryRequestController.h"
 
 @implementation QueryExecutionController
 @synthesize navController;
@@ -65,9 +67,9 @@
 }
 
 - (IBAction) clickSearchButton:(id)sender {
-    
-    
-    
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
+    [delegate.queryRequestController searchFor:self.searchBox.text inDataType:self.dataType];
+    delegate.tabBarController.selectedIndex = 1;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
