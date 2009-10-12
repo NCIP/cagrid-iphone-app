@@ -322,10 +322,10 @@
 				A97A87A9106C6BCD00C09566 /* QueryRequestCell.m */,
 				A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */,
 				A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */,
-				A935435B101BD97000988B88 /* GridServicePropCell.h */,
-				A935435C101BD97000988B88 /* GridServicePropCell.m */,
 				A99EB8B01072BF0800BB2A95 /* QueryServiceCell.h */,
 				A99EB8B11072BF0800BB2A95 /* QueryServiceCell.m */,
+				A935435B101BD97000988B88 /* GridServicePropCell.h */,
+				A935435C101BD97000988B88 /* GridServicePropCell.m */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
