@@ -116,7 +116,7 @@ CREATE TABLE `STATUS_CHANGE` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
-DROP TABLE IF EXISTS `SIMPLE_NAMES`;
+DROP TABLE IF EXISTS `SIMPLE_NAME`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `SIMPLE_NAME` (
