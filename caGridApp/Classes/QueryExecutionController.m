@@ -11,6 +11,7 @@
 #import "ServiceMetadata.h"
 #import "CaGridAppDelegate.h"
 #import "QueryRequestController.h"
+#import "UserPreferences.h"
 
 @implementation QueryExecutionController
 @synthesize navController;
@@ -38,7 +39,7 @@
     NSMutableArray *services = [sm getServicesOfType:dataType];
     NSString *locations = @"";
     for(NSMutableDictionary *service in services) {
-    	if ([sm isSelectedForSearch:[service objectForKey:@"id"]]) {
+    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]]) {
             NSString *host = [service objectForKey:@"host_short_name"];
             if (host != nil) {
 	            if ([locations length] > 0) locations = [locations stringByAppendingString:@", "];

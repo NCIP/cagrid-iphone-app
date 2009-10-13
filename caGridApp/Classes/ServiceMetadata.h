@@ -10,40 +10,28 @@
 #import <JSON/JSON.h>
 #import "Util.h"
 
+// TODO: Externalize this
+//#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
+#define BASE_URL @"http://biowiki.dnsalias.net:46210/gss10/json"
+
 @interface ServiceMetadata : NSObject {
-	
-    // device id
-	@private NSString *deviceId;
     
-    // services
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *servicesById;	
 	@private NSMutableDictionary *servicesByUrl;		
 	@private NSMutableDictionary *servicesByGroup;
-    @private NSMutableDictionary *selectedServices;
-    
-    // hosts
 	@private NSMutableArray *hosts;
 	@private NSMutableDictionary *hostsById;
-
-    // searching
-	@private CFMutableDictionaryRef connectionRequestMap;
 	@private NSNumberFormatter *nf;
-    
-    @private id delegate;    
-    
 }
 
-@property (nonatomic, retain) NSString *deviceId;
 @property (nonatomic, retain) NSMutableArray *services;
 @property (nonatomic, retain) NSMutableDictionary *servicesById;
 @property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
 @property (nonatomic, retain) NSMutableDictionary *servicesByGroup;
-@property (nonatomic, retain) NSMutableDictionary *selectedServices;
 @property (nonatomic, retain) NSMutableArray *hosts;
 @property (nonatomic, retain) NSMutableDictionary *hostsById;
 @property (nonatomic, retain) NSNumberFormatter *nf;
-@property (nonatomic, retain) id delegate;
 
 + (ServiceMetadata *)sharedSingleton;
 
@@ -69,24 +57,6 @@
 
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
 
-- (BOOL)isSelectedForSearch:(NSString *)serviceId;
-
-- (void)selectForSearch:(NSString *)serviceId;
-
-- (void)deselectForSearch:(NSString *)serviceId;
-
 - (NSMutableArray *)getServicesOfType:(DataType)dataType;
-
-- (void)monitorQuery:(NSMutableDictionary *)request;
-
-- (void)executeQuery:(NSMutableDictionary *)request;
-
-@end
-
-@interface NSObject(RemoteClientDelegate)
-
-- (void)requestHadError:(NSMutableDictionary *)request;
-
-- (void)requestCompleted:(NSMutableDictionary *)request;
 
 @end

@@ -13,26 +13,9 @@ static BOOL alerted = NO;
 
 @implementation Util
 
+// TODO: remove status parameter
 + (NSString *) getIconNameForClass:(NSString *)class andStatus:(NSString *)status {
-	
-	if ([class isEqualToString:@"DataService"]) {
-        return @"database";
-//		if ([[status lowercaseString] isEqualToString:@"active"]) {
-//			return @"ds_active";
-//		}
-//		else {
-//			return @"ds_inactive";	
-//		}
-	}
-	else {
-        return @"chart_bar";
-//		if ([[status lowercaseString] isEqualToString:@"active"]) {
-//			return @"as_active";
-//		}
-//		else {
-//			return @"as_inactive";		
-//		}		
-	}	
+    return [class isEqualToString:@"DataService"] ? @"database" : @"chart_bar";
 }
 
 
@@ -118,6 +101,13 @@ static BOOL alerted = NO;
         default:
             return nil;
     }
+}
+
++ (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message {
+	NSMutableDictionary *errorDict = [NSMutableDictionary dictionary];
+    [errorDict setObject:errorType forKey:@"error"];
+    [errorDict setObject:message forKey:@"message"];    
+    return errorDict;
 }
 
 @end
