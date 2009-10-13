@@ -9,8 +9,8 @@
 #import "ServicePickerController.h"
 #import "ServiceMetadata.h"
 #import "ServiceDetailController.h"
-#import "FavoritesController.h"
-#import "CaGridAppDelegate.h"
+#import "UserPreferences.h"
+#import "GridServiceCell.h"
 
 @implementation ServicePickerController
 @synthesize navController;
@@ -32,7 +32,7 @@
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     NSMutableArray *services = [sm getServicesOfType:dataType];
     for(NSMutableDictionary *service in services) {
-    	[sm selectForSearch:[service objectForKey:@"id"]];
+    	[[UserPreferences sharedSingleton] selectForSearch:[service objectForKey:@"id"]];
     }
     [self.serviceList reloadData];
 }
@@ -41,7 +41,7 @@
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     NSMutableArray *services = [sm getServicesOfType:dataType];
     for(NSMutableDictionary *service in services) {
-    	[sm deselectForSearch:[service objectForKey:@"id"]];
+    	[[UserPreferences sharedSingleton] deselectForSearch:[service objectForKey:@"id"]];
     }
     [self.serviceList reloadData];        
 }
@@ -87,16 +87,8 @@
 	
 	cell.titleLabel.text = [service objectForKey:@"display_name"];
 	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
-    cell.tickIcon.hidden = ![sm isSelectedForSearch:[service objectForKey:@"id"]];
-    
-    CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-    FavoritesController *fc = appDelegate.favoritesController;
-    if ([fc isFavorite:[service objectForKey:@"id"]]) {
-        [cell.favIcon setHidden:NO];
-    }
-    else {
-        [cell.favIcon setHidden:YES];
-    }
+    cell.tickIcon.hidden = ![[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]];
+    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
     
 	return cell;
 }
@@ -112,11 +104,13 @@
 	NSUInteger row = [indexPath row];
 	NSMutableDictionary *service = [services objectAtIndex:row];
     
-	if ([sm isSelectedForSearch:[service objectForKey:@"id"]]) {
-        [sm deselectForSearch:[service objectForKey:@"id"]];
+    UserPreferences *up = [UserPreferences sharedSingleton];
+    
+	if ([up isSelectedForSearch:[service objectForKey:@"id"]]) {
+        [up deselectForSearch:[service objectForKey:@"id"]];
     }
     else {
-        [sm selectForSearch:[service objectForKey:@"id"]];
+        [up selectForSearch:[service objectForKey:@"id"]];
     }
     
     [self.serviceList reloadData];

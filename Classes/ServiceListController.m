@@ -8,8 +8,7 @@
 
 #import "ServiceListController.h"
 #import "ServiceDetailController.h"
-#import "FavoritesController.h"
-#import "CaGridAppDelegate.h"
+#import "UserPreferences.h"
 #import "Util.h"
 
 @implementation ServiceListController
@@ -19,6 +18,7 @@
 @synthesize detailController;
 @synthesize serviceList;
 @synthesize filterString;
+@synthesize filterClass;
 @synthesize filtered;
 
 #pragma mark -
@@ -35,38 +35,64 @@
 	self.detailController = nil;
 	self.serviceList = nil;
     self.filterString = nil;
-    self.filtered;
+    self.filterClass = nil;
+    self.filtered = nil;
     [super dealloc];
+}
+
+- (void)filter {
+    
+	[filtered removeAllObjects];
+    
+	for(NSMutableDictionary *service in serviceList) {
+		if (filterString == nil || 
+            ([Util string:filterString isFoundIn:[service objectForKey:@"name"]] ||
+			 [Util string:filterString isFoundIn:[service objectForKey:@"host_short_name"]])) {
+            
+            if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
+				[filtered addObject:service];
+            }
+		}		
+	}
 }
 
 - (void)reload {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
     self.serviceList = [smdata getServices];
     self.filtered = [NSMutableArray array];
+    [self filter];
     [self.serviceTable reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	if (self.serviceList == nil) [self reload];
+	[self reload];
 }
 
 
 #pragma mark -
 #pragma mark Content Filtering
 
+- (void)scopeChanged:(id)sender {
+	UISegmentedControl *sc = (UISegmentedControl *)sender;
+    
+    if (sc.selectedSegmentIndex == 0) {
+    	self.filterClass = nil;
+    }
+    else if (sc.selectedSegmentIndex == 1) {
+    	self.filterClass = @"DataService";
+    }
+    else {
+    	self.filterClass = @"AnalyticalService";
+    }
+    
+    [self filter];
+    [self.serviceTable reloadData];
+}
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
 	
     self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
-    
-	[filtered removeAllObjects];
-    
-	for(NSMutableDictionary *service in serviceList) {
-		if ([Util string:searchText isFoundIn:[service objectForKey:@"name"]] ||
-			[Util string:searchText isFoundIn:[service objectForKey:@"host_short_name"]]) {
-			[filtered addObject:service];
-		}		
-	}
-    
+    [self filter];
     [self.serviceTable reloadData];
 }
 
@@ -93,15 +119,11 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  		numberOfRowsInSection:(NSInteger)section {
-
-    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
-	return [rows count];
+	return [filtered count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
     
 	// Get a cell
 
@@ -114,8 +136,7 @@
 	
 	// Get service metadata
 	
-	NSUInteger row = [indexPath row];
-	NSMutableDictionary *service = [rows objectAtIndex:row];
+	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
 	NSString *class = [service objectForKey:@"class"];
 	NSString *status = [service objectForKey:@"status"];
 	
@@ -124,15 +145,7 @@
 	cell.titleLabel.text = [service objectForKey:@"display_name"];
 	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
     cell.tickIcon.hidden = YES;
-    
-    CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-    FavoritesController *fc = appDelegate.favoritesController;
-    if ([fc isFavorite:[service objectForKey:@"id"]]) {
-        [cell.favIcon setHidden:NO];
-    }
-    else {
-        [cell.favIcon setHidden:YES];
-    }
+    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
     
 	return cell;
 }
@@ -141,19 +154,14 @@
 - (void)tableView:(UITableView *)tableView
 		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
-    NSMutableArray *rows = (filterString == nil) ? serviceList : filtered;
-
-	if (detailController == nil) {
-		self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
-	}
-	
-	NSUInteger row = [indexPath row];
-	NSMutableDictionary *service = [rows objectAtIndex:row];
+	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
 	NSString *serviceId = [service objectForKey:@"id"];
-
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    NSMutableDictionary* metadata = [smdata getMetadataById:serviceId];
+    NSMutableDictionary* metadata = [[ServiceMetadata sharedSingleton] getMetadataById:serviceId];
+    
     if (metadata != nil) {
+        if (detailController == nil) {
+            self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
+        }
 		[detailController displayService:metadata];
 		[navController pushViewController:detailController animated:YES];
 	}

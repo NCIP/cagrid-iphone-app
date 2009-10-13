@@ -40,4 +40,6 @@ typedef enum {
 
 + (NSString *)getNameForDataType:(DataType)dataType;
 
++ (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
+
 @end

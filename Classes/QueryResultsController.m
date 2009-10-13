@@ -20,7 +20,7 @@
 }
 
 - (void)viewDidLoad {
-	self.title = @"Results";
+	self.title = @"Search Results";
 }
 
 - (void)dealloc {

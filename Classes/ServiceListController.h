@@ -19,6 +19,7 @@
 	ServiceDetailController *detailController;
 	NSMutableArray *serviceList;
     NSString *filterString;
+    NSString *filterClass;
 	NSMutableArray *filtered;
 
 }
@@ -28,8 +29,11 @@
 @property (nonatomic, retain) ServiceDetailController *detailController;
 @property (nonatomic, retain) NSMutableArray *serviceList;
 @property (nonatomic, retain) NSString *filterString;
+@property (nonatomic, retain) NSString *filterClass;
 @property (nonatomic, retain) NSMutableArray *filtered;
 
 - (void)reload;
+
+- (void)scopeChanged:(id)sender;
 
 @end
