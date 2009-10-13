@@ -10,14 +10,13 @@
 #import "QueryServicesController.h"
 #import "QueryRequestCell.h"
 #import "ServiceMetadata.h"
-
-#define queriesFilename @"queries.plist"
+#import "UserPreferences.h"
+#import "QueryService.h"
 
 @implementation QueryRequestController
 @synthesize requestsTable;
 @synthesize navController;
 @synthesize serviceResultsController;
-@synthesize queryRequests;
 @synthesize requestToRetry;
 @synthesize requestLastAdded;
 
@@ -28,47 +27,11 @@
     self.requestsTable = nil;
     self.navController = nil;
     self.serviceResultsController = nil;
-    self.queryRequests = nil;
     self.requestToRetry = nil;
     self.requestLastAdded = nil;
     [super dealloc];
 }
 
-- (void)loadFromFile {
-	
-    // Register as the delegate for ServiceMetadata
-    ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    smdata.delegate = self;
-    
-	NSString *filePath = [Util getPathFor:queriesFilename];
-	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-		NSLog(@"Reading searches from file");
-		NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:filePath];
-		self.queryRequests = array;
-		[array release];
-        NSLog(@"... Loaded %d searches",[queryRequests count]);
-        
-        for(int i=0; i<[queryRequests count]; i++) {
-            NSMutableDictionary *request = [queryRequests objectAtIndex:i];
-            if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
-                // query never came back so restart monitoring
-                [[ServiceMetadata sharedSingleton] monitorQuery:request];
-            }
-        }
-    }
-	else {
-		self.queryRequests = [NSMutableArray array];
-	}
-}
-
-- (void)saveToFile {
-	NSLog(@"Saving %d searches to file",[queryRequests count]);
-	[queryRequests writeToFile:[Util getPathFor:queriesFilename] atomically:YES];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-	[super viewWillAppear:animated];
-}
 
 
 #pragma mark -
@@ -90,7 +53,7 @@
     
     int c = 0;
     for(NSMutableDictionary *service in services) {
-    	if ([sm isSelectedForSearch:[service objectForKey:@"id"]]) {
+    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]]) {
         	selectedService = service;
             c++;
         }
@@ -111,12 +74,10 @@
         [queryRequest setObject:[selectedService objectForKey:@"host_short_name"] forKey:@"host_short_name"];        
     }
     
-    [queryRequests insertObject:queryRequest atIndex:0];
-    [self.requestsTable reloadData];
-    
     self.requestLastAdded = queryRequest;
+    [[QueryService sharedSingleton] executeQuery:queryRequest];
     
-    [[ServiceMetadata sharedSingleton] executeQuery:queryRequest];
+    [self.requestsTable reloadData];
 }
 
 #pragma mark -
@@ -143,7 +104,7 @@
     if ([buttonTitle isEqualToString:@"Retry"]) {
         [requestToRetry removeObjectForKey:@"results"];
         [requestToRetry removeObjectForKey:@"error"];        
-        [[ServiceMetadata sharedSingleton] executeQuery:requestToRetry];
+        [[QueryService sharedSingleton] executeQuery:requestToRetry];
         [self.requestsTable reloadData];
     }
     self.requestToRetry = nil;
@@ -155,13 +116,15 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  		numberOfRowsInSection:(NSInteger)section {
-	return [queryRequests count];
+    QueryService *rc = [QueryService sharedSingleton];
+	return [rc.queryRequests count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-    NSMutableDictionary *queryRequest = [queryRequests objectAtIndex:[indexPath row]];
+    QueryService *rc = [QueryService sharedSingleton];
+    NSMutableDictionary *queryRequest = [rc.queryRequests objectAtIndex:[indexPath row]];
     
 	// Get a cell
 	static NSString *cellIdentifier = @"QueryRequestCell";	
@@ -219,7 +182,8 @@
 - (void)tableView:(UITableView *)tableView
 		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-    NSMutableDictionary *queryRequest = [queryRequests objectAtIndex:[indexPath row]];
+    QueryService *rc = [QueryService sharedSingleton];
+    NSMutableDictionary *queryRequest = [rc.queryRequests objectAtIndex:[indexPath row]];
     if ([queryRequest objectForKey:@"results"] == nil) {
     	NSMutableDictionary *error = [queryRequest objectForKey:@"error"];
         if (error != nil) {
@@ -239,7 +203,6 @@
 		self.serviceResultsController = [[QueryServicesController alloc] init];
 		serviceResultsController.navController = navController;
 	}
-
     serviceResultsController.request = queryRequest;
 	[navController pushViewController:serviceResultsController animated:YES];	
 }

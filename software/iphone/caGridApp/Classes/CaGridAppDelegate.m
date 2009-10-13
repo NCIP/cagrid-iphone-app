@@ -10,6 +10,8 @@
 #import "FavoritesController.h"
 #import "QueryRequestController.h"
 #import "ServiceMetadata.h"
+#import "UserPreferences.h"
+#import "QueryService.h"
 
 @implementation CaGridAppDelegate
 
@@ -20,16 +22,35 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     NSLog(@"Application is about to terminate... write everything to files.");
-	[favoritesController saveToFile];
-   	[queryRequestController saveToFile];
+   	[[QueryService sharedSingleton] saveToFile];    
+	[[UserPreferences sharedSingleton] saveToFile];
 	[[ServiceMetadata sharedSingleton] saveToFile];    
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
-	
-	[favoritesController loadFromFile];
-	[queryRequestController loadFromFile];
-	[ServiceMetadata sharedSingleton];
+
+    NSLog(@"Finished launching, now loading cached data...");
+    
+    QueryService *qs = [QueryService sharedSingleton];
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    UserPreferences *up = [UserPreferences sharedSingleton];
+    
+    // Register delegate for ServiceMetadata
+    qs.delegate = queryRequestController;
+    
+    // Load cached data first
+	[qs loadFromFile];	
+	[up loadFromFile];
+	[sm loadFromFile];
+    
+    // Check if any queries finished
+	[qs restartUnfinishedQueries];	
+    
+    NSLog(@"Finished launching, now retrieving new data...");
+    
+    // Attempt to load new data
+    [sm loadServices];
+    [sm loadHosts];
     
 	// add main view
     [window addSubview:tabBarController.view];

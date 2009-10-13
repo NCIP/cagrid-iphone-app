@@ -7,8 +7,7 @@
 //
 
 #import "ServiceDetailController.h"
-#import "CaGridAppDelegate.h"
-#import "FavoritesController.h"
+#import "UserPreferences.h"
 #import "QueryRequestController.h"
 
 #define sidePadding 10 
@@ -137,15 +136,14 @@
 
 - (void)favoriteAction:(id)sender {
 	
-	CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-	FavoritesController *fc = appDelegate.favoritesController;
-	
+    UserPreferences *up = [UserPreferences sharedSingleton];
+    
 	NSString *serviceId = [service objectForKey:@"id"];
-	if ([fc isFavorite:serviceId]) {
-		[fc removeFavorite:serviceId];		
+	if ([up isFavorite:serviceId]) {
+		[up removeFavorite:serviceId];		
 	}
 	else {
-		[fc addFavorite:serviceId];
+		[up addFavorite:serviceId];
 	}
 	
 	[self.tableView reloadData];
@@ -217,16 +215,8 @@
 		cell.statusLabel.text = @"Serving data since 1/2/2009";
 		cell.descLabel.text = desc;
 		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
-		
-		CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-		FavoritesController *fc = appDelegate.favoritesController;
-		if ([fc isFavorite:[service objectForKey:@"id"]]) {
-        	[cell.favIcon setHidden:NO];
-        }
-        else {
-        	[cell.favIcon setHidden:YES];
-        }
-        
+        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
+            
 		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
 		
 		return cell; 
@@ -315,9 +305,7 @@
 		favoriteButton.frame = CGRectMake(sidePadding, buttonVerticalPadding, buttonWidth+40, buttonHeight);
 		[favoriteButton addTarget:self action:@selector(favoriteAction:) forControlEvents:UIControlEventTouchUpInside];
 		
-		CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-		FavoritesController *fc = appDelegate.favoritesController;
-		if ([fc isFavorite:[service objectForKey:@"id"]]) {
+		if ([[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]]) {
 			[favoriteButton setTitle:@"Remove from Favorites" forState:UIControlStateNormal];
 		}
 		else {

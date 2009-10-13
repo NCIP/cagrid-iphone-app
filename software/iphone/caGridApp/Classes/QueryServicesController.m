@@ -12,8 +12,8 @@
 #import "QueryRequestCell.h"
 #import "ServiceMetadata.h"
 #import "CaGridAppDelegate.h"
-#import "FavoritesController.h"
 #import "ServiceDetailController.h"
+#import "UserPreferences.h"
 
 @implementation QueryServicesController
 @synthesize navController;
@@ -35,7 +35,7 @@
 }
 
 - (void)viewDidLoad {
-	self.title = @"Services Searched";
+	self.title = @"Search Results";
 }
 
 - (void)dealloc {
@@ -146,9 +146,7 @@
         cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;        
         cell.titleLabel.text = [service objectForKey:@"display_name"];
         cell.countLabel.text = failed ? @"Service did not respond" : [NSString stringWithFormat:@"%d results",[results count]];
-
-        CaGridAppDelegate *appDelegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-        cell.favIcon.hidden = ![appDelegate.favoritesController isFavorite:[service objectForKey:@"id"]];
+        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
     }
     
 	return cell;

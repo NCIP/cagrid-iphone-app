@@ -10,21 +10,8 @@
 #import "ServiceListController.h"
 
 @interface FavoritesController : ServiceListController {
-	NSMutableArray *favorites;
 }
-
-@property (nonatomic, retain) NSMutableArray *favorites;
-
-- (void)saveToFile;
     
 -(IBAction)toggleEdit:(id)sender;
-
-- (void)loadFromFile;
-	
--(void)addFavorite:(NSString *)serviceId;
-
--(void)removeFavorite:(NSString *)serviceId;
-
--(BOOL)isFavorite:(NSString *)serviceId;
 
 @end
