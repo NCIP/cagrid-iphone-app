@@ -87,26 +87,8 @@
             NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
-        
-        NSString *locationList = nil;
-        NSString *serviceName = [request objectForKey:@"service_name"];
-        if (serviceName != nil) {
-            locationList = [request objectForKey:@"host_short_name"];
-        }
-        else {
-            locationList = @"all";
-        }
-        
-        NSString *scope = [request objectForKey:@"scope"];
-        if (scope == nil) scope = @"Microarray";
-        // TODO: get the real scope
-        
-        cell.alertImageView.hidden = YES;
-        cell.titleLabel.text = [NSString stringWithFormat:@"\"%@\"", [request objectForKey:@"searchString"]];
-        cell.descLabel.text = [NSString stringWithFormat:@"%@ search on 09/20/2009 at 2:30pm", scope];
-        cell.locations = [NSString stringWithFormat:@"Locations: %@",locationList];
-        cell.highlightView.alpha = 0.0;
-        
+
+ 		[cell populateWithRequest:request];
         return cell;
     }
     

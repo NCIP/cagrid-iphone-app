@@ -32,46 +32,47 @@
     [super dealloc];
 }
 
-
+- (void)viewWillAppear:(BOOL)animated {
+    [self.requestsTable reloadData];
+}
 
 #pragma mark -
 #pragma mark Search Bar Methods
 
 - (void)searchFor:(NSString *)searchString inDataType:(DataType)dataType {
 	
-    NSString *scope = [Util getNameForDataType:dataType];
+    NSString *dataTypeName = [Util getNameForDataType:dataType];
     
-    NSLog(@"Search %@ for %@",scope,searchString);
-    
-    NSMutableDictionary *queryRequest = [NSMutableDictionary dictionary];
-    [queryRequest setObject:searchString forKey:@"searchString"];
+    NSLog(@"Search %@ for %@",dataTypeName,searchString);
     
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-    
-    NSMutableArray *services = [sm getServicesOfType:dataType];
-    NSMutableDictionary *selectedService = nil;
-    
-    int c = 0;
-    for(NSMutableDictionary *service in services) {
-    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]]) {
-        	selectedService = service;
-            c++;
+    NSMutableArray *dataTypeServices = [sm getServicesOfType:dataType];
+    NSMutableArray *selectedServiceIds = [NSMutableArray array];
+
+    for(NSMutableDictionary *service in dataTypeServices) {
+        NSString *serviceId = [service objectForKey:@"id"];
+    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:serviceId]) {
+        	[selectedServiceIds addObject:serviceId];
         }
     }
     
-    if (!c) {
-    	// alert user
+    if ([selectedServiceIds count] == 0) {
+        NSLog(@"Warning: searchFor called without any services selected");
         return;
     }
     
-    if (c > 1) {
-        // search all
-		[queryRequest setObject:scope forKey:@"scope"];
+    NSMutableDictionary *queryRequest = [NSMutableDictionary dictionary];
+    [queryRequest setObject:searchString forKey:@"searchString"];
+    [queryRequest setObject:dataTypeName forKey:@"dataTypeName"];
+    [queryRequest setObject:selectedServiceIds forKey:@"selectedServicesIds"];
+    [queryRequest setObject:[NSDate date] forKey:@"startTime"];
+    
+    if ([selectedServiceIds count] > 1) {
+		[queryRequest setObject:dataTypeName forKey:@"scope"];
     }
     else {
+        NSMutableDictionary *selectedService = [sm getServiceById:[selectedServiceIds objectAtIndex:0]];
         [queryRequest setObject:[selectedService objectForKey:@"url"] forKey:@"serviceUrl"];
-        [queryRequest setObject:[selectedService objectForKey:@"name"] forKey:@"service_name"];
-        [queryRequest setObject:[selectedService objectForKey:@"host_short_name"] forKey:@"host_short_name"];        
     }
     
     self.requestLastAdded = queryRequest;
@@ -133,40 +134,19 @@
 		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
 		cell = [nib objectAtIndex:0];
 	}
+
+    [cell populateWithRequest:queryRequest];
     
-    cell.alertImageView.hidden = YES;
-        
     if ([queryRequest objectForKey:@"results"] != nil) {
 	    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    	[cell.indicator stopAnimating];
     }
     else if ([queryRequest objectForKey:@"error"] != nil) {
-    	[cell.indicator stopAnimating];
 	    cell.alertImageView.hidden = NO;
     }
     else {
     	[cell.indicator startAnimating];
     }
 
-    cell.titleLabel.text = [NSString stringWithFormat:@"\"%@\"", [queryRequest objectForKey:@"searchString"]];
-    
-    NSString *locationList = nil;
-    NSString *serviceName = [queryRequest objectForKey:@"service_name"];
-    if (serviceName != nil) {
-        locationList = [queryRequest objectForKey:@"host_short_name"];
-    }
-    else {
-        locationList = @"all";
-    }
-    
-    NSString *scope = [queryRequest objectForKey:@"scope"];
-    if (scope == nil) scope = @"Microarray";
-    // TODO: get the real scope
-    
-    cell.descLabel.text = [NSString stringWithFormat:@"%@ search on 09/20/2009 at 2:30pm", scope];
-    cell.locations = [NSString stringWithFormat:@"Locations: %@",locationList];
-    cell.highlightView.alpha = 0.0;
-    
     if (queryRequest == self.requestLastAdded) {
         self.requestLastAdded = nil;        
 		cell.highlightView.alpha = 1.0;        

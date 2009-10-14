@@ -136,6 +136,22 @@
     NSString *searchString = [request objectForKey:@"searchString"];
     NSString *serviceUrl = [request objectForKey:@"serviceUrl"];
     NSString *scope = [[request objectForKey:@"scope"] lowercaseString];
+    // TODO; muliple serviceIds
+//    
+//    NSString *serviceIds = @"";
+//    
+//    int c = 0;
+//    for(NSMutableDictionary *service in services) {
+//        NSString *serviceId = [service objectForKey:@"id"];
+//    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:serviceid]) {
+//        	selectedService = service;
+//            if (c > 0) serviceIds = [serviceIds stringByAppendingString:@","];
+//            serviceIds = [serviceIds stringByAppendingString:serviceId];
+//            c++;
+//        }
+//    }
+    
+    
     
     if (serviceUrl == nil) serviceUrl = @"";
     if (scope == nil) scope = @"";

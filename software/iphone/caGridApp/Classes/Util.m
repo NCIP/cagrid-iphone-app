@@ -28,7 +28,54 @@ static BOOL alerted = NO;
 + (NSDate *) getDateFromString:(NSString *)dateString {
 	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
 	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2009-02-01 19:50:41 PST
-	return [dateFormat dateFromString:dateString];
+	NSDate *date = [dateFormat dateFromString:dateString];
+    [dateFormat release];
+    return date;
+}
+
++ (NSString *) getStringFromDate:(NSDate *)date {
+	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2009-02-01 19:50:41 PST
+	NSString *dateString = [dateFormat stringFromDate:date];
+    [dateFormat release];
+    return dateString;
+}
+
++ (NSString *)dateDifferenceStringFromDate:(NSDate *)date {
+    double time = [date timeIntervalSinceDate:[NSDate date]];
+    time *= -1;
+    if(time < 1) {
+        return [self getStringFromDate:date];
+    } 
+    else if (time < 60) {
+        return @"less than a minute ago";
+    } 
+    else if (time < 3600) {
+        int diff = round(time / 60);
+        if (diff == 1) 
+            return [NSString stringWithFormat:@"1 minute ago", diff];
+        return [NSString stringWithFormat:@"%d minutes ago", diff];
+    } 
+    else if (time < 86400) {
+        int diff = round(time / 60 / 60);
+        if (diff == 1)
+            return [NSString stringWithFormat:@"1 hour ago", diff];
+        return [NSString stringWithFormat:@"%d hours ago", diff];
+    } 
+    else if (time < 604800) {
+        int diff = round(time / 60 / 60 / 24);
+        if (diff == 1) 
+            return [NSString stringWithFormat:@"yesterday", diff];
+        if (diff == 7) 
+            return [NSString stringWithFormat:@"last week", diff];
+        return[NSString stringWithFormat:@"%d days ago", diff];
+    } 
+    else {
+        int diff = round(time / 60 / 60 / 24 / 7);
+        if (diff == 1)
+            return [NSString stringWithFormat:@"last week", diff];
+        return [NSString stringWithFormat:@"%d weeks ago", diff];
+    }   
 }
 
 
@@ -100,6 +147,24 @@ static BOOL alerted = NO;
             return @"nanoparticle";
         default:
             return nil;
+    }
+}
+
++ (NSString *)getLabelForDataTypeName:(NSString *)dataTypeName {
+    if ([dataTypeName isEqualToString:@"microarray"]) {
+        return @"Microarray";
+    }
+    else if ([dataTypeName isEqualToString:@"imaging"]) {
+        return @"Imaging";
+    }    
+    else if ([dataTypeName isEqualToString:@"biospecimen"]) {
+        return @"Biospecimen";
+    }
+    else if ([dataTypeName isEqualToString:@"nanoparticle"]) {
+        return @"Nanoparticle";
+    }
+    else {
+        return @"Unknown";
     }
 }
 

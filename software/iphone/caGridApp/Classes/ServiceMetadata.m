@@ -58,7 +58,6 @@
     
     // parse certain fields into native objects
     [service setObject:[Util getDateFromString:[service objectForKey:@"publish_date"]] forKey:@"publish_date_obj"];
-    [service setObject: [nf numberFromString:[service objectForKey:@"version"]] forKey:@"version_number"];
     
     NSString *host = [service objectForKey:@"host_short_name"];
     if (host == nil) {
@@ -201,10 +200,9 @@
     self.services = serviceDict;
 	[self updateServiceDerivedObjects];
 	
-	// sort by name, hosting center, and finally version descending
+	// sort by name/host
 	[services sortUsingDescriptors:[NSArray arrayWithObjects:
 						[[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
-						[[[NSSortDescriptor alloc] initWithKey:@"version_number" ascending:NO] autorelease],
 						nil]];
 	
 	//NSLog(@"services: %@",services);

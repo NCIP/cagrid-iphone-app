@@ -14,13 +14,13 @@
 @interface ServicePickerController : UIViewController {
 	IBOutlet UINavigationController *navController;
 	ServiceDetailController *detailController;
-    IBOutlet UITableView *serviceList;    
+    IBOutlet UITableView *serviceTable;    
     DataType dataType;
 }
 
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) ServiceDetailController *detailController;
-@property (nonatomic, retain) UITableView *serviceList;    
+@property (nonatomic, retain) UITableView *serviceTable;    
 @property (nonatomic) DataType dataType;
 
 - (IBAction) clickSelectAllButton:(id)sender;
