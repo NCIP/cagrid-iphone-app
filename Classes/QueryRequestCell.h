@@ -13,16 +13,18 @@
 
 @interface QueryRequestCell : TwoValueCell {
     
-    IBOutlet UILabel *locations;
+    IBOutlet UILabel *locationsLabel;
 	IBOutlet UIActivityIndicatorView *indicator;
     IBOutlet UIImageView *alertImageView;
     IBOutlet UIView *highlightView;
     
 }
 
-@property (nonatomic, retain) UILabel *locations;
+@property (nonatomic, retain) UILabel *locationsLabel;
 @property (nonatomic, retain) UIActivityIndicatorView *indicator;
 @property (nonatomic, retain) UIImageView *alertImageView;
 @property (nonatomic, retain) UIView *highlightView;
+
+- (void)populateWithRequest:(NSDictionary *)queryRequest;
 
 @end

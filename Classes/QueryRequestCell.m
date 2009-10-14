@@ -7,22 +7,43 @@
 //
 
 #import "QueryRequestCell.h"
-
+#import "Util.h"
+#import "ServiceMetadata.h"
 
 @implementation QueryRequestCell
 
-@synthesize locations;
+@synthesize locationsLabel;
 @synthesize indicator;
 @synthesize alertImageView;
 @synthesize highlightView;
 
 - (void)dealloc {
-    self.locations = nil;
+    self.locationsLabel = nil;
 	self.indicator = nil;
     self.alertImageView = nil;
     self.highlightView = nil;
     [super dealloc];
 }
 
+- (void)populateWithRequest:(NSDictionary *)queryRequest {
+    
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    NSString *dataTypeLabel = [Util getLabelForDataTypeName:[queryRequest objectForKey:@"dataTypeName"]];
+    NSString *dateString = [Util dateDifferenceStringFromDate:[queryRequest objectForKey:@"startTime"]];
+    NSMutableArray *selectedServicesIds = [queryRequest objectForKey:@"selectedServicesIds"];
+    NSMutableArray *locations = [NSMutableArray array];
+    for(NSString *serviceId in selectedServicesIds) {
+    	[locations addObject:[[sm getServiceById:serviceId] objectForKey:@"host_short_name"]];
+    }
+
+   [self.indicator stopAnimating];
+    self.accessoryType = UITableViewCellAccessoryNone;
+    self.alertImageView.hidden = YES;
+    self.highlightView.alpha = 0.0;
+    self.titleLabel.text = [NSString stringWithFormat:@"\"%@\"", [queryRequest objectForKey:@"searchString"]];
+    self.descLabel.text = [NSString stringWithFormat:@"%@ search, %@", dataTypeLabel, dateString];
+    self.locationsLabel.text = [NSString stringWithFormat:@"Locations: %@",[locations componentsJoinedByString:@", "]];
+    
+}
 
 @end

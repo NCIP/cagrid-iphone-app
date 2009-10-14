@@ -15,7 +15,7 @@
 @implementation ServicePickerController
 @synthesize navController;
 @synthesize detailController;
-@synthesize serviceList;
+@synthesize serviceTable;
 @synthesize dataType;
 
 - (void)dealloc {
@@ -24,7 +24,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     self.title = [NSString stringWithFormat:@"Choose Services",[Util getLabelForDataType:dataType]];
-    [self.serviceList reloadData];
+    [self.serviceTable reloadData];
 	[super viewWillAppear:animated];
 }
 
@@ -34,7 +34,7 @@
     for(NSMutableDictionary *service in services) {
     	[[UserPreferences sharedSingleton] selectForSearch:[service objectForKey:@"id"]];
     }
-    [self.serviceList reloadData];
+    [self.serviceTable reloadData];
 }
 
 - (IBAction) clickSelectNoneButton:(id)sender {
@@ -43,7 +43,7 @@
     for(NSMutableDictionary *service in services) {
     	[[UserPreferences sharedSingleton] deselectForSearch:[service objectForKey:@"id"]];
     }
-    [self.serviceList reloadData];        
+    [self.serviceTable reloadData];        
 }
 
 - (IBAction) clickDoneButton:(id)sender {
@@ -113,7 +113,7 @@
         [up selectForSearch:[service objectForKey:@"id"]];
     }
     
-    [self.serviceList reloadData];
+    [self.serviceTable reloadData];
 }
 
 - (void)tableView:(UITableView *)tableView

@@ -25,7 +25,11 @@ typedef enum {
 + (BOOL) string:(NSString *)searchString isFoundIn:(NSString *)text;
     
 /** Parse the given date string */
-+ (NSDate *)getDateFromString:(NSString *)dateString;
++ (NSDate *) getDateFromString:(NSString *)dateString;
+
++ (NSString *) getStringFromDate:(NSDate *)date;
+    
++ (NSString *) dateDifferenceStringFromDate:(NSDate *)date;
 
 /** Display an error popup indicating that data could not be retrieved */
 + (void) displayNetworkError;
@@ -40,6 +44,8 @@ typedef enum {
 
 + (NSString *)getNameForDataType:(DataType)dataType;
 
++ (NSString *)getLabelForDataTypeName:(NSString *)dataTypeName;
+    
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
 
 @end
