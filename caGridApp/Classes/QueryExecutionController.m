@@ -68,8 +68,15 @@
 }
 
 - (IBAction) clickSearchButton:(id)sender {
+    
+    if ([locationsLabel.text isEqualToString:@""]) {
+		[Util displayCustomError:@"" withMessage:@"Select one or more locations to search."];
+    	return;
+    }
+    
     CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-    [delegate.queryRequestController searchFor:self.searchBox.text inDataType:self.dataType];
+    [delegate.queryRequestController searchFor:self.searchBox.text inDataType:self.dataType];    
+    [delegate.queryRequestController.navController popToRootViewControllerAnimated:NO];
     delegate.tabBarController.selectedIndex = 1;
 }
 
