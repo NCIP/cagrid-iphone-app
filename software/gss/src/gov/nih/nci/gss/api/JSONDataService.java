@@ -213,6 +213,7 @@ public class JSONDataService extends HttpServlet {
             String clientId = request.getParameter("clientId");
             String searchString = request.getParameter("searchString");
             String serviceGroup = request.getParameter("serviceGroup");
+            String serviceIdConcat = request.getParameter("serviceIds");
             String[] serviceIds = request.getParameterValues("serviceId");
             String[] serviceUrls = request.getParameterValues("serviceUrl");
 
@@ -222,6 +223,10 @@ public class JSONDataService extends HttpServlet {
 
             if (StringUtil.isEmpty(searchString)) {
                 return getJSONError("UsageError", "Specify a searchString to search on.");
+            }
+             
+            if (serviceIds.length == 0) {
+                serviceIds = serviceIdConcat.split(",");
             }
             
             List<String> serviceUrlList = new ArrayList<String>();
