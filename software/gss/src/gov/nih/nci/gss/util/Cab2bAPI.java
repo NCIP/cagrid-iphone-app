@@ -11,9 +11,9 @@ import java.util.Properties;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -117,13 +117,16 @@ public class Cab2bAPI {
         try {
             String url = cab2b2QueryURL+"/search/";
             HttpPost httppost = new HttpPost(url);
-            HttpParams params = new BasicHttpParams();
-            params.setParameter("searchString", searchString);
-            params.setParameter("modelGroup", modelGroup);
+
+            List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+            nvps.add(new BasicNameValuePair("searchString", searchString));
+            nvps.add(new BasicNameValuePair("modelGroup", modelGroup));
             for(String serviceUrl : serviceUrls) {
-                params.setParameter("serviceUrl", serviceUrl);
+                nvps.add(new BasicNameValuePair("serviceUrl", serviceUrl));
             }
-            httppost.setParams(params);
+            
+            httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+            
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             return httpclient.execute(httppost, responseHandler);
         }
