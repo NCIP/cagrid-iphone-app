@@ -121,7 +121,10 @@ public class Cab2bAPI {
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("searchString", searchString));
             nvps.add(new BasicNameValuePair("modelGroup", modelGroup));
+            log.info("HTTP POST, setting searchString: "+searchString);
+            log.info("HTTP POST, setting modelGroup: "+modelGroup);
             for(String serviceUrl : serviceUrls) {
+                log.info("HTTP POST, setting serviceUrl: "+serviceUrl);
                 nvps.add(new BasicNameValuePair("serviceUrl", serviceUrl));
             }
             
