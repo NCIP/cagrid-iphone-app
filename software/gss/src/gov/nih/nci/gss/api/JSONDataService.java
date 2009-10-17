@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -183,10 +184,6 @@ public class JSONDataService extends HttpServlet {
      */
     private String getRESTResponse(Verb verb, String noun, String[] pathList, 
             HttpServletRequest request) throws Exception {
-    
-    	if (verb != Verb.GET) {
-            return getJSONError("MethodError", "Only the GET method is supported.");
-    	}
     	
         if ("service".equals(noun)) {
             // Return details about services, or a single service
@@ -216,8 +213,8 @@ public class JSONDataService extends HttpServlet {
             String clientId = request.getParameter("clientId");
             String searchString = request.getParameter("searchString");
             String serviceGroup = request.getParameter("serviceGroup");
-            String serviceId = request.getParameter("serviceId");
-            String serviceUrl = request.getParameter("serviceUrl");
+            String[] serviceIds = request.getParameterValues("serviceId");
+            String[] serviceUrls = request.getParameterValues("serviceUrl");
 
             if (StringUtil.isEmpty(clientId)) {
                 return getJSONError("UsageError", "Specify your clientId.");
@@ -227,31 +224,39 @@ public class JSONDataService extends HttpServlet {
                 return getJSONError("UsageError", "Specify a searchString to search on.");
             }
             
+            List<String> serviceUrlList = new ArrayList<String>();
+            for(String serviceUrl : serviceUrls) {
+                serviceUrlList.add(serviceUrl);
+            }
+            
+            if (serviceIds.length > 0) {
+                Session s = sessionFactory.openSession();
+                
+                for(String serviceId : serviceIds) {
+                    
+                    String hql = GET_SERVICE_HQL_SELECT+" where service.id = ?";
+                    List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
+                    
+                    if (services.isEmpty()) {
+                        return getJSONError("UsageError", "Unknown service id: "+serviceId);
+                    }
+                    if (services.size() > 1) {
+                        log.error("More than one matching service for service id: "+serviceId);
+                    }
+                    
+                    serviceUrlList.add(services.get(0).getUrl());
+                }
+                
+                s.close();
+            }
+            
             QueryParams queryParams = null; 
 
-            if (!StringUtil.isEmpty(serviceUrl)) {
+            if (!serviceUrlList.isEmpty()) {
                 queryParams = new QueryParams(clientId, searchString, 
-                    null, serviceUrl);
-            }
-            else if (!StringUtil.isEmpty(serviceId)) {
-
-                Session s = sessionFactory.openSession();
-                String hql = GET_SERVICE_HQL_SELECT+" where service.id = ?";
-                List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
-                
-                if (services.isEmpty()) {
-                    return getJSONError("UsageError", "Unknown service id: "+serviceId);
-                }
-                
-                if (services.size() > 1) {
-                    log.error("More than one matching service for service id: "+serviceId);
-                }
-                
-                queryParams = new QueryParams(clientId, searchString, null, 
-                		services.get(0).getUrl());
+                    null, serviceUrlList);
             }
             else if (!StringUtil.isEmpty(serviceGroup)) {
-                
                 if (serviceGroup == null) {
                     return getJSONError("UsageError", "Unrecognized serviceGroup '"+serviceGroup+"'");
                 }
