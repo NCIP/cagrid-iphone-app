@@ -16,15 +16,18 @@
 @synthesize result;
 @synthesize keys;
 
-- (void)viewDidLoad {
-	self.title = @"Result";
-}
-
 - (void)displayResult:(NSMutableDictionary *)resultDict {
     self.result = resultDict;
     self.keys = [NSMutableArray array];
     [self.keys addObjectsFromArray: [self.result allKeys]];
     [self.keys sortUsingSelector: @selector(compare:)];
+}
+
+- (void)viewDidLoad {
+	self.title = @"Result";
+}
+
+- (void)viewWillAppear:(BOOL)animated {
 	[self.tableView reloadData];
 }
 

@@ -10,16 +10,19 @@
 
 @class FavoritesController;
 @class QueryRequestController;
+@class DashboardController;
 
 @interface CaGridAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate> {
     IBOutlet UIWindow *window;
     IBOutlet UITabBarController *tabBarController;
+    IBOutlet DashboardController *dashboardController;
 	IBOutlet FavoritesController *favoritesController;
     IBOutlet QueryRequestController *queryRequestController;
 }
 
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) UITabBarController *tabBarController;
+@property (nonatomic, retain) DashboardController *dashboardController;
 @property (nonatomic, retain) FavoritesController *favoritesController;
 @property (nonatomic, retain) QueryRequestController *queryRequestController;
 
