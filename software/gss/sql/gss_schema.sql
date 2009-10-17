@@ -49,6 +49,7 @@ CREATE TABLE `GRID_SERVICE` (
   `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,
   `VERSION` varchar(255) default NULL,
+  `SEARCH_DEFAULT` tinyint(1) default '0' NOT NULL,
   `HOSTING_CENTER_ID` bigint(20) NULL,
   `DOMAIN_MODEL_ID` bigint(20) default NULL,
   PRIMARY KEY  (`ID`)

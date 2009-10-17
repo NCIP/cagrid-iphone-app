@@ -355,6 +355,9 @@ public class JSONDataService extends HttpServlet {
             DataService dataService = (DataService)service;
             DataServiceGroup group = dataService.getGroup();
             if (group != null) jsonService.put("group", group.getName());
+            if (dataService.getSearchDefault()) {
+                jsonService.put("search_default", "true");
+            }
         }
         
         Collection<StatusChange> scs = service.getStatusHistory(); 
