@@ -230,11 +230,11 @@ public class JSONDataService extends HttpServlet {
                 serviceUrlList.add(serviceUrl);
             }
             
-            if (serviceIds == null) {
+            if (serviceIds == null && serviceIdConcat != null) {
                 serviceIds = serviceIdConcat.split(",");
             }
             
-            if (serviceIds.length > 0) {
+            if (serviceIds != null && serviceIds.length > 0) {
                 Session s = sessionFactory.openSession();
                 
                 for(String serviceId : serviceIds) {
