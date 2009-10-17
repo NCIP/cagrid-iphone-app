@@ -168,6 +168,24 @@ static BOOL alerted = NO;
     }
 }
 
++ (DataType)getDataTypeForDataTypeName:(NSString *)dataTypeName {
+    if ([dataTypeName isEqualToString:@"microarray"]) {
+        return DataTypeMicroarray;
+    }
+    else if ([dataTypeName isEqualToString:@"imaging"]) {
+        return DataTypeImaging;
+    }    
+    else if ([dataTypeName isEqualToString:@"biospecimen"]) {
+        return DataTypeBiospecimen;
+    }
+    else if ([dataTypeName isEqualToString:@"nanoparticle"]) {
+        return DataTypeNanoparticle;
+    }
+    else {
+        return -1;
+    }
+}
+
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message {
 	NSMutableDictionary *errorDict = [NSMutableDictionary dictionary];
     [errorDict setObject:errorType forKey:@"error"];

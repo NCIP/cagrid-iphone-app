@@ -100,10 +100,24 @@
     }
 }
 
-- (void) notifyDelegateOfError:(NSString *)error message:(NSString *)message forRequest:(NSMutableDictionary *)request {  
-    [request setObject:[Util getError:error withMessage:message] forKey:@"error"];
+- (void) notifyDelegateOfError:(NSString *)errorType message:(NSString *)message forRequest:(NSMutableDictionary *)request {  
+    [request setObject:[Util getError:errorType withMessage:message] forKey:@"error"];
     [self notifyDelegateOfErrorForRequest:request];
 }
+
+// This is a little complex, but we want the user to see the loading animation for a little bit, 
+// so that they know we tried and failed to connect.
+-(void) notifyDelegateOfErrorDelayed:(NSString *)errorType message:(NSString *)message forRequest:(NSMutableDictionary *)request {  
+    SEL selector = @selector(notifyDelegateOfError:message:forRequest:);
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
+    [invocation setSelector:selector];
+    [invocation setTarget:self];
+    [invocation setArgument:&errorType atIndex:2];
+    [invocation setArgument:&message atIndex:3];
+    [invocation setArgument:&request atIndex:4];
+    [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
+}
+
 
 - (void)monitorQuery:(NSMutableDictionary *)request {
     
@@ -134,32 +148,23 @@
 	[queryRequests insertObject:request atIndex:0];
     
     NSString *searchString = [request objectForKey:@"searchString"];
-    NSString *serviceUrl = [request objectForKey:@"serviceUrl"];
-    NSString *scope = [[request objectForKey:@"scope"] lowercaseString];
-    // TODO; muliple serviceIds
-//    
-//    NSString *serviceIds = @"";
-//    
-//    int c = 0;
-//    for(NSMutableDictionary *service in services) {
-//        NSString *serviceId = [service objectForKey:@"id"];
-//    	if ([[UserPreferences sharedSingleton] isSelectedForSearch:serviceid]) {
-//        	selectedService = service;
-//            if (c > 0) serviceIds = [serviceIds stringByAppendingString:@","];
-//            serviceIds = [serviceIds stringByAppendingString:serviceId];
-//            c++;
-//        }
-//    }
+    NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
     
+    NSString *serviceIds = @"";
+    for(NSString *serviceId in selectedServicesIds) {
+    	if (![serviceIds isEqualToString:@""]) serviceIds = [serviceIds stringByAppendingString:@","];
+        serviceIds = [serviceIds stringByAppendingString:serviceId];
+    }
     
-    
-    if (serviceUrl == nil) serviceUrl = @"";
-    if (scope == nil) scope = @"";
-    
-	NSString *queryStr = [NSString stringWithFormat:@"%@/runQuery?clientId=%@&searchString=%@&serviceUrl=%@&serviceGroup=%@",BASE_URL,deviceId,searchString,serviceUrl,scope];
+	NSString *queryStr = [NSString stringWithFormat:@"%@/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     NSLog(@"Getting %@",escapedQueryStr);
+    
+    if (escapedQueryStr == nil) {
+        [self notifyDelegateOfErrorDelayed:@"Input Error" message:@"Cannot process the search string." forRequest:request];
+        return;
+    }
     
 	NSError *error = nil;
 	NSURL *jsonURL = [NSURL URLWithString:escapedQueryStr];
@@ -172,18 +177,7 @@
         if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
         	message = @"Could not connect to the network.";
         }
-        
-        // This is a little complex, but we want the user to see the loading animation for a little bit, 
-        // so that they know we tried and failed to connect.
-        
-        SEL selector = @selector(notifyDelegateOfError:message:forRequest:);
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
-        [invocation setSelector:selector];
-        [invocation setTarget:self];
-        [invocation setArgument:&errorType atIndex:2];
-        [invocation setArgument:&message atIndex:3];
-        [invocation setArgument:&request atIndex:4];
-        [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
+        [self notifyDelegateOfErrorDelayed:errorType message:message forRequest:request];
         return;
     }
     else {
@@ -198,20 +192,14 @@
         NSLog(@"Server did not return job identifier. Status was %@.",status);
         NSString *errorType = @"Server Error";
         NSString *message = @"Query could not execute";
-        SEL selector = @selector(notifyDelegateOfError:message:forRequest:);
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
-        [invocation setSelector:selector];
-        [invocation setTarget:self];
-        [invocation setArgument:&errorType atIndex:2];
-        [invocation setArgument:&message atIndex:3];
-        [invocation setArgument:&request atIndex:4];
-        [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
+        [self notifyDelegateOfErrorDelayed:errorType message:message forRequest:request];
         return;
     }
     
     [request setObject:jobId forKey:@"jobId"];
     [self monitorQuery: request];
 }
+
 
 #pragma mark -
 #pragma mark REST API Methods
@@ -286,9 +274,32 @@
         return;
     }
     
+    // Get failed urls
+    NSMutableArray *failedUrls = [root objectForKey:@"failedUrls"];
+    
+    // Add in services which returned no results, but did not fail
+    NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
+    NSMutableArray *allUrls = [NSMutableArray array];
+    
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    for(NSString *serviceId in selectedServicesIds) {
+        NSMutableDictionary *service = [sm getServiceById:serviceId];
+        NSString *url = [service objectForKey:@"url"];
+        [allUrls addObject:url];
+    }
+    
+    [allUrls removeObjectsInArray:failedUrls];
+    
+    for(NSString *url in allUrls) {
+    	if ([results objectForKey:url] == nil) {
+        	// no results, add an empty array for this service
+            [results setObject:[NSMutableArray array] forKey:url];
+        }
+    }
+    
 	[request removeObjectForKey:@"receivedData"];
     [request setObject:results forKey:@"results"];
-    [request setObject:[root objectForKey:@"failedUrls"] forKey:@"failedUrls"];
+    [request setObject:failedUrls forKey:@"failedUrls"];
     
 	if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
 		[self.delegate requestCompleted:results];

@@ -19,6 +19,10 @@
 	self.results = resultArray;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+	[self.tableView reloadData];
+}
+
 - (void)viewDidLoad {
 	self.title = @"Search Results";
 }
@@ -51,7 +55,7 @@
 		cell = [nib objectAtIndex:0];
 	}
     
-    NSMutableDictionary *result = [results objectAtIndex:[indexPath row]];
+    NSMutableDictionary *result = [results objectAtIndex:indexPath.row];
     
     NSString *title = nil;
     NSString *desc = nil;

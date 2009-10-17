@@ -7,8 +7,11 @@
 //
 
 #import "ServiceDetailController.h"
+#import "ServiceMetadata.h"
 #import "UserPreferences.h"
 #import "QueryRequestController.h"
+#import "CaGridAppDelegate.h"
+#import "DashboardController.h"
 
 #define sidePadding 10 
 #define insetPadding 20 
@@ -150,10 +153,20 @@
 }
 
 - (void)queryAction:(id)sender {
-	//
-//    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];
-//    delegate.queryRequestController.service = service;	
-//    delegate.tabBarController.selectedIndex = 3;
+
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    UserPreferences *up = [UserPreferences sharedSingleton];
+    DataType dataType = [Util getDataTypeForDataTypeName:[service objectForKey:@"group"]];
+    
+    NSMutableArray *dataTypeServices = [sm getServicesOfType:dataType];
+    for(NSMutableDictionary *dataTypeService in dataTypeServices) {
+    	[up deselectForSearch:[dataTypeService objectForKey:@"id"]];
+    }
+    [up selectForSearch:[service objectForKey:@"id"]];
+    
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];    
+    [delegate.dashboardController selectDataType:dataType];
+    delegate.tabBarController.selectedIndex = 0;
 }
 
 #pragma mark -

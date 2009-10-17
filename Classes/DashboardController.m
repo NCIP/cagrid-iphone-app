@@ -19,6 +19,7 @@
 @synthesize summaryLabel;
 @synthesize infoView;
 @synthesize infoText;
+@synthesize summaryTable;
 @synthesize infoButton;
 
 - (void)dealloc {
@@ -54,11 +55,18 @@
     NSUInteger c1 = [[sm getServices] count];
     NSUInteger c2 = [[sm getHosts] count];
     self.summaryLabel.text = (c1 > 0 && c2 > 0) ? [NSString stringWithFormat:@"%d services hosted by %d institutions",c1,c2] : @"";
-    // TODO: reload table as well?
+    [self.summaryTable reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    
+    // reload data
 	[self reload];
+    
+    // restore default view
+    [infoView removeFromSuperview];
+    self.navigationItem.rightBarButtonItem = infoButton;
+    
     [super viewWillAppear:animated];
 }
 
@@ -156,21 +164,20 @@
 	return cell;
 }
 
-
-- (void)tableView:(UITableView *)tableView
-		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-    NSUInteger row = [indexPath row];
-    
+- (void)selectDataType:(DataType)dataType {
 	if (queryExecutionController == nil) {
         self.queryExecutionController = [[QueryExecutionController alloc] initWithNibName:@"QueryExecutionView" bundle:nil];
         queryExecutionController.navController = navController;
 	}
     
-    queryExecutionController.dataType = row;
-	
+    queryExecutionController.dataType = dataType;
     [navController pushViewController:queryExecutionController animated:YES];
+}
 
+- (void)tableView:(UITableView *)tableView
+		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	
+    [self selectDataType:indexPath.row];
 }
 
 

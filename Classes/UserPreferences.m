@@ -14,12 +14,14 @@
 @implementation UserPreferences
 @synthesize favoriteServices;
 @synthesize selectedServices;
+@synthesize isClean;
 
 #pragma mark -
 #pragma mark Object Methods
 
 - (id) init {
 	if (self = [super init]) {
+        isClean = YES;
         self.favoriteServices = [NSMutableArray array]; 
         self.selectedServices = [NSMutableDictionary dictionary]; 
    	}
@@ -51,6 +53,7 @@
             self.selectedServices = [dict objectForKey:@"selectedServices"];        
             [dict release];
         	NSLog(@"... Loaded %d favorites and %d selections",[self.favoriteServices count],[self.selectedServices count]);
+            isClean = NO;
         }
         @catch (NSException *exception) {
         	NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
@@ -58,6 +61,9 @@
             self.selectedServices = [NSMutableDictionary dictionary];
         }
 	}
+    else {
+        NSLog(@"... No user preferences found.");
+    }
 }
 
 - (void) saveToFile {
@@ -70,6 +76,20 @@
     }
     @catch (NSException *exception) {
         NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
+    }
+}
+
+- (void) updateFromDefaults:(NSMutableArray *)services {
+    
+    if (isClean) {
+        for(NSMutableDictionary *service in services) {
+            if ([[service objectForKey:@"search_default"] isEqualToString:@"true"]) {
+                NSString *serviceId = [service objectForKey:@"id"];
+                NSLog(@"Selecting service by default: %@",serviceId);
+                [self.selectedServices setObject:@"" forKey:serviceId];
+            }
+        }
+        isClean = NO;
     }
 }
 
@@ -91,10 +111,12 @@
 
 - (void)selectForSearch:(NSString *)serviceId {
     [self.selectedServices setObject:@"" forKey:serviceId];
+    isClean = NO;
 }
 
 - (void)deselectForSearch:(NSString *)serviceId {
     [self.selectedServices removeObjectForKey:serviceId];    
+    isClean = NO;    
 }
 
 - (BOOL)isSelectedForSearch:(NSString *)serviceId {
