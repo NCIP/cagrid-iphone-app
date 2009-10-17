@@ -226,8 +226,10 @@ public class JSONDataService extends HttpServlet {
             }
              
             List<String> serviceUrlList = new ArrayList<String>();
-            for(String serviceUrl : serviceUrls) {
-                serviceUrlList.add(serviceUrl);
+            if (serviceUrls != null) {
+                for(String serviceUrl : serviceUrls) {
+                    serviceUrlList.add(serviceUrl);
+                }
             }
             
             if (serviceIds == null && serviceIdConcat != null) {
