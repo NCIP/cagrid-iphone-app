@@ -225,13 +225,13 @@ public class JSONDataService extends HttpServlet {
                 return getJSONError("UsageError", "Specify a searchString to search on.");
             }
              
-            if (serviceIds.length == 0) {
-                serviceIds = serviceIdConcat.split(",");
-            }
-            
             List<String> serviceUrlList = new ArrayList<String>();
             for(String serviceUrl : serviceUrls) {
                 serviceUrlList.add(serviceUrl);
+            }
+            
+            if (serviceIds == null) {
+                serviceIds = serviceIdConcat.split(",");
             }
             
             if (serviceIds.length > 0) {
