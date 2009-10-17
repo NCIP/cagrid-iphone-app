@@ -51,7 +51,7 @@ public class Cab2bQuery implements Runnable, Serializable {
             String result = queryService.getCab2b().search(
             		params.getSearchString(), 
             		params.getServiceGroup(), 
-            		params.getServiceUrl());
+            		params.getServiceUrls());
             
             log.info("Completed query "+getJobId()+", Response length: "+result.length());
             

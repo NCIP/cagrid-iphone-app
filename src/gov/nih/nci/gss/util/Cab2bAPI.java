@@ -12,10 +12,13 @@ import java.util.Properties;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -106,21 +109,23 @@ public class Cab2bAPI {
      * @return
      * @throws Exception
      */
-    public String search(String searchString, String serviceGroup, String serviceUrl) throws Exception {
+    public String search(String searchString, String serviceGroup, List<String> serviceUrls) throws Exception {
 
     	DefaultHttpClient httpclient = new DefaultHttpClient();
     	String modelGroup = cab2bTranslator.getModelGroupForServiceGroup(serviceGroup);
     	
         try {
-            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-            parameters.add(new BasicNameValuePair("searchString", searchString));
-            parameters.add(new BasicNameValuePair("modelGroup", modelGroup));
-            parameters.add(new BasicNameValuePair("serviceUrl", serviceUrl));
-
-            String url = cab2b2QueryURL+"/search/?"+URLEncodedUtils.format(parameters, HTTP.UTF_8);
-            HttpGet httpget = new HttpGet(url);
+            String url = cab2b2QueryURL+"/search/";
+            HttpPost httppost = new HttpPost(url);
+            HttpParams params = new BasicHttpParams();
+            params.setParameter("searchString", searchString);
+            params.setParameter("modelGroup", modelGroup);
+            for(String serviceUrl : serviceUrls) {
+                params.setParameter("serviceUrl", serviceUrl);
+            }
+            httppost.setParams(params);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            return httpclient.execute(httpget, responseHandler);
+            return httpclient.execute(httppost, responseHandler);
         }
         finally {
         	httpclient.getConnectionManager().shutdown();
