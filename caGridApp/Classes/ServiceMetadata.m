@@ -7,6 +7,7 @@
 //
 
 #import "ServiceMetadata.h"
+#import "UserPreferences.h"
 
 #define servicesFilename @"ServiceMetadata.plist"
 
@@ -116,6 +117,8 @@
     for(NSMutableDictionary *host in self.hosts) {
 		[self.hostsById setObject:host forKey:[host valueForKey:@"id"]];
     }
+    
+    [[UserPreferences sharedSingleton] updateFromDefaults:self.services];
 }
 
 
@@ -197,14 +200,16 @@
         return;
     }
     
-    self.services = serviceDict;
-	[self updateServiceDerivedObjects];
-	
+    self.services = serviceDict;	
+    
 	// sort by name/host
 	[services sortUsingDescriptors:[NSArray arrayWithObjects:
-						[[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
+                        [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
+                        [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES] autorelease],
 						nil]];
 	
+	[self updateServiceDerivedObjects];
+
 	//NSLog(@"services: %@",services);
 	[jsonData release];
 }

@@ -30,8 +30,6 @@
 		A9693A681002FB6100FA59F5 /* GridServicePropCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */; };
 		A9693AE31003A93300FA59F5 /* Label2.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693AE21003A93300FA59F5 /* Label2.m */; };
 		A9693B091003B1C600FA59F5 /* ServiceMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693B081003B1C600FA59F5 /* ServiceMetadata.m */; };
-		A9693B6A1003BCA100FA59F5 /* services.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B691003BCA100FA59F5 /* services.js */; };
-		A9693B8A1003BE6800FA59F5 /* servicedetail.js in Resources */ = {isa = PBXBuildFile; fileRef = A9693B891003BE6800FA59F5 /* servicedetail.js */; };
 		A971127B10795CFA0076671D /* FavoritesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A971127A10795CFA0076671D /* FavoritesView.xib */; };
 		A9711299107A45D50076671D /* yellow_star_med.png in Resources */ = {isa = PBXBuildFile; fileRef = A9711298107A45D50076671D /* yellow_star_med.png */; };
 		A97112A8107A85DC0076671D /* alert.png in Resources */ = {isa = PBXBuildFile; fileRef = A97112A7107A85DC0076671D /* alert.png */; };
@@ -116,8 +114,6 @@
 		A9693AE21003A93300FA59F5 /* Label2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Label2.m; sourceTree = "<group>"; };
 		A9693B071003B1C600FA59F5 /* ServiceMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceMetadata.h; sourceTree = "<group>"; };
 		A9693B081003B1C600FA59F5 /* ServiceMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceMetadata.m; sourceTree = "<group>"; };
-		A9693B691003BCA100FA59F5 /* services.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = services.js; sourceTree = "<group>"; };
-		A9693B891003BE6800FA59F5 /* servicedetail.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = servicedetail.js; sourceTree = "<group>"; };
 		A971127A10795CFA0076671D /* FavoritesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FavoritesView.xib; sourceTree = "<group>"; };
 		A9711298107A45D50076671D /* yellow_star_med.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yellow_star_med.png; sourceTree = "<group>"; };
 		A97112A7107A85DC0076671D /* alert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = alert.png; sourceTree = "<group>"; };
@@ -276,8 +272,6 @@
 				A9D898E51014E66300301DA0 /* icon_as_active.png */,
 				A9D898EA1014E66300301DA0 /* icon_as_inactive.png */,
 				A9711333107A977A0076671D /* cabig_bg.jpg */,
-				A9693B891003BE6800FA59F5 /* servicedetail.js */,
-				A9693B691003BCA100FA59F5 /* services.js */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -397,8 +391,6 @@
 				282CCBFE0DB6C98000C4EA27 /* SearchView.xib in Resources */,
 				A9693A501002E3DF00FA59F5 /* GridServiceCell.xib in Resources */,
 				A9693A681002FB6100FA59F5 /* GridServicePropCell.xib in Resources */,
-				A9693B6A1003BCA100FA59F5 /* services.js in Resources */,
-				A9693B8A1003BE6800FA59F5 /* servicedetail.js in Resources */,
 				A9D898EB1014E66300301DA0 /* icon_large_as_inactive.png in Resources */,
 				A9D898EC1014E66300301DA0 /* icon_ds_active.png in Resources */,
 				A9D898ED1014E66300301DA0 /* icon_as_active.png in Resources */,

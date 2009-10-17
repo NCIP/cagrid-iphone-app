@@ -12,7 +12,7 @@
 
 // TODO: Externalize this
 //#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
-#define BASE_URL @"http://biowiki.dnsalias.net:46210/gss10/json"
+#define BASE_URL @"http://biowiki.dnsalias.net:52210/gss10/json"
 
 @interface ServiceMetadata : NSObject {
     

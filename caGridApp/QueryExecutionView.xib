@@ -38,7 +38,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<object class="IBUIImageView" id="655310918">
 						<reference key="NSNextResponder" ref="82195863"/>
-						<int key="NSvFlags">292</int>
+						<int key="NSvFlags">-2147483356</int>
 						<string key="NSFrameSize">{320, 367}</string>
 						<reference key="NSSuperview" ref="82195863"/>
 						<bool key="IBUIOpaque">NO</bool>
@@ -86,7 +86,7 @@
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
-						<string key="IBUIText">adenocarcinoma</string>
+						<string key="IBUIText"/>
 						<int key="IBUIBorderStyle">3</int>
 						<string key="IBUIPlaceholder">(e.g. Adenocarcinoma)</string>
 						<object class="NSColor" key="IBUITextColor">
@@ -533,7 +533,7 @@
 					<string key="className">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Classes/ServiceMetadata.h</string>
+						<string key="minorKey">Classes/QueryService.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

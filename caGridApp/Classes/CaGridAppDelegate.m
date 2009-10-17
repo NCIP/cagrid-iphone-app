@@ -7,6 +7,7 @@
 //
 
 #import "CaGridAppDelegate.h"
+#import "DashboardController.h"
 #import "FavoritesController.h"
 #import "QueryRequestController.h"
 #import "ServiceMetadata.h"
@@ -17,6 +18,7 @@
 
 @synthesize window;
 @synthesize tabBarController;
+@synthesize dashboardController;
 @synthesize favoritesController;
 @synthesize queryRequestController;
 
@@ -72,7 +74,6 @@
     
     // scroll to the top
     UINavigationController *navController = (UINavigationController *)viewController;
-    
     if ([navController.topViewController class] == [ServiceListController class]) {
         ServiceListController *slc = (ServiceListController *)navController.topViewController;
 	    [slc.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
@@ -81,6 +82,7 @@
 
 - (void)dealloc {
     self.tabBarController = nil;
+    self.dashboardController = nil;
     self.favoritesController = nil;
     self.queryRequestController = nil;
     [window release];

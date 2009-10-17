@@ -12,22 +12,26 @@
 @interface UserPreferences : NSObject {
 	@private NSMutableArray *favoriteServices;
 	@private NSMutableDictionary *selectedServices;
+	@private BOOL isClean;
 }
 
 @property (nonatomic, retain) NSMutableArray *favoriteServices;
 @property (nonatomic, retain) NSMutableDictionary *selectedServices;
+@property (nonatomic) BOOL isClean;
 
 + (UserPreferences *)sharedSingleton;
 
-- (void) loadFromFile;
+- (void)loadFromFile;
 
-- (void) saveToFile;
+- (void)saveToFile;
 
--(void)addFavorite:(NSString *)serviceId;
+- (void)updateFromDefaults:(NSMutableArray *)services;
+    
+- (void)addFavorite:(NSString *)serviceId;
 
--(void)removeFavorite:(NSString *)serviceId;
+- (void)removeFavorite:(NSString *)serviceId;
 
--(BOOL)isFavorite:(NSString *)serviceId;
+- (BOOL)isFavorite:(NSString *)serviceId;
 
 - (void)selectForSearch:(NSString *)serviceId;
 
