@@ -214,7 +214,6 @@
 		29B97314FDCFA39411CA2CEA /* CaGrid */ = {
 			isa = PBXGroup;
 			children = (
-				A97113C8107D4F2A0076671D /* QuartzCore.framework */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -282,6 +281,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A97113C8107D4F2A0076671D /* QuartzCore.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765070DF74369002DB57D /* CoreGraphics.framework */,
