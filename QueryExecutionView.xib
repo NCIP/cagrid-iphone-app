@@ -146,25 +146,6 @@
 						</object>
 						<reference key="IBUINormalTitleShadowColor" ref="901933701"/>
 					</object>
-					<object class="IBUIButton" id="554466056">
-						<reference key="NSNextResponder" ref="82195863"/>
-						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{248, 8}, {60, 27}}</string>
-						<reference key="NSSuperview" ref="82195863"/>
-						<bool key="IBUIOpaque">NO</bool>
-						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
-						<int key="IBUIContentHorizontalAlignment">0</int>
-						<int key="IBUIContentVerticalAlignment">0</int>
-						<reference key="IBUIFont" ref="557999033"/>
-						<int key="IBUIButtonType">1</int>
-						<string key="IBUINormalTitle">Edit</string>
-						<reference key="IBUIHighlightedTitleColor" ref="135942301"/>
-						<object class="NSColor" key="IBUINormalTitleColor">
-							<int key="NSColorSpace">1</int>
-							<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
-						</object>
-						<reference key="IBUINormalTitleShadowColor" ref="901933701"/>
-					</object>
 					<object class="IBUILabel" id="64521577">
 						<reference key="NSNextResponder" ref="82195863"/>
 						<int key="NSvFlags">292</int>
@@ -309,15 +290,6 @@
 					<int key="connectionID">17</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchEventConnection" key="connection">
-						<string key="label">clickEditDatatypeButton:</string>
-						<reference key="source" ref="554466056"/>
-						<reference key="destination" ref="372490531"/>
-						<int key="IBEventType">7</int>
-					</object>
-					<int key="connectionID">18</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">view</string>
 						<reference key="source" ref="372490531"/>
@@ -395,7 +367,6 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="838284177"/>
-							<reference ref="554466056"/>
 							<reference ref="440858683"/>
 							<reference ref="64521577"/>
 							<reference ref="777985854"/>
@@ -416,11 +387,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">9</int>
 						<reference key="object" ref="838284177"/>
-						<reference key="parent" ref="82195863"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">13</int>
-						<reference key="object" ref="554466056"/>
 						<reference key="parent" ref="82195863"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -474,7 +440,6 @@
 					<string>10.IBPluginDependency</string>
 					<string>11.IBPluginDependency</string>
 					<string>12.IBPluginDependency</string>
-					<string>13.IBPluginDependency</string>
 					<string>14.IBPluginDependency</string>
 					<string>19.IBPluginDependency</string>
 					<string>25.IBPluginDependency</string>
@@ -489,7 +454,6 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>QueryExecutionController</string>
 					<string>UIResponder</string>
-					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
