@@ -21,14 +21,11 @@
     self.keys = [NSMutableArray array];
     [self.keys addObjectsFromArray: [self.result allKeys]];
     [self.keys sortUsingSelector: @selector(compare:)];
+	[self.tableView reloadData];
 }
 
 - (void)viewDidLoad {
 	self.title = @"Result";
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-	[self.tableView reloadData];
 }
 
 - (void)dealloc {
