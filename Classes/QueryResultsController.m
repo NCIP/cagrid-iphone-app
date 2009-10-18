@@ -17,9 +17,6 @@
 
 - (void)displayResults:(NSMutableArray *)resultArray {
 	self.results = resultArray;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
 	[self.tableView reloadData];
 }
 
