@@ -81,14 +81,13 @@
 	NSUInteger row = [indexPath row];
 	NSMutableDictionary *service = [services objectAtIndex:row];
 	NSString *class = [service objectForKey:@"class"];
-	NSString *status = [service objectForKey:@"status"];
 	
 	// Populate the cell
 	
 	cell.titleLabel.text = [service objectForKey:@"display_name"];
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForClass:class andStatus:status]]];
+	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
     cell.tickIcon.hidden = ![[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]];
-    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
+    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
     
 	return cell;
 }

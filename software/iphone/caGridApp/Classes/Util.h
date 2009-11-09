@@ -18,8 +18,8 @@ typedef enum {
 @interface Util : NSObject {
 }
 
-/** Retrieve variable part of the service icon name, such as "as_active" */
-+ (NSString *)getIconNameForClass:(NSString *)type andStatus:(NSString *)status;
+/** Retrieve variable part of the service icon name, such as "active" */
++ (NSString *)getIconNameForServiceOfType:(NSString *)type;
 
 /** Check if the searchString is found within the given text */
 + (BOOL) string:(NSString *)searchString isFoundIn:(NSString *)text;

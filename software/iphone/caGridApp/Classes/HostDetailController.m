@@ -1,12 +1,12 @@
 //
-//  ServiceDetailController.m
+//  HostDetailController.m
 //  CaGrid
 //
-//  Created by Konrad Rokicki on 7/6/09.
+//  Created by Konrad Rokicki on 11/7/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
-#import "ServiceDetailController.h"
+#import "HostDetailController.h"
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
 #import "QueryRequestController.h"
@@ -23,8 +23,8 @@
 #define buttonVerticalPadding 8
 #define buttonSpacing 10
 
-@implementation ServiceDetailController
-@synthesize service;
+@implementation HostDetailController
+@synthesize host;
 @synthesize sections;
 @synthesize headers;
 @synthesize heights;
@@ -56,10 +56,10 @@
 #pragma mark -
 #pragma mark Public Methods
 
-- (void)displayService:(NSMutableDictionary *)serviceDict {
+- (void)displayHost:(NSMutableDictionary *)hostDict {
 	
-	self.service = serviceDict;
-	self.title = [service objectForKey:@"display_name"];
+	self.host = hostDict;
+	self.title = [host objectForKey:@"short_name"];
 	self.sections = [NSMutableArray array];
 	self.headers = [NSMutableArray array];
 	self.heights = [NSMutableDictionary dictionary];
@@ -67,11 +67,11 @@
 	[headers addObject:@""];
 	
 	NSMutableArray *main_section = [NSMutableArray array];
-	[main_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[service objectForKey:@"name"]]];
+	[main_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[host objectForKey:@"short_name"]]];
 	[sections addObject:main_section];
 	
-	for(NSMutableDictionary *poc in [service objectForKey:@"pocs"]) {	
-		[headers addObject:@"Point of Contact"];
+	for(NSMutableDictionary *poc in [host objectForKey:@"pocs"]) {	
+		[headers addObject:@"Point of Contact"];	
 		NSMutableArray *poc_section = [NSMutableArray array];
 		[poc_section addObject:[KeyValuePair pairWithKey:@"Name"		andValue:[poc objectForKey:@"name"]]];
 		[poc_section addObject:[KeyValuePair pairWithKey:@"Role"		andValue:[poc objectForKey:@"role"]]];
@@ -79,28 +79,6 @@
 		[poc_section addObject:[KeyValuePair pairWithKey:@"Email"		andValue:[poc objectForKey:@"email"]]];
 		[sections addObject:poc_section];
 	}
-	
-//	[headers addObject:@"Hosting Center"];
-//	NSMutableDictionary *host = [service objectForKey:@"hosting_center"];
-//	NSMutableArray *host_section = [NSMutableArray array];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[host objectForKey:@"long_name"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Short Name"		andValue:[host objectForKey:@"short_name"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Country"		andValue:[host objectForKey:@"country_code"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Street"			andValue:[host objectForKey:@"street"]]];		
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Locality"		andValue:[host objectForKey:@"locality"]]];		
-//	[host_section addObject:[KeyValuePair pairWithKey:@"State"			andValue:[host objectForKey:@"state_province"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Postal Code"	andValue:[host objectForKey:@"postal_code"]]];
-//	[sections addObject:host_section];
-//	
-//	for(NSMutableDictionary *poc in [host objectForKey:@"pocs"]) {	
-//		[headers addObject:@"Hosting Center Contact"];	
-//		NSMutableArray *poc_section = [NSMutableArray array];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Name"		andValue:[poc objectForKey:@"name"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Role"		andValue:[poc objectForKey:@"role"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Affiliation"	andValue:[poc objectForKey:@"affiliation"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Email"		andValue:[poc objectForKey:@"email"]]];
-//		[sections addObject:poc_section];
-//	}
 	
 	[self.tableView reloadData];
 	[self.tableView setContentOffset:CGPointMake(0,0) animated:YES];
@@ -112,33 +90,21 @@
 	
     UserPreferences *up = [UserPreferences sharedSingleton];
     
-	NSString *serviceId = [service objectForKey:@"id"];
-	if ([up isFavoriteService:serviceId]) {
-		[up removeFavoriteService:serviceId];		
+	NSString *hostId = [host objectForKey:@"id"];
+	if ([up isFavoriteHost:hostId]) {
+		[up removeFavoriteHost:hostId];		
 	}
 	else {
-		[up addFavoriteService:serviceId];
+		[up addFavoriteHost:hostId];
 	}
 	
 	[self.tableView reloadData];
 }
 
-- (void)queryAction:(id)sender {
-
-    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-    UserPreferences *up = [UserPreferences sharedSingleton];
-    DataType dataType = [Util getDataTypeForDataTypeName:[service objectForKey:@"group"]];
+- (void)showServicesAction:(id)sender {
     
-    NSMutableArray *dataTypeServices = [sm getServicesOfType:dataType];
-    for(NSMutableDictionary *dataTypeService in dataTypeServices) {
-    	[up deselectForSearch:[dataTypeService objectForKey:@"id"]];
-    }
-    [up selectForSearch:[service objectForKey:@"id"]];
-    
-    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];    
-    [delegate.dashboardController selectDataType:dataType];
-    delegate.tabBarController.selectedIndex = 0;
 }
+
 
 #pragma mark -
 #pragma mark Table View Data Source Methods
@@ -148,7 +114,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView 
-		numberOfRowsInSection:(NSInteger)section {
+ 		numberOfRowsInSection:(NSInteger)section {
 	return [[sections objectAtIndex:section] count];
 }
 
@@ -161,11 +127,31 @@
 	
 	if (indexPath.section == 0) {
 		
-		NSString *desc = [service valueForKey:@"description"];
-		NSString *class = [service valueForKey:@"class"];
+        NSString *street = [host objectForKey:@"street"];
+        NSString *city = [host objectForKey:@"locality"];
+        NSString *state = [host objectForKey:@"state_province"];
+        NSString *zip = [host objectForKey:@"postal_code"];
+       	NSString *country = [host objectForKey:@"country_code"];        
+		NSString *desc = [host valueForKey:@"long_name"];
+        
+        if (street != nil) {
+            desc = [desc stringByAppendingString:@"\n"];
+            desc = [desc stringByAppendingString:street];
+        }
+        
+        if (city != nil && state != nil && zip != nil) {
+	        desc = [desc stringByAppendingString:@"\n"];
+    	    desc = [desc stringByAppendingString:[NSString stringWithFormat:@"%@, %@ %@",city,state,zip]];
+        }
+        
+        if (country != nil && ![country isEqualToString:@"US"]) {
+	        desc = [desc stringByAppendingString:@"\n"];        
+            desc = [desc stringByAppendingString:country];
+        }
+        
 		
 		// Get a cell
-		static NSString *cellIdentifier = @"GridServicePropCell"; 
+		static NSString *cellIdentifier = @"HostDetailCell"; 
 		GridServicePropCell *cell = (GridServicePropCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 		if (cell == nil) {
 			NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
@@ -177,12 +163,12 @@
 		// hardcoded them here for now. Terrible.
 		
 		//NSLog(@"desc frame: %@",cell.descLabel);
-		// frame = (12 80; 268 21)	
-		CGRect descFrame = CGRectMake(12, 80, 268, 21);
+		// frame = (12 52; 273 21)
+		CGRect descFrame = CGRectMake(12, 52, 273, 21);
 		
 		//NSLog(@"cell frame: %@",cell.contentView);
-		// frame = (0 0; 300 110)
-		CGRect cellFrame = CGRectMake(0, 0, 300, 110);
+		// frame = (0 0; 300 80)
+		CGRect cellFrame = CGRectMake(0, 0, 300, 80);
 		
 		// Calculate new heights
 		CGFloat labelHeight = [self heightForLabel:desc constrainedToWidth:descFrame.size.width];
@@ -193,13 +179,14 @@
 		cell.descLabel.frame = descFrame;
 		cell.bounds = cellFrame;
 		
-		cell.titleLabel.text = [service valueForKey:@"display_name"];
-		cell.typeLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];
-		cell.statusLabel.text = @"Serving data since 1/2/2009";
+		cell.titleLabel.text = [host valueForKey:@"short_name"];
+		cell.statusLabel.text = [NSString stringWithFormat:@"Hosting %d grid service%c",4,'s'];
 		cell.descLabel.text = desc;
-		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
-        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-            
+		cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
+        
+        // TODO: populate custom host icon
+        //cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
+        
 		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
 		
 		return cell; 
@@ -288,7 +275,7 @@
 		favoriteButton.frame = CGRectMake(sidePadding, buttonVerticalPadding, buttonWidth+40, buttonHeight);
 		[favoriteButton addTarget:self action:@selector(favoriteAction:) forControlEvents:UIControlEventTouchUpInside];
 		
-		if ([[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]]) {
+		if ([[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]]) {
 			[favoriteButton setTitle:@"Remove from Favorites" forState:UIControlStateNormal];
 		}
 		else {
@@ -297,14 +284,13 @@
 		
 		[footerView addSubview:favoriteButton];
 		
-		UIButton *queryButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-		queryButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
-    
-		queryButton.enabled = [service objectForKey:@"group"] != nil;
-		[queryButton setTitle:@"Query" forState:UIControlStateNormal];
-		[queryButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
-		[queryButton addTarget:self action:@selector(queryAction:) forControlEvents:UIControlEventTouchUpInside];		
-		[footerView addSubview:queryButton];
+		UIButton *showServicesButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+		showServicesButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
+        
+		[showServicesButton setTitle:@"Services" forState:UIControlStateNormal];
+		[showServicesButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
+		[showServicesButton addTarget:self action:@selector(showServicesAction:) forControlEvents:UIControlEventTouchUpInside];		
+		[footerView addSubview:showServicesButton];
 		
 		return footerView;
 	}
