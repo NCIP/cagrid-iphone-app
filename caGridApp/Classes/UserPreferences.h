@@ -11,11 +11,13 @@
 
 @interface UserPreferences : NSObject {
 	@private NSMutableArray *favoriteServices;
+	@private NSMutableArray *favoriteHosts;
 	@private NSMutableDictionary *selectedServices;
 	@private BOOL isClean;
 }
 
 @property (nonatomic, retain) NSMutableArray *favoriteServices;
+@property (nonatomic, retain) NSMutableArray *favoriteHosts;
 @property (nonatomic, retain) NSMutableDictionary *selectedServices;
 @property (nonatomic) BOOL isClean;
 
@@ -27,11 +29,17 @@
 
 - (void)updateFromDefaults:(NSMutableArray *)services;
     
-- (void)addFavorite:(NSString *)serviceId;
+- (void)addFavoriteService:(NSString *)serviceId;
 
-- (void)removeFavorite:(NSString *)serviceId;
+- (void)removeFavoriteService:(NSString *)serviceId;
 
-- (BOOL)isFavorite:(NSString *)serviceId;
+- (BOOL)isFavoriteService:(NSString *)serviceId;
+
+- (void)addFavoriteHost:(NSString *)hostId;
+
+- (void)removeFavoriteHost:(NSString *)hostId;
+
+- (BOOL)isFavoriteHost:(NSString *)hostId;
 
 - (void)selectForSearch:(NSString *)serviceId;
 

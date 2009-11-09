@@ -9,6 +9,7 @@
 #import "CaGridAppDelegate.h"
 #import "DashboardController.h"
 #import "FavoritesController.h"
+#import "ServiceListController.h"
 #import "QueryRequestController.h"
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
@@ -68,16 +69,16 @@
 	}
 	
     // end editing mode
-	if (favoritesController.serviceTable.editing) {
+	if (favoritesController.favoritesTable.editing) {
 		[favoritesController toggleEdit:nil];
 	}
     
     // scroll to the top
-    UINavigationController *navController = (UINavigationController *)viewController;
-    if ([navController.topViewController class] == [ServiceListController class]) {
-        ServiceListController *slc = (ServiceListController *)navController.topViewController;
-	    [slc.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
-    }
+//    UINavigationController *navController = (UINavigationController *)viewController;
+//    if ([navController.topViewController class] == [ServiceListController class]) {
+//        ServiceListController *slc = (ServiceListController *)navController.topViewController;
+//	    [slc.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
+//    }
 }
 
 - (void)dealloc {
