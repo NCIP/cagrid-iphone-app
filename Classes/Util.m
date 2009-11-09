@@ -14,7 +14,7 @@ static BOOL alerted = NO;
 @implementation Util
 
 // TODO: remove status parameter
-+ (NSString *) getIconNameForClass:(NSString *)class andStatus:(NSString *)status {
++ (NSString *) getIconNameForServiceOfType:(NSString *)class {
     return [class isEqualToString:@"DataService"] ? @"database" : @"chart_bar";
 }
 

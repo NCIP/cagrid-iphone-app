@@ -128,7 +128,7 @@
         cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;        
         cell.titleLabel.text = [service objectForKey:@"display_name"];
         cell.countLabel.text = failed ? @"Service did not respond" : [NSString stringWithFormat:@"%d results",[results count]];
-        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavorite:[service objectForKey:@"id"]];
+        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
     }
     
 	return cell;

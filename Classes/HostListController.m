@@ -1,41 +1,38 @@
 //
-//  ServiceListController.m
+//  HostListController.m
 //  CaGrid
 //
-//  Created by Konrad Rokicki on 7/9/09.
+//  Created by Konrad Rokicki on 11/7/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
-
-#import "ServiceListController.h"
-#import "ServiceDetailController.h"
+#import "HostListController.h"
+#import "HostDetailController.h"
 #import "UserPreferences.h"
 #import "Util.h"
 
-@implementation ServiceListController
+@implementation HostListController
 
-@synthesize serviceTable;
+@synthesize hostTable;
 @synthesize navController;
 @synthesize detailController;
-@synthesize serviceList;
+@synthesize hostList;
 @synthesize filterString;
-@synthesize filterClass;
 @synthesize filtered;
 
 #pragma mark -
 #pragma mark Object Methods
 
 - (void)viewDidLoad {
-	self.serviceTable.allowsSelection = NO;
+	self.hostTable.allowsSelection = NO;
 	[super viewDidLoad];
 }
 
 - (void)dealloc {
-    self.serviceTable = nil;
+    self.hostTable = nil;
     self.navController = nil;
 	self.detailController = nil;
-	self.serviceList = nil;
+	self.hostList = nil;
     self.filterString = nil;
-    self.filterClass = nil;
     self.filtered = nil;
     [super dealloc];
 }
@@ -43,58 +40,37 @@
 - (void)filter {
     
 	[filtered removeAllObjects];
-    
-	for(NSMutableDictionary *service in serviceList) {
+
+	for(NSMutableDictionary *service in hostList) {
 		if (filterString == nil || 
-            ([Util string:filterString isFoundIn:[service objectForKey:@"name"]] ||
-			 [Util string:filterString isFoundIn:[service objectForKey:@"host_short_name"]])) {
-            
-            if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
-				[filtered addObject:service];
-            }
+            ([Util string:filterString isFoundIn:[service objectForKey:@"short_name"]] ||
+			 [Util string:filterString isFoundIn:[service objectForKey:@"long_name"]])) {
+			[filtered addObject:service];
 		}		
 	}
 }
 
 - (void)reload {
 	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    self.serviceList = [smdata getServices];
+    self.hostList = [smdata getHosts];
     self.filtered = [NSMutableArray array];
     [self filter];
-    [self.serviceTable reloadData];
+    [self.hostTable reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
 	[self reload];
-    [self.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
 }
 
 
 #pragma mark -
 #pragma mark Content Filtering
 
-- (void)scopeChanged:(id)sender {
-	UISegmentedControl *sc = (UISegmentedControl *)sender;
-    
-    if (sc.selectedSegmentIndex == 0) {
-    	self.filterClass = nil;
-    }
-    else if (sc.selectedSegmentIndex == 1) {
-    	self.filterClass = @"DataService";
-    }
-    else {
-    	self.filterClass = @"AnalyticalService";
-    }
-    
-    [self filter];
-    [self.serviceTable reloadData];
-}
-
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
 	
     self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
     [self filter];
-    [self.serviceTable reloadData];
+    [self.hostTable reloadData];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
@@ -119,7 +95,7 @@
 #pragma mark Table View Data Source Methods
 
 - (NSInteger)tableView:(UITableView *)tableView 
- 		numberOfRowsInSection:(NSInteger)section {
+		numberOfRowsInSection:(NSInteger)section {
 	return [filtered count];
 }
 
@@ -127,8 +103,8 @@
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
 	// Get a cell
-
-	static NSString *cellIdentifier = @"GridServiceCell";
+    
+	static NSString *cellIdentifier = @"HostCell";
 	GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
 		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
@@ -137,15 +113,15 @@
 	
 	// Get service metadata
 	
-	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
-	NSString *class = [service objectForKey:@"class"];
+	NSMutableDictionary *host = [filtered objectAtIndex:indexPath.row];
 	
 	// Populate the cell
 	
-	cell.titleLabel.text = [service objectForKey:@"display_name"];
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
+	cell.titleLabel.text = [host objectForKey:@"short_name"];
+	cell.descLabel.text = [host objectForKey:@"long_name"];
+	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"house.png"]];
     cell.tickIcon.hidden = YES;
-    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
+    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
     
 	return cell;
 }
@@ -154,15 +130,12 @@
 - (void)tableView:(UITableView *)tableView
 		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
-	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
-	NSString *serviceId = [service objectForKey:@"id"];
-    NSMutableDictionary* metadata = [[ServiceMetadata sharedSingleton] getMetadataById:serviceId];
-    
-    if (metadata != nil) {
+	NSMutableDictionary *host = [filtered objectAtIndex:indexPath.row];
+    if (host != nil) {
         if (detailController == nil) {
-            self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
+            self.detailController = [[HostDetailController alloc] initWithStyle:UITableViewStyleGrouped];
         }
-		[detailController displayService:metadata];
+		[detailController displayHost:host];
 		[navController pushViewController:detailController animated:YES];
 	}
 }
@@ -172,6 +145,7 @@
 		heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return DEFAULT_2VAL_CELL_HEIGHT;
 }
+
 
 
 @end

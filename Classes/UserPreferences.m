@@ -13,6 +13,7 @@
 
 @implementation UserPreferences
 @synthesize favoriteServices;
+@synthesize favoriteHosts;
 @synthesize selectedServices;
 @synthesize isClean;
 
@@ -50,14 +51,17 @@
         @try {
             NSDictionary *dict = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
             self.favoriteServices = [dict objectForKey:@"favoriteServices"];
+            self.favoriteHosts = [dict objectForKey:@"favoriteHosts"];
             self.selectedServices = [dict objectForKey:@"selectedServices"];        
             [dict release];
-        	NSLog(@"... Loaded %d favorites and %d selections",[self.favoriteServices count],[self.selectedServices count]);
+        	NSLog(@"... Loaded %d favorite services, %d favorite hosts, and %d selections",
+                  [self.favoriteServices count],[self.favoriteHosts count],[self.selectedServices count]);
             isClean = NO;
         }
         @catch (NSException *exception) {
         	NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
             self.favoriteServices = [NSMutableArray array]; 
+            self.favoriteHosts = [NSMutableArray array]; 
             self.selectedServices = [NSMutableDictionary dictionary];
         }
 	}
@@ -67,10 +71,12 @@
 }
 
 - (void) saveToFile {
-    NSLog(@"Saving %d favorites and %d selections",[self.favoriteServices count],[self.selectedServices count]);
+    NSLog(@"Saving %d favorite services, %d favorite hosts, and %d selections",
+          [self.favoriteServices count],[self.favoriteHosts count],[self.selectedServices count]);
     @try {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:self.favoriteServices forKey:@"favoriteServices"];
+        [dict setObject:self.favoriteHosts forKey:@"favoriteHosts"];
         [dict setObject:self.selectedServices forKey:@"selectedServices"];   
         [dict writeToFile:[Util getPathFor:prefsFilename] atomically:YES];
     }
@@ -96,17 +102,30 @@
 #pragma mark -
 #pragma mark Public API
 
--(void)addFavorite:(NSString *)serviceId {
+-(void)addFavoriteService:(NSString *)serviceId {
 	[self.favoriteServices addObject:serviceId];
 }
 
--(void)removeFavorite:(NSString *)serviceId {
+-(void)removeFavoriteService:(NSString *)serviceId {
 	NSUInteger index = [self.favoriteServices indexOfObject:serviceId];
 	[self.favoriteServices removeObjectAtIndex:index];
 }
 
--(BOOL)isFavorite:(NSString *)serviceId {
+-(BOOL)isFavoriteService:(NSString *)serviceId {
 	return ([self.favoriteServices containsObject:serviceId]);
+}
+
+-(void)addFavoriteHost:(NSString *)hostId {
+	[self.favoriteHosts addObject:hostId];
+}
+
+-(void)removeFavoriteHost:(NSString *)hostId {
+	NSUInteger index = [self.favoriteHosts indexOfObject:hostId];
+	[self.favoriteHosts removeObjectAtIndex:index];
+}
+
+-(BOOL)isFavoriteHost:(NSString *)hostId {
+	return ([self.favoriteHosts containsObject:hostId]);
 }
 
 - (void)selectForSearch:(NSString *)serviceId {
