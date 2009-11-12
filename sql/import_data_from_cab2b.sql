@@ -81,3 +81,16 @@ SELECT 5000+URL_ID, "2005-08-05 15:12:26", "ACTIVE", 5000+URL_ID
 FROM cab2b.cab2b_service_url;
 
 
+
+UPDATE grid_service g 
+LEFT JOIN hosting_center hc on g.hosting_center_id=hc.id 
+LEFT JOIN (select min(id) min_id,long_name from hosting_center group by long_name) min 
+    on hc.long_name=min.long_name 
+SET g.hosting_center_id = min.min_id;
+
+DELETE h FROM hosting_center h 
+LEFT JOIN grid_service g ON g.hosting_center_id = h.id 
+WHERE g.id IS NULL;
+
+
+
