@@ -1,13 +1,10 @@
 package gov.nih.nci.gss.util;
 
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
@@ -17,11 +14,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -31,36 +24,11 @@ import org.json.JSONObject;
  * @author <a href="mailto:rokickik@mail.nih.gov">Konrad Rokicki</a>
  */
 public class Cab2bAPI {
-
-    private static Logger log = Logger.getLogger(Cab2bAPI.class);
-    
-    private static String cab2b2QueryURL = null;
-
-    static {
-    	try {
-	        InputStream is = null;
-	        Properties properties = new Properties();
-	        
-	        try {
-	            is = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-	                "gss.properties");
-	            properties.load(is);
-	            cab2b2QueryURL = properties.getProperty("cab2b.query.url");
-	            log.info("Configured cab2b2QueryURL="+cab2b2QueryURL);
-	        }
-	        finally {
-	            if (is != null) is.close();
-	        }
-    	}
-    	catch (Exception e) {
-    		log.error("Error initializing caB2B API",e);
-    	}
-    }
     
     private Cab2bTranslator cab2bTranslator;
     
-    public Cab2bAPI(SessionFactory sessionFactory) throws Exception {
-        this.cab2bTranslator = new Cab2bTranslator(sessionFactory);
+    public Cab2bAPI(Cab2bTranslator cab2bTranslator) throws Exception {
+    	this.cab2bTranslator = cab2bTranslator;
     }
 	
 	/**
@@ -75,7 +43,7 @@ public class Cab2bAPI {
     	DefaultHttpClient httpclient = new DefaultHttpClient();
         
         try {
-            String url = cab2b2QueryURL+"/services";
+            String url = GSSProperties.getCab2b2QueryURL()+"/services";
             HttpGet httpget = new HttpGet(url);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             String result = httpclient.execute(httpget, responseHandler);
@@ -115,16 +83,13 @@ public class Cab2bAPI {
     	String modelGroup = cab2bTranslator.getModelGroupForServiceGroup(serviceGroup);
     	
         try {
-            String url = cab2b2QueryURL+"/search/";
+            String url = GSSProperties.getCab2b2QueryURL()+"/search/";
             HttpPost httppost = new HttpPost(url);
 
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("searchString", searchString));
             nvps.add(new BasicNameValuePair("modelGroup", modelGroup));
-            log.info("HTTP POST, setting searchString: "+searchString);
-            log.info("HTTP POST, setting modelGroup: "+modelGroup);
             for(String serviceUrl : serviceUrls) {
-                log.info("HTTP POST, setting serviceUrl: "+serviceUrl);
                 nvps.add(new BasicNameValuePair("serviceUrl", serviceUrl));
             }
             
@@ -137,9 +102,5 @@ public class Cab2bAPI {
         	httpclient.getConnectionManager().shutdown();
         }
     }
-
-	public Cab2bTranslator getCab2bTranslator() {
-		return cab2bTranslator;
-	}
 
 }
