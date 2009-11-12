@@ -120,6 +120,7 @@
         <replace dir="${project.build.dir}/conf">
             <include name="gss.properties"/>
             <replacefilter token="CAB2B_QUERY_URL" value="${cab2b.query.url}" />
+            <replacefilter token="HOST_IMAGE_DIR" value="${host.image.dir}" />
         </replace>
     	
         <replace dir="${project.build.dir}/conf">
