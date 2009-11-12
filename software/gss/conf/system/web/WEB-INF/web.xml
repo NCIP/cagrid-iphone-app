@@ -80,6 +80,11 @@
         <servlet-class>gov.nih.nci.gss.api.JSONDataService</servlet-class>            
     </servlet>
     
+    <servlet>
+        <servlet-name>ImageService</servlet-name>
+        <servlet-class>gov.nih.nci.gss.api.ImageService</servlet-class>            
+    </servlet>
+    
 	<servlet>
 		<servlet-name>QuartzInitializer</servlet-name>
   		<servlet-class>
@@ -141,6 +146,11 @@
      <servlet-mapping>
         <servlet-name>JSONDataService</servlet-name>
         <url-pattern>/json/*</url-pattern>
+    </servlet-mapping>
+    
+     <servlet-mapping>
+        <servlet-name>ImageService</servlet-name>
+        <url-pattern>/image/*</url-pattern>
     </servlet-mapping>
     
 	<mime-mapping>
