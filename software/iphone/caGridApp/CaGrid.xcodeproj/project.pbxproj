@@ -80,6 +80,7 @@
 		A9DC7E0A10A616F800535680 /* HostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E0910A616F800535680 /* HostCell.xib */; };
 		A9DC7E1810A6188400535680 /* HostDetailCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E1710A6188400535680 /* HostDetailCell.xib */; };
 		A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DC7E2910A7901B00535680 /* KeyValuePair.m */; };
+		A9DC7F5A10ABAEF200535680 /* AsyncImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DC7F5910ABAEF200535680 /* AsyncImageView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -185,6 +186,8 @@
 		A9DC7E1710A6188400535680 /* HostDetailCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HostDetailCell.xib; sourceTree = "<group>"; };
 		A9DC7E2810A7901B00535680 /* KeyValuePair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyValuePair.h; sourceTree = "<group>"; };
 		A9DC7E2910A7901B00535680 /* KeyValuePair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyValuePair.m; sourceTree = "<group>"; };
+		A9DC7F5810ABAEF200535680 /* AsyncImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncImageView.h; sourceTree = "<group>"; };
+		A9DC7F5910ABAEF200535680 /* AsyncImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AsyncImageView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,24 +259,6 @@
 				A9DC7E1910A6188D00535680 /* Images */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				A97113EE107E777B0076671D /* about.html */,
-				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
-				A99EBA9F1076EC4F00BB2A95 /* DashboardView.xib */,
-				A97112E0107A8CAF0076671D /* QueryExecutionView.xib */,
-				A97112DA107A8B4E0076671D /* ServicePickerView.xib */,
-				282CCBFD0DB6C98000C4EA27 /* ServiceListView.xib */,
-				A9DC7D6710A6088100535680 /* HostListView.xib */,
-				A9DC7E0910A616F800535680 /* HostCell.xib */,
-				A9DC7E1710A6188400535680 /* HostDetailCell.xib */,
-				9DA624021055ECAE00117D95 /* QueryRequestView.xib */,
-				A971127A10795CFA0076671D /* FavoritesView.xib */,
-				A90524CF108A9B0300619018 /* AttributeCell.xib */,
-				A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */,
-				A99EBA2F1076D29900BB2A95 /* DashboardCell.xib */,
-				A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */,
-				A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */,
-				A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */,
-				A99EB8A91072BE7000BB2A95 /* QueryServiceCell.xib */,
-				A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -350,6 +335,8 @@
 				A93543EE101BF06300988B88 /* Util.m */,
 				A9DC7E2810A7901B00535680 /* KeyValuePair.h */,
 				A9DC7E2910A7901B00535680 /* KeyValuePair.m */,
+				A9DC7F5810ABAEF200535680 /* AsyncImageView.h */,
+				A9DC7F5910ABAEF200535680 /* AsyncImageView.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -387,6 +374,24 @@
 		A9DC7E1F10A618AA00535680 /* Xibs */ = {
 			isa = PBXGroup;
 			children = (
+				28AD73870D9D96C1002E5188 /* MainWindow.xib */,
+				A99EBA9F1076EC4F00BB2A95 /* DashboardView.xib */,
+				A97112E0107A8CAF0076671D /* QueryExecutionView.xib */,
+				A97112DA107A8B4E0076671D /* ServicePickerView.xib */,
+				282CCBFD0DB6C98000C4EA27 /* ServiceListView.xib */,
+				A9DC7D6710A6088100535680 /* HostListView.xib */,
+				A9DC7E0910A616F800535680 /* HostCell.xib */,
+				A9DC7E1710A6188400535680 /* HostDetailCell.xib */,
+				9DA624021055ECAE00117D95 /* QueryRequestView.xib */,
+				A971127A10795CFA0076671D /* FavoritesView.xib */,
+				A90524CF108A9B0300619018 /* AttributeCell.xib */,
+				A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */,
+				A99EBA2F1076D29900BB2A95 /* DashboardCell.xib */,
+				A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */,
+				A9693A671002FB6100FA59F5 /* GridServicePropCell.xib */,
+				A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */,
+				A99EB8A91072BE7000BB2A95 /* QueryServiceCell.xib */,
+				A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */,
 			);
 			name = Xibs;
 			sourceTree = "<group>";
@@ -512,6 +517,7 @@
 				A9DC7D6010A6082900535680 /* HostListController.m in Sources */,
 				A9DC7D6510A6084500535680 /* HostDetailController.m in Sources */,
 				A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */,
+				A9DC7F5A10ABAEF200535680 /* AsyncImageView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
