@@ -11,8 +11,8 @@
 #import "Util.h"
 
 // TODO: Externalize this
-//#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10/json"
-#define BASE_URL @"http://biowiki.dnsalias.net:52210/gss10/json"
+//#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10"
+#define BASE_URL @"http://biowiki.dnsalias.net:52210/gss10"
 
 @interface ServiceMetadata : NSObject {
     
@@ -20,8 +20,10 @@
 	@private NSMutableDictionary *servicesById;	
 	@private NSMutableDictionary *servicesByUrl;		
 	@private NSMutableDictionary *servicesByGroup;
+	@private NSMutableDictionary *servicesByHostId;
 	@private NSMutableArray *hosts;
 	@private NSMutableDictionary *hostsById;
+	@private NSMutableDictionary *hostImagesByUrl;    
 	@private NSNumberFormatter *nf;
 }
 
@@ -29,8 +31,10 @@
 @property (nonatomic, retain) NSMutableDictionary *servicesById;
 @property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
 @property (nonatomic, retain) NSMutableDictionary *servicesByGroup;
+@property (nonatomic, retain) NSMutableDictionary *servicesByHostId;
 @property (nonatomic, retain) NSMutableArray *hosts;
 @property (nonatomic, retain) NSMutableDictionary *hostsById;
+@property (nonatomic, retain) NSMutableDictionary *hostImagesByUrl;
 @property (nonatomic, retain) NSNumberFormatter *nf;
 
 + (ServiceMetadata *)sharedSingleton;
@@ -43,7 +47,7 @@
 
 - (void) loadHosts;
 
-- (void) loadMetadataForService:(NSString *)serviceId;
+//- (void) loadMetadataForService:(NSString *)serviceId;
 
 - (NSMutableArray *)getServices;
 
@@ -55,7 +59,7 @@
 
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl;
 
-- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
+//- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
 
 - (NSMutableArray *)getServicesOfType:(DataType)dataType;
 

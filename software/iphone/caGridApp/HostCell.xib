@@ -100,7 +100,7 @@
 									<object class="IBUIImageView" id="134254396">
 										<reference key="NSNextResponder" ref="358569534"/>
 										<int key="NSvFlags">292</int>
-										<string key="NSFrame">{{6, 7}, {32, 32}}</string>
+										<string key="NSFrame">{{6, 6}, {32, 32}}</string>
 										<reference key="NSSuperview" ref="358569534"/>
 										<bool key="IBUIOpaque">NO</bool>
 										<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -114,7 +114,7 @@
 									<object class="IBUIImageView" id="687792990">
 										<reference key="NSNextResponder" ref="358569534"/>
 										<int key="NSvFlags">292</int>
-										<string key="NSFrame">{{24, 22}, {16, 16}}</string>
+										<string key="NSFrame">{{25, 24}, {16, 16}}</string>
 										<reference key="NSSuperview" ref="358569534"/>
 										<bool key="IBUIOpaque">NO</bool>
 										<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -285,7 +285,7 @@
 					<string>UIResponder</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>GridServiceCell</string>
-					<string>{{78, 328}, {320, 44}}</string>
+					<string>{{51, 575}, {320, 44}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>

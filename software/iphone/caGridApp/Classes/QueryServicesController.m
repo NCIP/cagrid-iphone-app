@@ -119,9 +119,7 @@
     else {
         
         if (failed) {
-            // Update service status in the service summary and the service metadata
-            NSMutableDictionary *metadata = [[ServiceMetadata sharedSingleton] getMetadataById:[service objectForKey:@"id"]];
-            [metadata setObject:@"inactive" forKey:@"status"];
+            // Update service status in the service 
             [service setObject:@"inactive" forKey:@"status"];
         }
         
@@ -163,14 +161,12 @@
     NSMutableArray *rows = indexPath.section == 2 ? failedUrls : urls;
     NSString *url = [rows objectAtIndex:indexPath.row];
     NSMutableDictionary *service = [[ServiceMetadata sharedSingleton] getServiceByUrl:url];
-	NSString *serviceId = [service objectForKey:@"id"];
-    NSMutableDictionary* metadata = [[ServiceMetadata sharedSingleton] getMetadataById:serviceId];
     
-    if (metadata != nil) {    
+    if (service != nil) {    
         if (detailController == nil) {
             self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
         }
-		[detailController displayService:metadata];
+		[detailController displayService:service];
 		[navController pushViewController:detailController animated:YES];
 	}
 }
