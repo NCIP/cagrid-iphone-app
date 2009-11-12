@@ -572,7 +572,7 @@ public class JSONDataService extends HttpServlet {
         try {
             // Create the HQL query
             StringBuffer hql = new StringBuffer(GET_HOST_HQL_SELECT);
-            if (hostId != null) hql.append("and host.id = ?");
+            if (hostId != null) hql.append("where host.id = ?");
             
             // Create the Hibernate Query
             Query q = s.createQuery(hql.toString());
