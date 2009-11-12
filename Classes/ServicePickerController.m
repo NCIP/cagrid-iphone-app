@@ -128,10 +128,8 @@
 	NSUInteger row = [indexPath row];
 	NSMutableDictionary *service = [services objectAtIndex:row];
     
-	ServiceMetadata *smdata = [ServiceMetadata sharedSingleton];
-    NSMutableDictionary* metadata = [smdata getMetadataById:[service objectForKey:@"id"]];
-    if (metadata != nil) {
-		[detailController displayService:metadata];
+    if (service != nil) {
+		[detailController displayService:service];
 		[navController pushViewController:detailController animated:YES];
 	}
 }

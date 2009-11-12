@@ -179,13 +179,28 @@
 		cell.descLabel.frame = descFrame;
 		cell.bounds = cellFrame;
 		
+        ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+        NSMutableArray *services = [sm.servicesByHostId objectForKey:[host valueForKey:@"id"]];
+        
 		cell.titleLabel.text = [host valueForKey:@"short_name"];
-		cell.statusLabel.text = [NSString stringWithFormat:@"Hosting %d grid service%c",4,'s'];
+		cell.statusLabel.text = [services count] < 1 ? @"" : 
+        						[NSString stringWithFormat:@"Hosting %d grid service%@.",
+                                 	[services count],[services count] > 1 ? @"s" : @""];
 		cell.descLabel.text = desc;
 		cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
         
-        // TODO: populate custom host icon
-        //cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
+        
+        NSString *imageName = [host objectForKey:@"image_name"];
+        NSURL *imageURL = nil;
+        UIImage *hostImage = nil;
+        
+        if (imageName != nil) {
+            imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",BASE_URL,imageName]];
+            hostImage = [[ServiceMetadata sharedSingleton].hostImagesByUrl objectForKey:imageURL];
+        }
+        
+        if (hostImage == nil) hostImage = [UIImage imageNamed:@"house.png"];
+		cell.icon.image = hostImage;
         
 		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
 		

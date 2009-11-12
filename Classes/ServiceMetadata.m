@@ -16,8 +16,10 @@
 @synthesize servicesById;
 @synthesize servicesByUrl;
 @synthesize servicesByGroup;
+@synthesize servicesByHostId;
 @synthesize hosts;
 @synthesize hostsById;
+@synthesize hostImagesByUrl;
 @synthesize nf;
 
 #pragma mark -
@@ -30,13 +32,28 @@
         self.servicesById = [NSMutableDictionary dictionary];
         self.servicesByUrl = [NSMutableDictionary dictionary];
         self.servicesByGroup = [NSMutableDictionary dictionary]; 
+        self.servicesByHostId = [NSMutableDictionary dictionary]; 
         self.hostsById = [NSMutableDictionary dictionary];
+        self.hostImagesByUrl = [NSMutableDictionary dictionary];        
         
         NSNumberFormatter *nformat = [[NSNumberFormatter alloc] init];
         self.nf = nformat;
         [nformat release];
 	}
 	return self;
+}
+
+
+- (void)dealloc {
+    self.services = nil;           
+    self.hosts = nil;
+    self.servicesById = nil;
+    self.servicesByUrl = nil;
+    self.servicesByGroup = nil;
+    self.servicesByHostId = nil;
+    self.hostsById = nil;
+    self.hostImagesByUrl = nil;
+    [super dealloc];
 }
 
 
@@ -94,6 +111,7 @@
     [self.servicesById removeAllObjects];
     [self.servicesByUrl removeAllObjects];
     [self.servicesByGroup removeAllObjects];
+    [self.servicesByHostId removeAllObjects];
     
     for(NSMutableDictionary *service in self.services) {
         [self updateService:service];
@@ -107,6 +125,17 @@
             }
             [array addObject:service];   
         }
+        
+        NSString *hostId = [service objectForKey:@"host_id"];
+        if (hostId != nil) {
+        	NSMutableArray *array = [servicesByHostId objectForKey:hostId];            
+            if (array == nil) {
+              	array = [NSMutableArray array];
+                [servicesByHostId setObject:array forKey:hostId];
+            }
+        	[array addObject:service];           
+        }
+        
     }
 }
 
@@ -170,7 +199,7 @@
 - (void) loadServices {
 	
 	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service",BASE_URL]];
+	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
@@ -218,7 +247,7 @@
 - (void) loadHosts {
 	
 	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/host",BASE_URL]];
+	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
@@ -260,11 +289,11 @@
 	[jsonData release];
 }
 
-
+/*
 - (void) loadMetadataForService:(NSString *)serviceId {
 	
 	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/service/%@?metadata=1",BASE_URL,serviceId]];
+	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service/%@?metadata=1",BASE_URL,serviceId]];
 	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
     
     if (error) {
@@ -326,7 +355,8 @@
     
 	[jsonData release];
 }
-    
+*/
+
 - (NSMutableArray *)getServices {
 	return services;
 }
@@ -347,6 +377,7 @@
 	return [servicesByUrl objectForKey:serviceUrl];
 }
 
+/*
 - (NSMutableDictionary *)getMetadataById:(NSString *)serviceId {
 	NSMutableDictionary *service = (NSMutableDictionary *)[servicesById objectForKey:serviceId];
 	if ([service objectForKey:@"metadataLoaded"] == nil) {
@@ -355,6 +386,7 @@
 	}
 	return service;
 }
+ */
 
 - (NSMutableArray *)getServicesOfType:(DataType)dataType {
     NSString *dataTypeName = [Util getNameForDataType:dataType];
