@@ -83,7 +83,7 @@ public class ImageService extends HttpServlet {
 
 		            // Create the Hibernate Query
 		            StringBuffer hql = new StringBuffer(JSONDataService.GET_HOST_HQL_SELECT);
-		            hql.append("and host.id = ?");
+		            hql.append("where host.id = ?");
 		            Query q = s.createQuery(hql.toString());
 		            q.setString(0, objId);
 		            
