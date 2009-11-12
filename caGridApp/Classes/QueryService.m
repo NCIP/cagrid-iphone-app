@@ -123,7 +123,7 @@
     
     NSString *jobId = [request objectForKey:@"jobId"];
     
-	NSString *queryStr = [NSString stringWithFormat:@"%@/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
+	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     NSLog(@"Getting %@",escapedQueryStr);
@@ -156,7 +156,7 @@
         serviceIds = [serviceIds stringByAppendingString:serviceId];
     }
     
-	NSString *queryStr = [NSString stringWithFormat:@"%@/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
+	NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     NSLog(@"Getting %@",escapedQueryStr);

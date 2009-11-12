@@ -155,14 +155,12 @@
 		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
 	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
-	NSString *serviceId = [service objectForKey:@"id"];
-    NSMutableDictionary* metadata = [[ServiceMetadata sharedSingleton] getMetadataById:serviceId];
     
-    if (metadata != nil) {
+    if (service != nil) {
         if (detailController == nil) {
             self.detailController = [[ServiceDetailController alloc] initWithStyle:UITableViewStyleGrouped];
         }
-		[detailController displayService:metadata];
+		[detailController displayService:service];
 		[navController pushViewController:detailController animated:YES];
 	}
 }
