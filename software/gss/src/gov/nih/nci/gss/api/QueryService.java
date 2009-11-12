@@ -1,6 +1,7 @@
 package gov.nih.nci.gss.api;
 
 import gov.nih.nci.gss.util.Cab2bAPI;
+import gov.nih.nci.gss.util.Cab2bTranslator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
 
 /**
  * Manages background queries and caches results. 
@@ -45,8 +45,8 @@ public class QueryService {
 
     private Cab2bAPI cab2b;
     
-    public QueryService(SessionFactory sessionFactory) throws Exception {
-    	this.cab2b = new Cab2bAPI(sessionFactory);
+    public QueryService(Cab2bTranslator cab2bTranslator) throws Exception {
+    	this.cab2b = new Cab2bAPI(cab2bTranslator);
     	this.runningQueries = new HashMap<String, Cab2bQuery>();
         log.info("QueryService configured and ready.");
     }
