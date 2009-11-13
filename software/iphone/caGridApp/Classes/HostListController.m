@@ -64,6 +64,16 @@
 	[self reload];
 }
 
+- (void)displayHost:(NSMutableDictionary *)host animated:(BOOL)animatedFlag {
+    if (host != nil) {
+        if (detailController == nil) {
+            self.detailController = [[HostDetailController alloc] initWithStyle:UITableViewStyleGrouped];
+        }
+		[detailController displayHost:host];
+		[navController popToRootViewControllerAnimated:NO];
+		[navController pushViewController:detailController animated:animatedFlag];
+	}
+}
 
 #pragma mark -
 #pragma mark Content Filtering
@@ -169,13 +179,7 @@
 		accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
 	
 	NSMutableDictionary *host = [filtered objectAtIndex:indexPath.row];
-    if (host != nil) {
-        if (detailController == nil) {
-            self.detailController = [[HostDetailController alloc] initWithStyle:UITableViewStyleGrouped];
-        }
-		[detailController displayHost:host];
-		[navController pushViewController:detailController animated:YES];
-	}
+    [self displayHost:host animated:YES];
 }
 
 

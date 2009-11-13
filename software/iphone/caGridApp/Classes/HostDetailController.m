@@ -7,11 +7,12 @@
 //
 
 #import "HostDetailController.h"
+#import "CaGridAppDelegate.h"
+#import "QueryRequestController.h"
+#import "ServiceListController.h"
+#import "DashboardController.h"
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
-#import "QueryRequestController.h"
-#import "CaGridAppDelegate.h"
-#import "DashboardController.h"
 #import "KeyValuePair.h"
 
 #define sidePadding 10 
@@ -103,6 +104,9 @@
 
 - (void)showServicesAction:(id)sender {
     
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
+    [delegate.serviceListController searchFor:[host objectForKey:@"long_name"]];
+    delegate.tabBarController.selectedIndex = 2;
 }
 
 
@@ -302,7 +306,10 @@
 		UIButton *showServicesButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 		showServicesButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
         
-		[showServicesButton setTitle:@"Services" forState:UIControlStateNormal];
+        ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+        NSMutableArray *services = [sm.servicesByHostId objectForKey:[host valueForKey:@"id"]];
+        
+		[showServicesButton setTitle:[NSString stringWithFormat:@"%d Services",[services count]] forState:UIControlStateNormal];
 		[showServicesButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
 		[showServicesButton addTarget:self action:@selector(showServicesAction:) forControlEvents:UIControlEventTouchUpInside];		
 		[footerView addSubview:showServicesButton];
