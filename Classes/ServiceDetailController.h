@@ -30,5 +30,7 @@
 - (void)favoriteAction:(id)sender;
 	
 - (void)queryAction:(id)sender;
+
+- (void)viewHostAction:(id)sender;
 		
 @end

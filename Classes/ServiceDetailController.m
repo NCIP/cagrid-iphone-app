@@ -10,6 +10,7 @@
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
 #import "QueryRequestController.h"
+#import "HostListController.h"
 #import "CaGridAppDelegate.h"
 #import "DashboardController.h"
 #import "KeyValuePair.h"
@@ -80,28 +81,6 @@
 		[sections addObject:poc_section];
 	}
 	
-//	[headers addObject:@"Hosting Center"];
-//	NSMutableDictionary *host = [service objectForKey:@"hosting_center"];
-//	NSMutableArray *host_section = [NSMutableArray array];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[host objectForKey:@"long_name"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Short Name"		andValue:[host objectForKey:@"short_name"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Country"		andValue:[host objectForKey:@"country_code"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Street"			andValue:[host objectForKey:@"street"]]];		
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Locality"		andValue:[host objectForKey:@"locality"]]];		
-//	[host_section addObject:[KeyValuePair pairWithKey:@"State"			andValue:[host objectForKey:@"state_province"]]];
-//	[host_section addObject:[KeyValuePair pairWithKey:@"Postal Code"	andValue:[host objectForKey:@"postal_code"]]];
-//	[sections addObject:host_section];
-//	
-//	for(NSMutableDictionary *poc in [host objectForKey:@"pocs"]) {	
-//		[headers addObject:@"Hosting Center Contact"];	
-//		NSMutableArray *poc_section = [NSMutableArray array];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Name"		andValue:[poc objectForKey:@"name"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Role"		andValue:[poc objectForKey:@"role"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Affiliation"	andValue:[poc objectForKey:@"affiliation"]]];
-//		[poc_section addObject:[KeyValuePair pairWithKey:@"Email"		andValue:[poc objectForKey:@"email"]]];
-//		[sections addObject:poc_section];
-//	}
-	
 	[self.tableView reloadData];
 	[self.tableView setContentOffset:CGPointMake(0,0) animated:YES];
 	
@@ -123,6 +102,7 @@
 	[self.tableView reloadData];
 }
 
+// TODO: not used anymore, maybe delete at some point
 - (void)queryAction:(id)sender {
 
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
@@ -138,6 +118,17 @@
     CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate];    
     [delegate.dashboardController selectDataType:dataType];
     delegate.tabBarController.selectedIndex = 0;
+}
+
+- (void)viewHostAction:(id)sender {
+    
+    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
+    
+    NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
+    [delegate.hostListController displayHost:host animated:NO];
+    
+    delegate.tabBarController.selectedIndex = 3;    
 }
 
 #pragma mark -
@@ -300,10 +291,10 @@
 		UIButton *queryButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
 		queryButton.frame = CGRectMake(sidePadding+buttonWidth+buttonSpacing+40, buttonVerticalPadding, buttonWidth-40, buttonHeight);
     
-		queryButton.enabled = [service objectForKey:@"group"] != nil;
-		[queryButton setTitle:@"Query" forState:UIControlStateNormal];
+		queryButton.enabled = [service objectForKey:@"host_id"] != nil;
+		[queryButton setTitle:@"Host" forState:UIControlStateNormal];
 		[queryButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
-		[queryButton addTarget:self action:@selector(queryAction:) forControlEvents:UIControlEventTouchUpInside];		
+		[queryButton addTarget:self action:@selector(viewHostAction:) forControlEvents:UIControlEventTouchUpInside];		
 		[footerView addSubview:queryButton];
 		
 		return footerView;
