@@ -33,4 +33,6 @@
 
 - (void)reload;
 
+- (void)displayHost:(NSMutableDictionary *)host animated:(BOOL)animatedFlag;
+
 @end

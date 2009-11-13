@@ -15,6 +15,7 @@
 
 @synthesize serviceTable;
 @synthesize navController;
+@synthesize filterBar;
 @synthesize detailController;
 @synthesize serviceList;
 @synthesize filterString;
@@ -45,9 +46,13 @@
 	[filtered removeAllObjects];
     
 	for(NSMutableDictionary *service in serviceList) {
+        ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+        NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
+        
 		if (filterString == nil || 
             ([Util string:filterString isFoundIn:[service objectForKey:@"name"]] ||
-			 [Util string:filterString isFoundIn:[service objectForKey:@"host_short_name"]])) {
+			 [Util string:filterString isFoundIn:[host objectForKey:@"short_name"]] ||
+             [Util string:filterString isFoundIn:[host objectForKey:@"long_name"]])) {
             
             if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
 				[filtered addObject:service];
@@ -67,6 +72,15 @@
 - (void)viewWillAppear:(BOOL)animated {
 	[self reload];
     [self.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
+}
+
+- (void)searchFor:(NSString *)searchText {
+    self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
+    [self filter];
+    [self.filterBar setText:searchText];
+    [self.serviceTable reloadData];
+    // in case someone else is calling this method, like the HostDetailController
+    [navController popToRootViewControllerAnimated:NO];
 }
 
 
@@ -91,10 +105,7 @@
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-	
-    self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
-    [self filter];
-    [self.serviceTable reloadData];
+	[self searchFor:searchText];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {

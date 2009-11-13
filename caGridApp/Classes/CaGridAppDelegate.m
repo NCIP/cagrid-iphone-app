@@ -8,9 +8,10 @@
 
 #import "CaGridAppDelegate.h"
 #import "DashboardController.h"
-#import "FavoritesController.h"
-#import "ServiceListController.h"
 #import "QueryRequestController.h"
+#import "ServiceListController.h"
+#import "HostListController.h"
+#import "FavoritesController.h"
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
 #import "QueryService.h"
@@ -20,8 +21,11 @@
 @synthesize window;
 @synthesize tabBarController;
 @synthesize dashboardController;
-@synthesize favoritesController;
 @synthesize queryRequestController;
+@synthesize serviceListController;
+@synthesize hostListController;
+@synthesize favoritesController;
+
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     NSLog(@"Application is about to terminate... write everything to files.");
@@ -72,20 +76,15 @@
 	if (favoritesController.favoritesTable.editing) {
 		[favoritesController toggleEdit:nil];
 	}
-    
-    // scroll to the top
-//    UINavigationController *navController = (UINavigationController *)viewController;
-//    if ([navController.topViewController class] == [ServiceListController class]) {
-//        ServiceListController *slc = (ServiceListController *)navController.topViewController;
-//	    [slc.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
-//    }
 }
 
 - (void)dealloc {
     self.tabBarController = nil;
     self.dashboardController = nil;
-    self.favoritesController = nil;
     self.queryRequestController = nil;
+    self.serviceListController = nil;
+    self.hostListController = nil;
+    self.favoritesController = nil;
     [window release];
     [super dealloc];
 }

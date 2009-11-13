@@ -16,6 +16,7 @@
 	
     IBOutlet UITableView *serviceTable;
 	IBOutlet UINavigationController *navController;
+    IBOutlet UISearchBar *filterBar;
 	ServiceDetailController *detailController;
 	NSMutableArray *serviceList;
     NSString *filterString;
@@ -26,6 +27,7 @@
 
 @property (nonatomic, retain) UITableView *serviceTable;
 @property (nonatomic, retain) UINavigationController *navController;
+@property (nonatomic, retain) UISearchBar *filterBar;
 @property (nonatomic, retain) ServiceDetailController *detailController;
 @property (nonatomic, retain) NSMutableArray *serviceList;
 @property (nonatomic, retain) NSString *filterString;
@@ -34,6 +36,8 @@
 
 - (void)reload;
 
+- (void)searchFor:(NSString *)searchText;
+    
 - (void)scopeChanged:(id)sender;
 
 @end
