@@ -30,6 +30,8 @@
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     NSString *dataTypeLabel = [Util getLabelForDataTypeName:[queryRequest objectForKey:@"dataTypeName"]];
     NSString *dateString = [Util dateDifferenceStringFromDate:[queryRequest objectForKey:@"startTime"]];
+    NSNumber *totalCount = [queryRequest objectForKey:@"totalCount"];
+    if (totalCount == nil) totalCount = [NSNumber numberWithInt:0];
     NSMutableArray *selectedServicesIds = [queryRequest objectForKey:@"selectedServicesIds"];
     NSMutableArray *locations = [NSMutableArray array];
     for(NSString *serviceId in selectedServicesIds) {
@@ -40,7 +42,8 @@
     self.accessoryType = UITableViewCellAccessoryNone;
     self.alertImageView.hidden = YES;
     self.highlightView.alpha = 0.0;
-    self.titleLabel.text = [NSString stringWithFormat:@"\"%@\"", [queryRequest objectForKey:@"searchString"]];
+    self.titleLabel.text = [NSString stringWithFormat:@"%@ results for \"%@\"", 
+                            ([totalCount intValue] == 0) ? @"No" : totalCount, [queryRequest objectForKey:@"searchString"]];
     self.descLabel.text = [NSString stringWithFormat:@"%@ search, %@", dataTypeLabel, dateString];
     self.locationsLabel.text = [NSString stringWithFormat:@"Locations: %@",[locations componentsJoinedByString:@", "]];
     

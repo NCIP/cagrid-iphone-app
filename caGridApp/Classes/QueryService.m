@@ -12,6 +12,7 @@
 
 #define queriesFilename @"QueryRequestCache.plist"
 
+
 @implementation QueryService
 @synthesize deviceId;
 @synthesize dlmanager;
@@ -126,8 +127,44 @@
     }
 }
 
-- (void)monitorQuery:(NSMutableDictionary *)request {
+
+- (void) executeQuery:(NSMutableDictionary *)request {
+@synchronized(self) {
     
+    while ([queryRequests count] >= maxRequests) {
+        [queryRequests removeLastObject];
+    }
+    
+    [queryRequests insertObject:request atIndex:0];
+    
+    NSString *searchString = [request objectForKey:@"searchString"];
+    NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
+    
+    NSString *serviceIds = @"";
+    for(NSString *serviceId in selectedServicesIds) {
+        if (![serviceIds isEqualToString:@""]) serviceIds = [serviceIds stringByAppendingString:@","];
+        serviceIds = [serviceIds stringByAppendingString:serviceId];
+    }
+    
+    NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
+    NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+    
+    if (escapedQueryStr == nil) {
+        [self notifyDelegateOfErrorDelayed:@"Input Error" message:@"Cannot process the search string." forRequest:request];
+        return;
+    }
+    
+    NSURL *url = [NSURL URLWithString:escapedQueryStr];
+    [self.urlRequestMap setObject:request forKey:url];
+    [dlmanager beginDownload:url delegate:self];
+    
+}
+}
+
+
+- (void)monitorQuery:(NSMutableDictionary *)request {
+@synchronized(self) {
+        
     NSString *jobId = [request objectForKey:@"jobId"];
     
 	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
@@ -141,49 +178,25 @@
     NSURL *url = [NSURL URLWithString:escapedQueryStr];
     [self.urlRequestMap setObject:request forKey:url];
 	[dlmanager beginDownload:url delegate:self];   
+    
 }
-
-- (void) executeQuery:(NSMutableDictionary *)request {
-	
-	[queryRequests insertObject:request atIndex:0];
-    
-    NSString *searchString = [request objectForKey:@"searchString"];
-    NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
-    
-    NSString *serviceIds = @"";
-    for(NSString *serviceId in selectedServicesIds) {
-    	if (![serviceIds isEqualToString:@""]) serviceIds = [serviceIds stringByAppendingString:@","];
-        serviceIds = [serviceIds stringByAppendingString:serviceId];
-    }
-    
-	NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
-	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-    
-    if (escapedQueryStr == nil) {
-        [self notifyDelegateOfErrorDelayed:@"Input Error" message:@"Cannot process the search string." forRequest:request];
-        return;
-    }
-    
-    NSURL *url = [NSURL URLWithString:escapedQueryStr];
-    [self.urlRequestMap setObject:request forKey:url];
-	[dlmanager beginDownload:url delegate:self];    
 }
-
 
 
 #pragma mark -
 #pragma mark Download Manager Delegate Methods
 
 - (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
-        
-    NSMutableDictionary *request = [urlRequestMap objectForKey:url];
+@synchronized(self) {
+    
+	NSMutableDictionary *request = [urlRequestMap objectForKey:url];
     if (request == nil) {
         NSLog(@"QueryService got data for unknown URL: %@",url);
-    	return;
+        return;
     }
     
     [urlRequestMap removeObjectForKey:url];
-    
+            
     NSString *jobId = [request objectForKey:@"jobId"];
     NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
     NSMutableDictionary *root = [content JSONValue];
@@ -242,15 +255,21 @@
         
         [allUrls removeObjectsInArray:failedUrls];
         
+        int total = 0;
         for(NSString *url in allUrls) {
-            if ([results objectForKey:url] == nil) {
+            NSMutableArray *urlResults = [results objectForKey:url];
+            if (urlResults == nil) {
                 // no results, add an empty array for this service
                 [results setObject:[NSMutableArray array] forKey:url];
+            }
+            else {
+                total += [urlResults count];
             }
         }
         
         [request removeObjectForKey:@"receivedData"];
         [request setObject:results forKey:@"results"];
+        [request setObject:[NSNumber numberWithInt:total] forKey:@"totalCount"];
         [request setObject:failedUrls forKey:@"failedUrls"];
         
         if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
@@ -261,10 +280,12 @@
         }
     }
 }
+}
 
 
 - (void)download:(NSURL *)url failedWithError:(NSError *)error {
-        
+@synchronized(self) {
+    
     NSMutableDictionary *request = [urlRequestMap objectForKey:url];
     if (request == nil) {
         NSLog(@"QueryService got error for unknown URL: %@",url);
@@ -281,7 +302,8 @@
     
 	NSString *message = [NSString stringWithFormat:@"Could not retrieve query results: %@",[error localizedDescription]];
     [self notifyDelegateOfError:@"Connection Error" message:message forRequest:request];
+    
 }
-
+}
 
 @end

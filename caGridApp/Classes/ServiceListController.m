@@ -71,13 +71,13 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 	[self reload];
+    [self.filterBar setText:self.filterString];
     [self.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
 }
 
 - (void)searchFor:(NSString *)searchText {
     self.filterString = [searchText isEqualToString:@""] ? nil : searchText;
     [self filter];
-    [self.filterBar setText:searchText];
     [self.serviceTable reloadData];
     // in case someone else is calling this method, like the HostDetailController
     [navController popToRootViewControllerAnimated:NO];
