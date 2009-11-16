@@ -12,6 +12,9 @@
 #define servicesFilename @"ServiceMetadata.plist"
 
 @implementation ServiceMetadata
+@synthesize dlmanager;
+@synthesize servicesUrl;
+@synthesize hostsUrl;
 @synthesize services;
 @synthesize servicesById;
 @synthesize servicesByUrl;
@@ -27,6 +30,10 @@
 
 - (id) init {
 	if (self = [super init]) {
+        
+        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
+        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
+        
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];        
         self.servicesById = [NSMutableDictionary dictionary];
@@ -35,6 +42,10 @@
         self.servicesByHostId = [NSMutableDictionary dictionary]; 
         self.hostsById = [NSMutableDictionary dictionary];
         self.hostImagesByUrl = [NSMutableDictionary dictionary];        
+        
+        DownloadManager *dl = [[DownloadManager alloc] init];
+        self.dlmanager = dl;
+        [dl release];
         
         NSNumberFormatter *nformat = [[NSNumberFormatter alloc] init];
         self.nf = nformat;
@@ -45,6 +56,8 @@
 
 
 - (void)dealloc {
+    self.servicesUrl = nil;
+    self.hostsUrl = nil;
     self.services = nil;           
     self.hosts = nil;
     self.servicesById = nil;
@@ -197,165 +210,92 @@
 
 
 - (void) loadServices {
-	
-	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
-    
-    if (error) {
-        NSLog(@"loadData error: %@",error);
-        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
-            [Util displayNetworkError];
-        }
-        else {
-            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
-        }
-        return;
-    }
-    else {
-        [Util clearNetworkErrorState];
-    }
-    
-    NSMutableDictionary *root = [jsonData JSONValue];
-	NSMutableArray *serviceDict = [root objectForKey:@"services"];    
-    
-    if (serviceDict == nil) {
-        NSString *error = [root objectForKey:@"error"];
-        NSString *message = [root objectForKey:@"message"];
-        if (error == nil) error = @"Error loading data";
-        if (message == nil) message = @"Service data could not be retrieved";
-    	NSLog(@"loadData error: %@ - %@",error,message);
-        [Util displayCustomError:error withMessage:message];
-        return;
-    }
-    
-    self.services = serviceDict;	
-    
-	// sort by name/host
-	[services sortUsingDescriptors:[NSArray arrayWithObjects:
-                        [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
-                        [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES] autorelease],
-						nil]];
-	
-	[self updateServiceDerivedObjects];
-
-	//NSLog(@"services: %@",services);
-	[jsonData release];
+    [dlmanager beginDownload:servicesUrl delegate:self];
 }
-
 
 - (void) loadHosts {
-	
-	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
-    
-    if (error) {
-        NSLog(@"loadData error: %@",error);
-        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
-            [Util displayNetworkError];
-        }
-        else {
-            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
-        }
-        return;
-    }
-    else {
-        [Util clearNetworkErrorState];
-    }
-    
-    NSMutableDictionary *root = [jsonData JSONValue];
-	NSMutableArray *hostDict = [root objectForKey:@"hosts"];    
-    
-    if (hostDict == nil) {
-        NSString *error = [root objectForKey:@"error"];
-        NSString *message = [root objectForKey:@"message"];
-        if (error == nil) error = @"Error loading data";
-        if (message == nil) message = @"Service data could not be retrieved";
-    	NSLog(@"loadData error: %@ - %@",error,message);
-        [Util displayCustomError:error withMessage:message];
-        return;
-    }
-    
-    self.hosts = hostDict;
-    [self updateHostDerivedObjects];
-	
-	// sort by name
-	[self.hosts sortUsingDescriptors:[NSArray arrayWithObjects:
-                                    [[[NSSortDescriptor alloc] initWithKey:@"long_name" ascending:YES] autorelease],
-                                    nil]];
-	
-	//NSLog(@"hosts: %@",hosts);
-	[jsonData release];
+	[dlmanager beginDownload:hostsUrl delegate:self];
 }
 
-/*
-- (void) loadMetadataForService:(NSString *)serviceId {
-	
-	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service/%@?metadata=1",BASE_URL,serviceId]];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
+- (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
     
-    if (error) {
-        NSLog(@"loadMetadataForService error: %@",error);
-        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
-            [Util displayNetworkError];
+    [Util clearNetworkErrorState];
+    
+    NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
+    NSMutableDictionary *root = [content JSONValue];
+    
+	if ([url isEqual:servicesUrl]) {
+    	
+        NSMutableArray *serviceDict = [root objectForKey:@"services"];    
+        
+        if (serviceDict == nil) {
+            NSString *error = [root objectForKey:@"error"];
+            NSString *message = [root objectForKey:@"message"];
+            if (error == nil) error = @"Error loading data";
+            if (message == nil) message = @"Service data could not be retrieved";
+            NSLog(@"loadData error: %@ - %@",error,message);
+            [Util displayCustomError:error withMessage:message];
+            return;
         }
-        else {
-            [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+        
+        NSLog(@"Received %d services",[services count]);
+        @synchronized(self) {        
+            self.services = serviceDict;	
+            
+            [services sortUsingDescriptors:[NSArray arrayWithObjects:
+                                            [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
+                                            [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES] autorelease],
+                                            nil]];
+            
+            [self updateServiceDerivedObjects];
         }
-        return;
+        
+    }
+    else if ([url isEqual:hostsUrl]) {
+                
+        NSMutableArray *hostDict = [root objectForKey:@"hosts"];    
+        
+        if (hostDict == nil) {
+            NSString *error = [root objectForKey:@"error"];
+            NSString *message = [root objectForKey:@"message"];
+            if (error == nil) error = @"Error loading data";
+            if (message == nil) message = @"Host data could not be retrieved";
+            NSLog(@"loadData error: %@ - %@",error,message);
+            [Util displayCustomError:error withMessage:message];
+            return;
+        }
+        
+        NSLog(@"Received %d hosts",[hosts count]);
+        @synchronized(self) {  
+            self.hosts = hostDict;
+            
+            [self.hosts sortUsingDescriptors:[NSArray arrayWithObjects:
+                                              [[[NSSortDescriptor alloc] initWithKey:@"long_name" ascending:YES] autorelease],
+                                              nil]];
+            
+            [self updateHostDerivedObjects];
+        }
     }
     else {
-        [Util clearNetworkErrorState];
+    	NSLog(@"Received unknown data from: %@",url);
     }
-    
-    NSMutableDictionary *root = [jsonData JSONValue];
-	NSMutableArray *serviceArray = [root objectForKey:@"services"];
-    
-    if (serviceArray == nil) {
-        NSString *error = [root objectForKey:@"error"];
-        NSString *message = [root objectForKey:@"message"];
-        if (error == nil) error = @"Error loading data";
-        if (message == nil) message = @"Service data could not be retrieved";
-    	NSLog(@"loadMetadataForService error: %@ - %@",error,message);
-        [Util displayCustomError:error withMessage:message];
-    }
-    
-	if ([serviceArray count] < 1) {
-		NSLog(@"ERROR: no service metadata returned for service with id=%@",serviceId);
-		return;
-	}
-	
-	NSMutableDictionary *metadata = [serviceArray objectAtIndex:0];
-	[metadata setValue:@"1" forKey:@"metadataLoaded"];
-    
-    NSMutableDictionary *service = nil;
-    for(NSMutableDictionary *s in self.services) {
-        if ([[s objectForKey:@"id"] isEqualToString:[metadata objectForKey:@"id"]]) {
-        	service = s;
-            break;
-        }
-    }
-    
-    if (service != nil) {        
-        for(NSString *key in [metadata allKeys]) {
-        	if (![key isEqualToString:@"id"]) {
-            	[service setObject:[metadata objectForKey:key] forKey:key];
-            }
-        }
-    }
-    else {
-        NSLog(@"WARNING: service not found in service list, adding to the end.");
-        service = metadata;
-    	[services addObject:service];    
-    }
-    
-    [self updateService:service];
-    
-	[jsonData release];
 }
-*/
+
+
+- (void)download:(NSURL *)url failedWithError:(NSError *)error {
+
+    NSLog(@"Error retrieving URL %@: %@",url,error);
+    if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+        [Util displayNetworkError];
+    }
+    else {
+        [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+    }
+}
+
+
+#pragma mark -
+#pragma mark Public API
 
 - (NSMutableArray *)getServices {
 	return services;
@@ -376,17 +316,6 @@
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl {
 	return [servicesByUrl objectForKey:serviceUrl];
 }
-
-/*
-- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId {
-	NSMutableDictionary *service = (NSMutableDictionary *)[servicesById objectForKey:serviceId];
-	if ([service objectForKey:@"metadataLoaded"] == nil) {
-		[self loadMetadataForService:serviceId];
-		service = (NSMutableDictionary *)[servicesById objectForKey:serviceId];
-	}
-	return service;
-}
- */
 
 - (NSMutableArray *)getServicesOfType:(DataType)dataType {
     NSString *dataTypeName = [Util getNameForDataType:dataType];
