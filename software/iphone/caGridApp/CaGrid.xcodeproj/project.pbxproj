@@ -25,6 +25,7 @@
 		A93543EF101BF06300988B88 /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A93543EE101BF06300988B88 /* Util.m */; };
 		A94A0494100640F200A7822B /* ServiceListController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A0493100640F200A7822B /* ServiceListController.m */; };
 		A94A073D1012262100A7822B /* FavoritesController.m in Sources */ = {isa = PBXBuildFile; fileRef = A94A073C1012262100A7822B /* FavoritesController.m */; };
+		A954F19110AE041A005CD568 /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A954F19010AE041A005CD568 /* DownloadManager.m */; };
 		A9693A4E1002E3D600FA59F5 /* GridServiceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */; };
 		A9693A501002E3DF00FA59F5 /* GridServiceCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */; };
 		A9693A5A1002E8A800FA59F5 /* ServiceDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */; };
@@ -114,6 +115,8 @@
 		A94A0493100640F200A7822B /* ServiceListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceListController.m; sourceTree = "<group>"; };
 		A94A073B1012262100A7822B /* FavoritesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FavoritesController.h; sourceTree = "<group>"; };
 		A94A073C1012262100A7822B /* FavoritesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FavoritesController.m; sourceTree = "<group>"; };
+		A954F18F10AE041A005CD568 /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
+		A954F19010AE041A005CD568 /* DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadManager.m; sourceTree = "<group>"; };
 		A9693A4C1002E3D600FA59F5 /* GridServiceCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridServiceCell.h; sourceTree = "<group>"; };
 		A9693A4D1002E3D600FA59F5 /* GridServiceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridServiceCell.m; sourceTree = "<group>"; };
 		A9693A4F1002E3DF00FA59F5 /* GridServiceCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GridServiceCell.xib; sourceTree = "<group>"; };
@@ -337,6 +340,8 @@
 				A9DC7E2910A7901B00535680 /* KeyValuePair.m */,
 				A9DC7F5810ABAEF200535680 /* AsyncImageView.h */,
 				A9DC7F5910ABAEF200535680 /* AsyncImageView.m */,
+				A954F18F10AE041A005CD568 /* DownloadManager.h */,
+				A954F19010AE041A005CD568 /* DownloadManager.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -518,6 +523,7 @@
 				A9DC7D6510A6084500535680 /* HostDetailController.m in Sources */,
 				A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */,
 				A9DC7F5A10ABAEF200535680 /* AsyncImageView.m in Sources */,
+				A954F19110AE041A005CD568 /* DownloadManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
