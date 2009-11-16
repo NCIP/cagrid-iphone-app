@@ -192,13 +192,9 @@ public class JSONDataService extends HttpServlet {
 
     	// User can specify a delay for debugging purposes.
         String delay = request.getParameter("delay");
-        log.info("delay="+delay);
         if (delay != null && !"".equals(delay)) {
         	int sleepTime = Integer.parseInt(delay);
-        	log.info("sleepTime="+sleepTime);
         	if (sleepTime < 20000) { // 30 seconds at most
-
-            	log.info("sleeping");
         		Thread.sleep(sleepTime);
         	}
         }
@@ -223,8 +219,9 @@ public class JSONDataService extends HttpServlet {
             if (pathList.length > 2) {
                 id = pathList[2];
             }
-            
-            return getHostJSON(id);
+
+            boolean includeKey = "1".equals(request.getParameter("key"));
+            return getHostJSON(id, includeKey);
         }
         else if ("runQuery".equals(noun)) { 
             // Query grid services using caB2B 
@@ -411,7 +408,7 @@ public class JSONDataService extends HttpServlet {
      * @return
      * @throws JSONException
      */
-    private JSONObject getJSONObjectForHost(HostingCenter host)
+    private JSONObject getJSONObjectForHost(HostingCenter host, boolean includeKey)
             throws JSONException {
 
         JSONObject hostObj = new JSONObject();
@@ -436,6 +433,10 @@ public class JSONDataService extends HttpServlet {
         // TODO: optimize this so that the disk is not accessed each time
         if (file.exists()) {
             hostObj.put("image_name", imageName);
+        }
+        
+        if (includeKey) {
+        	hostObj.put("key", imageName);
         }
         
         // service host pocs
@@ -516,7 +517,7 @@ public class JSONDataService extends HttpServlet {
                     // Add host details
                     HostingCenter host = service.getHostingCenter();
                     JSONObject hostObj = host != null ? 
-                    		getJSONObjectForHost(host) : new JSONObject();
+                    		getJSONObjectForHost(host, false) : new JSONObject();
                     jsonService.put("hosting_center", hostObj);
                     
                 }
@@ -563,7 +564,7 @@ public class JSONDataService extends HttpServlet {
      * @throws JSONException
      * @throws ApplicationException
      */
-    private String getHostJSON(String hostId) 
+    private String getHostJSON(String hostId, boolean includeKey) 
             throws JSONException, ApplicationException {
 
         Session s = sessionFactory.openSession();
@@ -585,7 +586,7 @@ public class JSONDataService extends HttpServlet {
             json.put("hosts", jsonArray);
             
             for (HostingCenter host : hosts) {
-                jsonArray.put(getJSONObjectForHost(host));
+                jsonArray.put(getJSONObjectForHost(host, includeKey));
             }
         }
         finally {
@@ -653,7 +654,7 @@ public class JSONDataService extends HttpServlet {
             			JSONObject obj = objs.getJSONObject(k);
             			String key = null;
             			try {
-            			    key = obj.getString(primaryKey);
+            			    key = obj.getString(HOST_KEY)+"~"+obj.getString(primaryKey);
             			}
             			catch (JSONException x) {
             				log.error("Error getting unique key",x);
