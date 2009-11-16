@@ -13,6 +13,9 @@
 #import "Util.h"
 #import "ServiceMetadata.h"
 
+// Uncomment this line to create the splash screen used for Default.png
+//#define DEFAULT_PNG_SCREENSHOT 
+
 @implementation DashboardController
 @synthesize navController;
 @synthesize queryExecutionController;
@@ -55,6 +58,11 @@
     NSUInteger c1 = [[sm getServices] count];
     NSUInteger c2 = [[sm getHosts] count];
     self.summaryLabel.text = (c1 > 0 && c2 > 0) ? [NSString stringWithFormat:@"%d services hosted by %d institutions",c1,c2] : @"";
+    
+	#ifdef DEFAULT_PNG_SCREENSHOT
+    	self.summaryLabel.text = @"";
+	#endif
+	    
     [self.summaryTable reloadData];
 }
 
@@ -160,7 +168,11 @@
         cell.descLabel.text = count > 0 ? [NSString stringWithFormat:@"%d caNanoLab services",count] : none;
         cell.icon.image = [UIImage imageNamed:@"db_nanoparticles.png"];
     }
-	
+
+    #ifdef DEFAULT_PNG_SCREENSHOT
+        cell.descLabel.text = @"";
+    #endif
+    
 	return cell;
 }
 

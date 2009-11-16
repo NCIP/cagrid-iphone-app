@@ -34,6 +34,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [self.requestsTable reloadData];
+	[super viewWillAppear:animated];
 }
 
 #pragma mark -
@@ -144,6 +145,7 @@
 	    cell.alertImageView.hidden = NO;
     }
     else {
+        cell.titleLabel.text = [NSString stringWithFormat:@"Searching for \"%@\"", [queryRequest objectForKey:@"searchString"]];
     	[cell.indicator startAnimating];
     }
 

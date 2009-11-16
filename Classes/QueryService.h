@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "DownloadManager.h"
 
+// TODO: move this to a user configuration
+#define maxRequests 5
+
 @interface QueryService : NSObject {
 	@private NSString *deviceId;
 	@private DownloadManager *dlmanager;
