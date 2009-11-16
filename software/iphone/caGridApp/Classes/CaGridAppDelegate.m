@@ -62,6 +62,7 @@
 	// add main view
     [window addSubview:tabBarController.view];
 	
+    NSLog(@"Finished setting up.");
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
