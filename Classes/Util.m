@@ -80,22 +80,25 @@ static BOOL alerted = NO;
 
 
 + (void) displayNetworkError {
-    
-    if (!alerted) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
-                                                        message:@"Could not connect to the network." 
-                                                       delegate:self 
-                                              cancelButtonTitle:@"OK" 
-                                              otherButtonTitles:nil];
-        [alert show];
-        [alert autorelease];
-        alerted = YES;
+    @synchronized(self) {    
+        if (!alerted) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
+                                                            message:@"Could not connect to the network." 
+                                                           delegate:self 
+                                                  cancelButtonTitle:@"OK" 
+                                                  otherButtonTitles:nil];
+            [alert show];
+            [alert autorelease];
+            alerted = YES;
+        }
     }
 }
 
 
 + (void) clearNetworkErrorState {
- 	alerted = NO;   
+    @synchronized(self) {
+ 		alerted = NO;   
+    }
 }
 
 

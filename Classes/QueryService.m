@@ -14,6 +14,8 @@
 
 @implementation QueryService
 @synthesize deviceId;
+@synthesize dlmanager;
+@synthesize urlRequestMap;
 @synthesize queryRequests;
 @synthesize delegate;
 
@@ -22,10 +24,16 @@
 
 - (id) init {
 	if (self = [super init]) {
+        
+        self.queryRequests = [NSMutableArray array];
+        self.urlRequestMap = [NSMutableDictionary dictionary];
+        
         self.deviceId = [[UIDevice currentDevice] uniqueIdentifier];
         NSLog(@"device id = %@",deviceId);
-        self.queryRequests = [NSMutableArray array];   
-        connectionRequestMap = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        
+        DownloadManager *dl = [[DownloadManager alloc] init];
+        self.dlmanager = dl;
+        [dl release];
    	}
 	return self;
 }
@@ -75,20 +83,6 @@
 
 
 #pragma mark -
-#pragma mark API
-
-- (void)restartUnfinishedQueries {
-    
-    QueryService *rc = [QueryService sharedSingleton];
-    for(NSMutableDictionary *request in rc.queryRequests) {
-        if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
-            // query never came back so restart monitoring
-            [rc monitorQuery:request];
-        }
-    }
-}
-
-#pragma mark -
 #pragma mark Private Methods
 
 - (void) notifyDelegateOfErrorForRequest:(NSMutableDictionary *)request {  
@@ -118,6 +112,19 @@
     [NSTimer scheduledTimerWithTimeInterval:0.5 invocation:invocation repeats:NO];
 }
 
+#pragma mark -
+#pragma mark Public API
+
+- (void)restartUnfinishedQueries {
+    
+    QueryService *rc = [QueryService sharedSingleton];
+    for(NSMutableDictionary *request in rc.queryRequests) {
+        if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
+            // query never came back so restart monitoring
+            [rc monitorQuery:request];
+        }
+    }
+}
 
 - (void)monitorQuery:(NSMutableDictionary *)request {
     
@@ -126,21 +133,14 @@
 	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
-    NSLog(@"Getting %@",escapedQueryStr);
-    
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:escapedQueryStr]];
-    [req setHTTPMethod:@"GET"];
-    NSConnection *conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-    
-    if (conn) {
-        [request setObject:[NSMutableData data] forKey:@"receivedData"];
-        CFDictionaryAddValue(connectionRequestMap, conn, request);
-    }
-	else {
-        NSLog(@"Connection was null");
-        [self notifyDelegateOfError:@"ConnectionError" message:@"Could not create monitor connection" forRequest:request];
+    if (escapedQueryStr == nil) {
+        [self notifyDelegateOfErrorDelayed:@"Input Error" message:@"Cannot process the search string." forRequest:request];
         return;
     }
+    
+    NSURL *url = [NSURL URLWithString:escapedQueryStr];
+    [self.urlRequestMap setObject:request forKey:url];
+	[dlmanager beginDownload:url delegate:self];   
 }
 
 - (void) executeQuery:(NSMutableDictionary *)request {
@@ -159,78 +159,120 @@
 	NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
-    NSLog(@"Getting %@",escapedQueryStr);
-    
     if (escapedQueryStr == nil) {
         [self notifyDelegateOfErrorDelayed:@"Input Error" message:@"Cannot process the search string." forRequest:request];
         return;
     }
     
-	NSError *error = nil;
-	NSURL *jsonURL = [NSURL URLWithString:escapedQueryStr];
-	NSString *jsonData = [[NSString alloc] initWithContentsOfURL:jsonURL encoding:NSUTF8StringEncoding error:&error];
-    
-    if (error) {
-        NSLog(@"%@",error);
-        NSString *errorType = @"Query Error";
-        NSString *message = @"Could not execute query";
-        if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
-        	message = @"Could not connect to the network.";
-        }
-        [self notifyDelegateOfErrorDelayed:errorType message:message forRequest:request];
-        return;
-    }
-    else {
-        [Util clearNetworkErrorState];
-    }
-    
-    NSMutableDictionary *root = [jsonData JSONValue];
-    NSString *jobId = [root objectForKey:@"job_id"];
-    NSString *status = [root objectForKey:@"status"];
-    
-    if (jobId == nil || [jobId isEqualToString:@""]) {
-        NSLog(@"Server did not return job identifier. Status was %@.",status);
-        NSString *errorType = @"Server Error";
-        NSString *message = @"Query could not execute";
-        [self notifyDelegateOfErrorDelayed:errorType message:message forRequest:request];
-        return;
-    }
-    
-    [request setObject:jobId forKey:@"jobId"];
-    [self monitorQuery: request];
+    NSURL *url = [NSURL URLWithString:escapedQueryStr];
+    [self.urlRequestMap setObject:request forKey:url];
+	[dlmanager beginDownload:url delegate:self];    
 }
+
 
 
 #pragma mark -
-#pragma mark REST API Methods
+#pragma mark Download Manager Delegate Methods
 
--(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    NSMutableDictionary *request = (NSMutableDictionary *)CFDictionaryGetValue(connectionRequestMap, connection);
-	NSMutableData *receivedData = [request objectForKey:@"receivedData"];
-	if (receivedData != nil) {
-        [receivedData setLength:0];
+- (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
+        
+    NSMutableDictionary *request = [urlRequestMap objectForKey:url];
+    if (request == nil) {
+        NSLog(@"QueryService got data for unknown URL: %@",url);
+    	return;
+    }
+    
+    [urlRequestMap removeObjectForKey:url];
+    
+    NSString *jobId = [request objectForKey:@"jobId"];
+    NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
+    NSMutableDictionary *root = [content JSONValue];
+    
+    if (root == nil) {
+        [self notifyDelegateOfError:@"Connection Error" message:@"Could not retrieve query results" forRequest:request];
+        return;
+    }
+    
+    if (jobId == nil) {
+                
+        NSString *status = [root objectForKey:@"status"];
+        jobId = [root objectForKey:@"job_id"];
+        
+        if (jobId == nil || [jobId isEqualToString:@""]) {
+            NSLog(@"Server did not return job identifier. Status was %@.",status);
+            NSString *errorType = @"Server Error";
+            NSString *message = @"Query could not execute";
+            [self notifyDelegateOfErrorDelayed:errorType message:message forRequest:request];
+            return;
+        }
+        
+        [request setObject:jobId forKey:@"jobId"];
+        [self monitorQuery: request];   
+        
     }
     else {
-        NSLog(@"WARNING: Got response from unknown connection.");
+                
+        NSMutableDictionary *results = [root objectForKey:@"results"];
+        
+        if (results == nil) {
+            NSString *status = [root objectForKey:@"status"];
+            if ([status isEqualToString:@"UNKNOWN"]) {
+                [self notifyDelegateOfError:@"Query Error" message:@"Query results have expired" forRequest:request];
+            }
+            else {
+                [request setObject:root forKey:@"error"];
+                [self notifyDelegateOfErrorForRequest:request];
+            }
+            return;
+        }
+        
+        // Get failed urls
+        NSMutableArray *failedUrls = [root objectForKey:@"failedUrls"];
+        
+        // Add in services which returned no results, but did not fail
+        NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
+        NSMutableArray *allUrls = [NSMutableArray array];
+        
+        ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+        for(NSString *serviceId in selectedServicesIds) {
+            NSMutableDictionary *service = [sm getServiceById:serviceId];
+            NSString *url = [service objectForKey:@"url"];
+            [allUrls addObject:url];
+        }
+        
+        [allUrls removeObjectsInArray:failedUrls];
+        
+        for(NSString *url in allUrls) {
+            if ([results objectForKey:url] == nil) {
+                // no results, add an empty array for this service
+                [results setObject:[NSMutableArray array] forKey:url];
+            }
+        }
+        
+        [request removeObjectForKey:@"receivedData"];
+        [request setObject:results forKey:@"results"];
+        [request setObject:failedUrls forKey:@"failedUrls"];
+        
+        if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
+            [self.delegate requestCompleted:results];
+        }
+        else {
+            NSLog(@"WARNING: Delegate doesn't respond to requestCompleted:");
+        }
     }
 }
 
--(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    NSMutableDictionary *request = (NSMutableDictionary *)CFDictionaryGetValue(connectionRequestMap, connection);
-	NSMutableData *receivedData = [request objectForKey:@"receivedData"];
-	if (receivedData != nil) {
-        [receivedData appendData:data];
-    }
-    else {
-        NSLog(@"WARNING: Got response from unknown connection.");
-    }
-}
 
--(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    NSMutableDictionary *request = (NSMutableDictionary *)CFDictionaryGetValue(connectionRequestMap, connection);
-    CFDictionaryRemoveValue(connectionRequestMap, connection);
-	[connection release];
-	
+- (void)download:(NSURL *)url failedWithError:(NSError *)error {
+        
+    NSMutableDictionary *request = [urlRequestMap objectForKey:url];
+    if (request == nil) {
+        NSLog(@"QueryService got error for unknown URL: %@",url);
+    	return;
+    }
+    
+    [urlRequestMap removeObjectForKey:url];
+    
     if ([error domain] == NSURLErrorDomain && [error code] == NSURLErrorTimedOut) {
         NSLog(@"Connection dropped, retrying");
         [self monitorQuery:request];
@@ -240,75 +282,6 @@
 	NSString *message = [NSString stringWithFormat:@"Could not retrieve query results: %@",[error localizedDescription]];
     [self notifyDelegateOfError:@"Connection Error" message:message forRequest:request];
 }
-
-
--(void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    
-    NSMutableDictionary *request = (NSMutableDictionary *)CFDictionaryGetValue(connectionRequestMap, connection);
-	NSMutableData *receivedData = [request objectForKey:@"receivedData"];
-    CFDictionaryRemoveValue(connectionRequestMap, connection);
-	[connection release];
-    NSLog(@"All data received");
-    
-    // TODO: can we get JSONValue directly from receivedData?
-	NSString *content = [[NSString alloc] initWithBytes:[receivedData mutableBytes] length:[receivedData length] encoding:NSUTF8StringEncoding];
-	NSMutableDictionary *root = [content JSONValue];
-	[content release];
-    
-    if (root == nil) {
-        [self notifyDelegateOfError:@"Connection Error" message:@"Could not retrieve query results" forRequest:request];
-        return;
-    }
-    
-    NSMutableDictionary *results = [root objectForKey:@"results"];
-    
-    if (results == nil) {
-        NSString *status = [root objectForKey:@"status"];
-        if ([status isEqualToString:@"UNKNOWN"]) {
-            [self notifyDelegateOfError:@"Query Error" message:@"Query results have expired" forRequest:request];
-        }
-        else {
-            [request setObject:root forKey:@"error"];
-            [self notifyDelegateOfErrorForRequest:request];
-        }
-        return;
-    }
-    
-    // Get failed urls
-    NSMutableArray *failedUrls = [root objectForKey:@"failedUrls"];
-    
-    // Add in services which returned no results, but did not fail
-    NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
-    NSMutableArray *allUrls = [NSMutableArray array];
-    
-    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-    for(NSString *serviceId in selectedServicesIds) {
-        NSMutableDictionary *service = [sm getServiceById:serviceId];
-        NSString *url = [service objectForKey:@"url"];
-        [allUrls addObject:url];
-    }
-    
-    [allUrls removeObjectsInArray:failedUrls];
-    
-    for(NSString *url in allUrls) {
-    	if ([results objectForKey:url] == nil) {
-        	// no results, add an empty array for this service
-            [results setObject:[NSMutableArray array] forKey:url];
-        }
-    }
-    
-	[request removeObjectForKey:@"receivedData"];
-    [request setObject:results forKey:@"results"];
-    [request setObject:failedUrls forKey:@"failedUrls"];
-    
-	if ([self.delegate respondsToSelector:@selector(requestCompleted:)]) {
-		[self.delegate requestCompleted:results];
-	}
-	else {
-		NSLog(@"WARNING: Delegate doesn't respond to requestCompleted:");
-	}
-}
-
 
 
 @end
