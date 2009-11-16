@@ -7,16 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "DownloadManager.h"
 
 @interface QueryService : NSObject {
 	@private NSString *deviceId;
+	@private DownloadManager *dlmanager;
+    @private NSMutableDictionary *urlRequestMap;
 	@private NSMutableArray *queryRequests;
 	@private id delegate;    
 	@private CFMutableDictionaryRef connectionRequestMap;
 }
 
 @property (nonatomic, retain) NSString *deviceId;
+@property (nonatomic, retain) DownloadManager *dlmanager;
+@property (nonatomic, retain) NSMutableDictionary *urlRequestMap;
 @property (nonatomic, retain) NSMutableArray *queryRequests;
 @property (nonatomic, retain) id delegate;
 

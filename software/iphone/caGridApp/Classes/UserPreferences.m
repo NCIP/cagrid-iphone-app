@@ -24,6 +24,7 @@
 	if (self = [super init]) {
         isClean = YES;
         self.favoriteServices = [NSMutableArray array]; 
+        self.favoriteHosts = [NSMutableArray array]; 
         self.selectedServices = [NSMutableDictionary dictionary]; 
    	}
 	return self;

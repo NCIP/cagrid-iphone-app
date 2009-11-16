@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <JSON/JSON.h>
 #import "Util.h"
+#import "DownloadManager.h"
 
 // TODO: Externalize this
 //#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10"
@@ -16,6 +17,9 @@
 
 @interface ServiceMetadata : NSObject {
     
+	@private DownloadManager *dlmanager;
+	@private NSURL *servicesUrl;
+    @private NSURL *hostsUrl;
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *servicesById;	
 	@private NSMutableDictionary *servicesByUrl;		
@@ -27,6 +31,9 @@
 	@private NSNumberFormatter *nf;
 }
 
+@property (nonatomic, retain) DownloadManager *dlmanager;
+@property (nonatomic, retain) NSURL *servicesUrl;
+@property (nonatomic, retain) NSURL *hostsUrl;
 @property (nonatomic, retain) NSMutableArray *services;
 @property (nonatomic, retain) NSMutableDictionary *servicesById;
 @property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
@@ -47,8 +54,6 @@
 
 - (void) loadHosts;
 
-//- (void) loadMetadataForService:(NSString *)serviceId;
-
 - (NSMutableArray *)getServices;
 
 - (NSMutableArray *)getHosts;
@@ -58,8 +63,6 @@
 - (NSMutableDictionary *)getHostById:(NSString *)hostId;
 
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl;
-
-//- (NSMutableDictionary *)getMetadataById:(NSString *)serviceId;
 
 - (NSMutableArray *)getServicesOfType:(DataType)dataType;
 
