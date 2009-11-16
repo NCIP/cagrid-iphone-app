@@ -7,7 +7,6 @@
 
 #import "DownloadManager.h"
 
-
 @interface Download : NSObject {
 	@private NSURL *url;
 	@private NSMutableData *receivedData;
@@ -120,7 +119,6 @@
 
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    
 	Download *dl = (Download *)CFDictionaryGetValue(connectionRequestMap, connection);
     
     if ([dl.delegate respondsToSelector:@selector(download:completedWithData:)]) {
