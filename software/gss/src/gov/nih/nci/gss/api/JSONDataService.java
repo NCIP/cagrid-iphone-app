@@ -434,9 +434,9 @@ public class JSONDataService extends HttpServlet {
         if (file.exists()) {
             hostObj.put("image_name", imageName);
         }
-        
+
         if (includeKey) {
-        	hostObj.put("key", imageName);
+        	hostObj.put("assigned_image_name", imageName);
         }
         
         // service host pocs
