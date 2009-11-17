@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -100,7 +99,7 @@ public class ImageService extends HttpServlet {
 					if (s != null) s.close();
 				}
 			}
-			else if (objId.matches("^[\\w]+$")) {
+			else if (objId.matches("^[\\w\\.]+$")) {
 				imageName = objId;
 			}
 			else {
@@ -117,13 +116,13 @@ public class ImageService extends HttpServlet {
     }
 
 	/**
-	 * Get the prefix of the image file name for the given host.
+	 * Get the image file name for the given host.
 	 * @param host
 	 * @return
 	 */
     public static String getHostImageName(HostingCenter host) {
 		return host.getLongName().replaceAll("\\W", " ").
-				replaceAll("\\s+", "_");
+				replaceAll("\\s+", "_")+fileExtension;
     }
     
 
@@ -133,7 +132,7 @@ public class ImageService extends HttpServlet {
 	 * @return
 	 */
     public static String getHostImageFilePath(String imageName) {
-		return GSSProperties.getHostImageDir()+fileSeparator+imageName+".png";
+		return GSSProperties.getHostImageDir()+fileSeparator+imageName;
     }
     
     /**
