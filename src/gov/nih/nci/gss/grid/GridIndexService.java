@@ -18,6 +18,7 @@ import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.util.Constants;
+import gov.nih.nci.gss.util.HibernateUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,7 +134,6 @@ public class GridIndexService {
 	}
 	
     public static GridService populateGridService(EndpointReferenceType serviceER, ServiceMetadata metadata, DomainModel model) {    	
-    	// TODO: Populate Grid Service
     	GridService newService = null;
     	
     	if (metadata != null && model != null) {
@@ -150,7 +150,8 @@ public class GridIndexService {
     	newService.setDescription(serviceData.getDescription());
     	newService.setVersion(serviceData.getVersion());
     	newService.setUrl(serviceER.getAddress().toString());
-    	newService.setSimpleName(translateServiceType(serviceData.getName()));
+    	newService.setSimpleName(null);    // Deferred to caller, not available in metadata
+    	newService.setPublishDate(null);    // Deferred to caller, not available in metadata
     	
     	// Get POC objects
 		newService.setPointOfContacts(populatePOCList(serviceData.getPointOfContactCollection().getPointOfContact()));
@@ -158,9 +159,12 @@ public class GridIndexService {
     	// Build Hosting Center object
 		newService.setHostingCenter(populateHostingCenter(metadata));
 		
+		newService.setStatusHistory(null); // Deferred to caller, not available in metadata
+		
 		// Build Domain Model object for data services
 		if (newService.getClass() == DataService.class) {
 			((DataService)newService).setDomainModel(populateDomainModel(model));
+			((DataService)newService).setGroup(null);  // Deferred to caller, not available in metadata
 		}
 		
     	logger.debug("Built GridService for " + newService.getName());
@@ -236,11 +240,6 @@ public class GridIndexService {
 		}
 		
 		return newCenter;
-	}
-
-	private static String translateServiceType(String name) {
-		// TODO Translate names
-		return name;
 	}
 
 	public static String getGridIndexServiceUrl() {

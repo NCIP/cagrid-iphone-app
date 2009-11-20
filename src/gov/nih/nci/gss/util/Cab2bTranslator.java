@@ -21,15 +21,13 @@ public class Cab2bTranslator {
 
     private static Logger log = Logger.getLogger(Cab2bTranslator.class);
     
-    private Map<String,String> serviceGroup2ModelGroup;	
-    private Map<String,String> modelGroup2ServiceGroup;
-    private Map<String,String> serviceGroup2PrimaryKey;
+    private HashMap<String, DataServiceGroup> byServiceGroup;	
+    private Map<String,DataServiceGroup> byModelGroup;
     
     public Cab2bTranslator(SessionFactory sessionFactory) {
 
-        this.serviceGroup2ModelGroup = new HashMap<String,String>();
-        this.modelGroup2ServiceGroup = new HashMap<String,String>();
-        this.serviceGroup2PrimaryKey = new HashMap<String,String>();
+        this.byServiceGroup = new HashMap<String,DataServiceGroup>();
+        this.byModelGroup = new HashMap<String,DataServiceGroup>();
 
         Session s = sessionFactory.openSession();
         try {
@@ -40,9 +38,8 @@ public class Cab2bTranslator {
             	log.info(group.getName()+" -> "+group.getCab2bName()+
             			" (primary key = "+group.getDataPrimaryKey()+")");
             	
-            	serviceGroup2ModelGroup.put(group.getName(), group.getCab2bName());
-            	modelGroup2ServiceGroup.put(group.getCab2bName(), group.getName());
-            	serviceGroup2PrimaryKey.put(group.getName(), group.getDataPrimaryKey());
+            	byServiceGroup.put(group.getName(), group);
+            	byModelGroup.put(group.getCab2bName(), group);
             }
         }
         finally {
@@ -51,15 +48,19 @@ public class Cab2bTranslator {
     }
 	
 	public String getServiceGroupForModelGroup(String modelGroup) {
-		return modelGroup2ServiceGroup.get(modelGroup);
+		return byModelGroup.get(modelGroup).getName();
 	}
 	
 	public String getModelGroupForServiceGroup(String scope) {
-		return serviceGroup2ModelGroup.get(scope);
+		return byServiceGroup.get(scope).getCab2bName();
 	}
 	
 	public String getPrimaryKeyForServiceGroup(String scope) {
-		return serviceGroup2PrimaryKey.get(scope);
+		return byServiceGroup.get(scope).getDataPrimaryKey();
+	}
+	
+	public DataServiceGroup getServiceGroupObj(String scope) {
+		return byServiceGroup.get(scope);
 	}
 	
 }

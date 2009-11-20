@@ -8,6 +8,7 @@ import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
+import gov.nih.nci.gss.util.GridServiceDAO;
 import gov.nih.nci.gss.util.Cab2bTranslator;
 import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.StringUtil;
@@ -113,7 +114,6 @@ public class JSONDataService extends HttpServlet {
             
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
-            
             this.namingUtil = new NamingUtil(sessionFactory);
             
         }
@@ -367,9 +367,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("name", service.getName());
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
-        // TODO: move this into the scheduled job
-        jsonService.put("simple_name", namingUtil.getSimpleName(service.getName()));
-        //jsonService.put("simple_name", service.getSimpleName());
+        jsonService.put("simple_name", service.getSimpleName());
         jsonService.put("url", service.getUrl());
 
         HostingCenter host = service.getHostingCenter();
@@ -470,20 +468,8 @@ public class JSONDataService extends HttpServlet {
         JSONObject json = new JSONObject();
         
         try {
-            // Create the HQL query
-            StringBuffer hql = new StringBuffer(GET_SERVICE_HQL_SELECT);
-            hql.append(GET_SERVICE_HQL_JOIN_STATUS);
-            hql.append("left join fetch service.hostingCenter ");
-            if (includeModel) hql.append("left join fetch service.domainModel ");
-            hql.append(GET_SERVICE_HQL_WHERE_STATUS);
-            if (serviceId != null) hql.append("and service.id = ?");
-            
-            // Create the Hibernate Query
-            Query q = s.createQuery(hql.toString());
-            if (serviceId != null) q.setString(0, serviceId);
-            
-            // Execute the query
-            List<GridService> services = q.list();
+            // Retrieve the list of services
+            Collection<GridService> services = GridServiceDAO.getServices(serviceId, includeModel, sessionFactory);
             
             JSONArray jsonArray = new JSONArray();
             json.put("services", jsonArray);

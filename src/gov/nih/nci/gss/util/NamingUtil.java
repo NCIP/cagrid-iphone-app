@@ -22,6 +22,7 @@ public class NamingUtil {
     private static Logger log = Logger.getLogger(NamingUtil.class);
     
     private Map<String,String> simpleNameMap = new LinkedHashMap<String,String>();
+    private Map<String,String> modelGroupMap = new LinkedHashMap<String,String>();
     
     public NamingUtil(SessionFactory sessionFactory) {
 
@@ -38,6 +39,11 @@ public class NamingUtil {
         finally {
             s.close();
         }
+        
+        // TODO: Update the SimpleName class to have a mapping to model group also
+        modelGroupMap.put("caArray", "microarray");
+        modelGroupMap.put("caTissue", "biospecimen");
+        modelGroupMap.put("NCIA_Model", "imaging");
     }
     
     /**
@@ -46,7 +52,7 @@ public class NamingUtil {
      * @param originalName a name to simplify
      * @return simple name
      */
-    public String getSimpleName(String originalName) {
+   public String getSimpleName(String originalName) {
         
         for (String pattern : simpleNameMap.keySet()) {
             Pattern p = Pattern.compile(pattern.replaceAll("\\*", ".*?"));
@@ -62,4 +68,8 @@ public class NamingUtil {
         return originalName;
     } 
     
+   public String getModelGroup(String simpleName) {
+       return modelGroupMap.get(simpleName);
+   }
+   
 }
