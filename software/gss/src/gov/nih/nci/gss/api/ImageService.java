@@ -2,6 +2,8 @@ package gov.nih.nci.gss.api;
 
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.util.GSSProperties;
+import gov.nih.nci.gss.util.GridServiceDAO;
+import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
 
 import java.io.File;
@@ -80,20 +82,17 @@ public class ImageService extends HttpServlet {
 				try {
 					s = sessionFactory.openSession();
 
-		            // Create the Hibernate Query
-		            StringBuffer hql = new StringBuffer(JSONDataService.GET_HOST_HQL_SELECT);
-		            hql.append("where host.id = ?");
-		            Query q = s.createQuery(hql.toString());
-		            q.setString(0, objId);
-		            
-		            // Execute the query
-		            List<HostingCenter> hosts = q.list();
+		            // Get list of hosting centers
+		            List<HostingCenter> hosts = GridServiceDAO.getHosts(objId, s);
 		            
 		            if (hosts.isEmpty()) {
 			            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		            	return;
 		            }
 					imageName = getHostImageName(hosts.get(0));
+				}
+				catch (ApplicationException e) {
+					log.error("Unexpected exception getting hosts for object id: " + objId);
 				}
 				finally {
 					if (s != null) s.close();

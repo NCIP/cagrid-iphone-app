@@ -72,22 +72,6 @@ public class JSONDataService extends HttpServlet {
      * Must match the data format used by the iPhone client */
     public static final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz");
 
-    public static final String GET_SERVICE_HQL_SELECT = 
-             "select service from gov.nih.nci.gss.domain.GridService service ";
-
-    public static final String GET_SERVICE_HQL_JOIN_STATUS = 
-            "left join fetch service.statusHistory status ";
-        
-    public static final String GET_SERVICE_HQL_WHERE_STATUS = 
-             "where ((status.changeDate is null) or (status.changeDate = (" +
-             "  select max(changeDate) " +
-             "  from gov.nih.nci.gss.domain.StatusChange s " +
-             "  where s.gridService = service " +
-             "))) ";
-
-    public static final String GET_HOST_HQL_SELECT = 
-             "select host from gov.nih.nci.gss.domain.HostingCenter host ";
-    
     /** JSON string describing the usage of this service */
     private String usage;
     
@@ -257,7 +241,7 @@ public class JSONDataService extends HttpServlet {
                 
                 for(String serviceId : serviceIds) {
                     
-                    String hql = GET_SERVICE_HQL_SELECT+" where service.id = ?";
+                    String hql = GridServiceDAO.GET_SERVICE_HQL_SELECT+" where service.id = ?";
                     List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
                     
                     if (services.isEmpty()) {
@@ -469,7 +453,7 @@ public class JSONDataService extends HttpServlet {
         
         try {
             // Retrieve the list of services
-            Collection<GridService> services = GridServiceDAO.getServices(serviceId, includeModel, sessionFactory);
+            Collection<GridService> services = GridServiceDAO.getServices(serviceId, includeModel, s);
             
             JSONArray jsonArray = new JSONArray();
             json.put("services", jsonArray);
@@ -557,16 +541,8 @@ public class JSONDataService extends HttpServlet {
         JSONObject json = new JSONObject();
         
         try {
-            // Create the HQL query
-            StringBuffer hql = new StringBuffer(GET_HOST_HQL_SELECT);
-            if (hostId != null) hql.append("where host.id = ?");
-            
-            // Create the Hibernate Query
-            Query q = s.createQuery(hql.toString());
-            if (hostId != null) q.setString(0, hostId);
-            
-            // Execute the query
-            List<HostingCenter> hosts = q.list();
+        	// Get the list of hosts
+            Collection<HostingCenter> hosts = GridServiceDAO.getHosts(hostId, s);
             
             JSONArray jsonArray = new JSONArray();
             json.put("hosts", jsonArray);
