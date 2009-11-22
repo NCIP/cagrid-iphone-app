@@ -17,19 +17,16 @@ import gov.nih.nci.gss.util.HibernateUtil;
 import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
@@ -49,17 +46,9 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	private static Logger logger = Logger
 			.getLogger(GridDiscoveryServiceJob.class.getName());
 
-	private static Set<GridService> gridNodes = Collections
-			.synchronizedSet(new HashSet<GridService>());
-	
-    private static NamingUtil namingUtil = null;
+	private static NamingUtil namingUtil = null;
     private static Cab2bTranslator xlateUtil = null;
 
-	private static Session hibernateSession = null;
-
-    private static final String SERVICE_HQL_DELETE = 
-        "delete from gov.nih.nci.gss.GridService service";
-    
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
 
@@ -71,44 +60,26 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 
-		hibernateSession = HibernateUtil.getSessionFactory().openSession();
-		
-		populateAllServices();
+		Map<String,GridService> gridNodes = populateServicesFromIndex();
 
 		// Update services as necessary or add new ones
-		syncServices();
-		
-        // Delete all current grid services
-        //Query q = hibernateSession.createQuery(SERVICE_HQL_DELETE);
-        //q.executeUpdate();
-
-        for (GridService gs : gridNodes) {
-			logger.info("Saving GridService: " + gs.getName());
-			createService(gs);
-		}
-		hibernateSession.close();
+		updateGssServices(gridNodes);
 	}
 
-	/**
-	 * @return the gridNodeList
-	 */
-	public List<GridService> getGridNodeList() {
-		if (gridNodes.isEmpty()) {
-			populateAllServices();
-		}
-		return new ArrayList<GridService>(gridNodes);
-	}
-
-	public void populateAllServices() {
-		gridNodes = populateRemoteServices();
+	public Map<String,GridService> populateServicesFromIndex() {
+		return populateRemoteServices();
 	}
 
 	/**
 	 * @return List<GridNodeBean>
 	 */
-	private Set<GridService> populateRemoteServices() {
+	private Map<String,GridService> populateRemoteServices() {
+
+		// Build a hash on URL for GridServices
+		HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
+
 		logger.debug("Refreshing Grid Nodes via discoverServices");
-		Set<GridService> myGridServiceSet = new HashSet<GridService>();
+
 		// auto-discover grid nodes and save in session
 		List<GridService> list = null;
 		try {
@@ -119,31 +90,17 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			list = null;
 		}
 		if (list != null) {
-			myGridServiceSet.addAll(list);
+			for (GridService service : list) {
+				serviceMap.put(service.getUrl(), service);
+			}
 		}
-		return myGridServiceSet;
+		return serviceMap;
 	}
 
-	private static void createService(GridService service) {
+	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
-		Transaction tx = null;
-		
-		// Mark this service as published/discovered now.  Also, give it a default status change of "up".
-		// TODO: Is there a better "publish date" in the service metadata?
-		service.setPublishDate(new Date());
-		StatusChange sc = populateStatusChange(service, true);
-		Collection<StatusChange> scList = new HashSet<StatusChange>();
-		scList.add(sc);
-		service.setStatusHistory(scList);
+		logger.info("Saving GridService: " + service.getName());
 
-		// Set up service simple name and linkage to correct caB2B model group
-    	service.setSimpleName(translateServiceType(service.getName()));
-		if (service.getClass() == DataService.class) {
-			DataServiceGroup newGroup = populateDataServiceGroup((DataService)service);
-			((DataService)service).setGroup(newGroup);
-		}
-
-		
 		try {
 			// Save in the following order:
 			//   - All POCs
@@ -160,27 +117,25 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			}
 	
 			//   - All Domain Models (TBD)
+			if (service.getClass() == DataService.class) {
+				hibernateSession.save(((DataService)service).getDomainModel());
+			}
 			//   - All Grid Services
 			hibernateSession.save(service);
 			//   - All Status Changes
-			hibernateSession.save(sc);
+			if (sc != null) {
+				hibernateSession.save(sc);
+			}
 			//   - All Domain Classes (TBD)
 		
-			tx.commit();
 		} catch (ConstraintViolationException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
 			logger.warn("Duplicate grid service found: " + service.getUrl());
 		} catch (RuntimeException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
 			logger.warn("Unable to save GridService: " + e.getMessage());
 		}
 	}
 
-	private static DataServiceGroup populateDataServiceGroup(DataService service) {
+	private DataServiceGroup populateDataServiceGroup(DataService service) {
 		DataServiceGroup newGroup = null;
 		
 		if (namingUtil == null) {
@@ -208,38 +163,126 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		return newSC;
 	}
 
-	private static void syncServices() {
+	private void updateGssServices(Map<String,GridService> gridNodes) {
+
+		StatusChange newSC = null;
+		
+		Transaction tx = null;
+		
+		Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+		
 		try {
-			Collection<GridService> currentServices = GridServiceDAO.getServices(null,true,HibernateUtil.getSessionFactory());
+			tx = hibernateSession.beginTransaction();
+			
+			Collection<GridService> currentServices = GridServiceDAO.getServices(null,false,hibernateSession);
 			// Build a hash on URL for GridServices
 			HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
 			for (GridService service : currentServices) {
 				serviceMap.put(service.getUrl(), service);
 			}
 			
-			// Walk the list of gridNodes and update the current services where necessary
-			for (GridService service : gridNodes) {
+			Collection<HostingCenter> currentHosts = GridServiceDAO.getHosts(null,hibernateSession);
+			// Build a hash on hosting center long name for HostingCenters
+			HashMap<String,HostingCenter> hostMap = new HashMap<String,HostingCenter>();
+			for (HostingCenter host : currentHosts) {
+				hostMap.put(host.getLongName(), host);
+			}
+			
+			// Walk the list of gridNodes and update the current services and hosting centers where necessary
+			for (GridService service : gridNodes.values()) {
 				if (serviceMap.containsKey(service.getUrl())) {
 					// This service is already in the list of current services
 					GridService matchingSvc = serviceMap.get(service.getUrl());
+					
+					// Update any new data about this service
+					matchingSvc = updateServiceData(matchingSvc, service);
+					
+					// Make sure the hosting center exists and is up to date
+					HostingCenter thisHC = service.getHostingCenter();
+					if (hostMap.containsKey(thisHC.getLongName())) {
+						HostingCenter matchingHost = hostMap.get(thisHC.getLongName());
+						matchingHost = updateHostData(matchingHost, thisHC);
+						matchingSvc.setHostingCenter(matchingHost);
+					}
+
+					// Check to see if this service is active once again
 					Collection<StatusChange> changes = matchingSvc.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_INACTIVE.equals(mostRecentChange.getNewStatus())) {
 						// Service was marked as inactive, need to make it active now
-						mostRecentChange = populateStatusChange(service, true);
-						matchingSvc.getStatusHistory().add(mostRecentChange);
+						newSC = populateStatusChange(matchingSvc, true);
+						matchingSvc.getStatusHistory().add(newSC);
 					}
+
+					saveService(matchingSvc,newSC,hibernateSession);
 				} else {
-					// This is a new service
-					createService(service);
+					// This is a new service.
+					// Check to see if the hosting center already exists.
+					HostingCenter thisHC = service.getHostingCenter();
+					if (hostMap.containsKey(thisHC.getLongName())) {
+						HostingCenter matchingHost = hostMap.get(thisHC.getLongName());
+						matchingHost = updateHostData(matchingHost, thisHC);
+						service.setHostingCenter(matchingHost);
+					}
+					
+					// Mark this service as published/discovered now.  Also, give it a default status change of "up".
+					// TODO: Is there a better "publish date" in the service metadata?
+					service.setPublishDate(new Date());
+					StatusChange sc = populateStatusChange(service, true);
+					Collection<StatusChange> scList = new HashSet<StatusChange>();
+					scList.add(sc);
+					service.setStatusHistory(scList);
+
+					// Set up service simple name and linkage to correct caB2B model group
+			    	service.setSimpleName(translateServiceType(service.getName()));
+					if (service.getClass() == DataService.class) {
+						DataServiceGroup newGroup = populateDataServiceGroup((DataService)service);
+						((DataService)service).setGroup(newGroup);
+						// TODO: When should this be true?
+						((DataService)service).setSearchDefault(false);
+					}
+					
+					saveService(service,sc,hibernateSession);
 				}
 			}
 			
 			// TODO: Walk the list of currentServices and remove those not in gridNodes
+			for (GridService service : currentServices) {
+				if (!gridNodes.containsKey(service.getUrl())) {
+					// Check to see if this service is active once again
+					Collection<StatusChange> changes = service.getStatusHistory();
+					StatusChange mostRecentChange = changes.iterator().next();
+					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
+						// Service was marked as inactive, need to make it active now
+						newSC = populateStatusChange(service, true);
+						service.getStatusHistory().add(newSC);
+						saveService(service,newSC,hibernateSession);
+					}
+				}
+			}
+
+			tx.commit();
 		} catch (ApplicationException e) {
-			// TODO Auto-generated catch block
+			if (tx != null) {
+				tx.rollback();
+			}
 			e.printStackTrace();
 		}
+		finally {
+			hibernateSession.close();
+		}
+	}
+
+	private HostingCenter updateHostData(HostingCenter matchingHost,
+			HostingCenter thisHC) {
+		// TODO Auto-generated method stub
+		return matchingHost;
+	}
+
+	private GridService updateServiceData(GridService matchingSvc,
+			GridService service) {
+		// TODO Auto-generated method stub
+		return matchingSvc;
 	}
 
 	private static String translateServiceType(String name) {
