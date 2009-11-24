@@ -27,38 +27,70 @@ public class Cab2bAPI {
     
     private Cab2bTranslator cab2bTranslator;
     
-    public Cab2bAPI(Cab2bTranslator cab2bTranslator) throws Exception {
+    public Cab2bAPI(Cab2bTranslator cab2bTranslator) {
     	this.cab2bTranslator = cab2bTranslator;
+    }
+    
+    public class Cab2bService {
+   
+        private String url;
+        private String modelGroupName;
+        private boolean searchDefault;
+        
+        public Cab2bService(String url, String modelGroupName,
+                boolean searchDefault) {
+            this.url = url;
+            this.modelGroupName = modelGroupName;
+            this.searchDefault = searchDefault;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+        
+        public String getModelGroupName() {
+            return modelGroupName;
+        }
+        
+        public boolean isSearchDefault() {
+            return searchDefault;
+        }
     }
 	
 	/**
-	 * Queries caB2B and returns a mapping service group names to lists of 
-	 * services in each group.
+	 * Queries caB2B and returns a mapping of service URLs to Cab2bServices.
 	 * @return
 	 * @throws Exception
 	 */
-    public Map<String,List<String>> getServiceGroups() throws Exception {
+    public Map<String,Cab2bService> getServices() throws Exception {
     	
-    	Map<String,List<String>> groups = new HashMap<String,List<String>>();
+        Map<String,Cab2bService> services = new HashMap<String,Cab2bService>();
     	DefaultHttpClient httpclient = new DefaultHttpClient();
         
         try {
-            String url = GSSProperties.getCab2b2QueryURL()+"/services";
-            HttpGet httpget = new HttpGet(url);
+            String queryURL = GSSProperties.getCab2b2QueryURL()+"/services";
+            HttpGet httpget = new HttpGet(queryURL);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             String result = httpclient.execute(httpget, responseHandler);
             JSONObject json = new JSONObject(result);
             
         	for(Iterator i = json.keys(); i.hasNext(); ) {
         		String modelGroupName = (String)i.next();
-            	String serviceGroup = cab2bTranslator.getServiceGroupForModelGroup(modelGroupName);
-            	
-        		List<String> serviceList = new ArrayList<String>();
-        		groups.put(serviceGroup, serviceList);
-        		
         		JSONArray urls = json.getJSONArray(modelGroupName);
         		for(int k=0; k<urls.length(); k++) {
-        			serviceList.add(urls.getString(k));
+        		    JSONObject jsonService = urls.getJSONObject(k);
+        		    
+        		    String serviceURL = jsonService.getString("url");
+        		    
+        		    boolean searchDefault = false;
+        		    if (jsonService.has(serviceURL)) {
+        		        searchDefault = "true".equals(jsonService.getString(serviceURL));
+        		    }
+        		    
+        		    Cab2bService service = new Cab2bService(
+        		        serviceURL, modelGroupName, searchDefault);
+        		    
+        		    services.put(serviceURL, service);
         		}
         	}
         }
@@ -66,7 +98,7 @@ public class Cab2bAPI {
         	httpclient.getConnectionManager().shutdown();
         }
         
-        return groups;
+        return services;
     }
 
     /**
@@ -102,5 +134,5 @@ public class Cab2bAPI {
         	httpclient.getConnectionManager().shutdown();
         }
     }
-
+    
 }
