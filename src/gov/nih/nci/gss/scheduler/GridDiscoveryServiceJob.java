@@ -19,6 +19,7 @@ import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.Cab2bAPI.Cab2bService;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,7 +114,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
-		logger.info("Saving GridService: " + service.getName());
+		logger.info("    - Saving GridService: " + service.getName());
 
 		try {
 			// Save in the following order:
@@ -126,8 +127,17 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 				for (PointOfContact POC : hc.getPointOfContacts()) {
 					hibernateSession.save(POC);
 				}
-				//   - All Hosting Centers
-				hibernateSession.save(hc);
+
+                //   - All Hosting Centers
+				
+				if (hc.getId() == null) {
+				    logger.info("    - Saving Host "+hc.getLongName());
+				    // Hosting center has not been saved yet
+	                Long id = (Long)hibernateSession.save(hc);
+	                hc.setId(id);
+                    logger.info("    - Saved Host as "+id);
+				}
+				
 			}
 	
 			//   - All Domain Models (TBD)
@@ -188,12 +198,26 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			// Walk the list of gridNodes and update the current services and hosting centers where necessary
 			for (GridService service : gridNodes.values()) {
 
+                logger.info("SAVE: "+service.getUrl());
+                
                 // Standardize the host long name
                 HostingCenter thisHC = service.getHostingCenter();
-                String hostLongName = namingUtil.getSimpleHostName(thisHC.getLongName());
-                thisHC.setLongName(hostLongName);
+                String hostLongName = null;
+                if (thisHC != null) {
+                    hostLongName = namingUtil.getSimpleHostName(thisHC.getLongName());
+                    
+                    // The trim is important because MySQL will consider two
+                    // strings equal if the only difference is trailing whitespace
+                    hostLongName = hostLongName.trim();
+                    
+                    if (!thisHC.getLongName().equals(hostLongName)) {
+                        logger.info("  Changing host name: "+thisHC.getLongName()+" -> "+hostLongName);
+                    }
+                    thisHC.setLongName(hostLongName);
+                }
                 
 				if (serviceMap.containsKey(service.getUrl())) {
+				    logger.info("  Service already exists");
 					// This service is already in the list of current services
 					GridService matchingSvc = serviceMap.get(service.getUrl());
 					
@@ -201,11 +225,16 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					matchingSvc = updateServiceData(matchingSvc, service);
 					
 	                // Make sure the hosting center exists and is up to date
-					if (hostMap.containsKey(hostLongName)) {
-						HostingCenter matchingHost = hostMap.get(hostLongName);
-						matchingHost = updateHostData(matchingHost, thisHC);
-						matchingSvc.setHostingCenter(matchingHost);
-					}
+	                if (thisHC != null) {
+    					if (hostMap.containsKey(hostLongName)) {
+    						HostingCenter matchingHost = hostMap.get(hostLongName);
+    						matchingHost = updateHostData(matchingHost, thisHC);
+    						matchingSvc.setHostingCenter(matchingHost);
+    					}
+    					else {
+    		                hostMap.put(hostLongName, thisHC);
+    					}
+	                }
 
 					// Check to see if this service is active once again
 					Collection<StatusChange> changes = matchingSvc.getStatusHistory();
@@ -219,13 +248,21 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					saveService(matchingSvc,newSC,hibernateSession);
 					
 				} else {
+                    logger.info("  New service");
 					// This is a new service.
 					// Check to see if the hosting center already exists.
-					if (hostMap.containsKey(hostLongName)) {
-						HostingCenter matchingHost = hostMap.get(hostLongName);
-						matchingHost = updateHostData(matchingHost, thisHC);
-						service.setHostingCenter(matchingHost);
-					}
+				    if (thisHC != null) {
+    					if (hostMap.containsKey(hostLongName)) {
+    						HostingCenter matchingHost = hostMap.get(hostLongName);
+    						matchingHost = updateHostData(matchingHost, thisHC);
+    						service.setHostingCenter(matchingHost);
+                            logger.info("    Using Host: "+matchingHost.getId()+" "+matchingHost.getLongName());
+    					}
+                        else {
+                            hostMap.put(hostLongName, thisHC);
+                            logger.info("    New Host: "+thisHC.getId()+" "+thisHC.getLongName());
+                        }
+				    }
 					
 					// Mark this service as published/discovered now.  Also, give it a default status change of "up".
 					// TODO: Is there a better "publish date" in the service metadata?
