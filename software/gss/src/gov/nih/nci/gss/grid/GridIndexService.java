@@ -17,9 +17,8 @@ import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
-import gov.nih.nci.gss.util.Constants;
 import gov.nih.nci.gss.util.GSSProperties;
-import gov.nih.nci.gss.util.HibernateUtil;
+import gov.nih.nci.gss.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -210,7 +209,13 @@ public class GridIndexService {
 				name = name + " " + POC.getLastName();
 			}
 			newPOC.setName(name);
-			POClist.add(newPOC);
+			
+			if (!StringUtil.isEmpty(newPOC.getName()) 
+			        || !StringUtil.isEmpty(newPOC.getEmail()) 
+			        || !StringUtil.isEmpty(newPOC.getAffiliation())
+			        || !StringUtil.isEmpty(newPOC.getRole())) {
+			    POClist.add(newPOC);
+			}
 		}
 		return POClist;
 	}
@@ -235,6 +240,10 @@ public class GridIndexService {
 			newCenter.setStreet(streetAddr);
 			newCenter.setLongName(center.getDisplayName());
 			newCenter.setShortName(center.getShortName());
+			
+            if (StringUtil.isEmpty(newCenter.getLongName())) {
+                return null;
+            }
 			
 			// Build Hosting Center POCs
 			newCenter.setPointOfContacts(populatePOCList(center.getPointOfContactCollection().getPointOfContact()));
