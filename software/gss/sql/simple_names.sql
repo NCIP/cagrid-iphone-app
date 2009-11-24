@@ -19,3 +19,6 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","Global
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","GridGrouper","Grid Grouper");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","CredentialDelegationService","Credential Delegation");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","FederatedQueryProcessor","Federated Query Processor ");
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","NCI(\\s)?CB(IIT)?","NCI Center for Biomedical Informatics and Information Technology");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","National Cancer Institute Center for Bioinformatics - NCICB","NCI Center for Biomedical Informatics and Information Technology");
