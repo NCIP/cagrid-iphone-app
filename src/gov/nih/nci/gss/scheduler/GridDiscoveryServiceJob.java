@@ -3,18 +3,20 @@
  */
 package gov.nih.nci.gss.scheduler;
 
-import gov.nih.nci.gss.domain.DataServiceGroup;
 import gov.nih.nci.gss.domain.DataService;
+import gov.nih.nci.gss.domain.DataServiceGroup;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
+import gov.nih.nci.gss.util.Cab2bAPI;
 import gov.nih.nci.gss.util.Cab2bTranslator;
 import gov.nih.nci.gss.util.GridServiceDAO;
 import gov.nih.nci.gss.util.HibernateUtil;
 import gov.nih.nci.gss.util.NamingUtil;
+import gov.nih.nci.gss.util.Cab2bAPI.Cab2bService;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
 import java.util.Collection;
@@ -46,12 +48,13 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	private static Logger logger = Logger
 			.getLogger(GridDiscoveryServiceJob.class.getName());
 
-	private static NamingUtil namingUtil = null;
-    private static Cab2bTranslator xlateUtil = null;
-
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
-
+    
+    private Cab2bTranslator xlateUtil = null;
+    private NamingUtil namingUtil = null;
+    private Map<String,Cab2bService> cab2bServices = null;
+    
     /*
 	 * (non-Javadoc)
 	 * 
@@ -62,6 +65,17 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 		Map<String,GridService> gridNodes = populateServicesFromIndex();
 
+		try {
+	        this.xlateUtil = new Cab2bTranslator(HibernateUtil.getSessionFactory());
+            this.namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
+	        Cab2bAPI cab2bAPI = new Cab2bAPI(xlateUtil);
+	        this.cab2bServices = cab2bAPI.getServices();
+		}
+		catch (Exception e) {
+		    throw new JobExecutionException(
+		        "Could not retrieve caB2B services",e,true);
+		}
+		
 		// Update services as necessary or add new ones
 		updateGssServices(gridNodes);
 	}
@@ -135,23 +149,6 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		}
 	}
 
-	private DataServiceGroup populateDataServiceGroup(DataService service) {
-		DataServiceGroup newGroup = null;
-		
-		if (namingUtil == null) {
-			namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
-		}
-		if (xlateUtil == null) {
-			xlateUtil = new Cab2bTranslator(HibernateUtil.getSessionFactory());
-		}
-		String b2bModelGroup = namingUtil.getModelGroup(service.getSimpleName());
-
-		if (b2bModelGroup != null) {
-			newGroup = xlateUtil.getServiceGroupObj(b2bModelGroup);
-		}
-		return newGroup;
-	}
-
 	private static StatusChange populateStatusChange(GridService service, Boolean isActive) {
 
 		StatusChange newSC = new StatusChange();
@@ -190,6 +187,12 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			
 			// Walk the list of gridNodes and update the current services and hosting centers where necessary
 			for (GridService service : gridNodes.values()) {
+
+                // Standardize the host long name
+                HostingCenter thisHC = service.getHostingCenter();
+                String hostLongName = namingUtil.getSimpleHostName(thisHC.getLongName());
+                thisHC.setLongName(hostLongName);
+                
 				if (serviceMap.containsKey(service.getUrl())) {
 					// This service is already in the list of current services
 					GridService matchingSvc = serviceMap.get(service.getUrl());
@@ -197,10 +200,9 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					// Update any new data about this service
 					matchingSvc = updateServiceData(matchingSvc, service);
 					
-					// Make sure the hosting center exists and is up to date
-					HostingCenter thisHC = service.getHostingCenter();
-					if (hostMap.containsKey(thisHC.getLongName())) {
-						HostingCenter matchingHost = hostMap.get(thisHC.getLongName());
+	                // Make sure the hosting center exists and is up to date
+					if (hostMap.containsKey(hostLongName)) {
+						HostingCenter matchingHost = hostMap.get(hostLongName);
 						matchingHost = updateHostData(matchingHost, thisHC);
 						matchingSvc.setHostingCenter(matchingHost);
 					}
@@ -215,12 +217,12 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					}
 
 					saveService(matchingSvc,newSC,hibernateSession);
+					
 				} else {
 					// This is a new service.
 					// Check to see if the hosting center already exists.
-					HostingCenter thisHC = service.getHostingCenter();
-					if (hostMap.containsKey(thisHC.getLongName())) {
-						HostingCenter matchingHost = hostMap.get(thisHC.getLongName());
+					if (hostMap.containsKey(hostLongName)) {
+						HostingCenter matchingHost = hostMap.get(hostLongName);
 						matchingHost = updateHostData(matchingHost, thisHC);
 						service.setHostingCenter(matchingHost);
 					}
@@ -234,12 +236,23 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					service.setStatusHistory(scList);
 
 					// Set up service simple name and linkage to correct caB2B model group
-			    	service.setSimpleName(translateServiceType(service.getName()));
-					if (service.getClass() == DataService.class) {
-						DataServiceGroup newGroup = populateDataServiceGroup((DataService)service);
-						((DataService)service).setGroup(newGroup);
-						// TODO: When should this be true?
-						((DataService)service).setSearchDefault(false);
+			    	service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+
+					if (service instanceof DataService) {
+					    DataService dataService = (DataService)service;
+					    
+	                    // Do not select for search by default
+					    dataService.setSearchDefault(false);
+					    
+					    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
+					    if (cab2bService != null) {
+					        // Translate the caB2B model group to a service group
+					        DataServiceGroup group = xlateUtil.getServiceGroupObj(
+					                cab2bService.getModelGroupName());
+					        // Populate service attributes
+					        dataService.setGroup(group);
+					        dataService.setSearchDefault(cab2bService.isSearchDefault());
+					    }
 					}
 					
 					saveService(service,sc,hibernateSession);
@@ -283,12 +296,5 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			GridService service) {
 		// TODO Auto-generated method stub
 		return matchingSvc;
-	}
-
-	private static String translateServiceType(String name) {
-		if (namingUtil == null) {
-			namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
-		}
-		return namingUtil.getSimpleName(name);
 	}
 }
