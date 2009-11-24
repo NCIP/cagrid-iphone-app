@@ -58,7 +58,11 @@ public class Cab2bTranslator {
 	public String getPrimaryKeyForServiceGroup(String scope) {
 		return byServiceGroup.get(scope).getDataPrimaryKey();
 	}
-	
+
+    public String getHostKeyForServiceGroup(String scope) {
+        return byServiceGroup.get(scope).getHostPrimaryKey();
+    }
+    
 	public DataServiceGroup getServiceGroupObj(String scope) {
 		return byServiceGroup.get(scope);
 	}
