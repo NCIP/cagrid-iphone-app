@@ -31,7 +31,8 @@ CREATE TABLE `DATA_SERVICE_GROUP` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(512) NOT NULL,
   `CAB2B_NAME` varchar(512) NOT NULL,
-  `DATA_PRIMARY_KEY` varchar(512) NOT NULL,
+  `DATA_PRIMARY_KEY` varchar(512),
+  `HOST_PRIMARY_KEY` varchar(512),  
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -124,6 +125,7 @@ CREATE TABLE `SIMPLE_NAME` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `PATTERN` varchar(512) default NULL,
   `SIMPLE_NAME` varchar(512) default NULL,
+  `TYPE` varchar(512) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
