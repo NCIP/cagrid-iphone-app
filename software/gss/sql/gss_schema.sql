@@ -29,7 +29,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `DATA_SERVICE_GROUP` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(512) NOT NULL,
+  `NAME` varchar(512) NOT NULL UNIQUE,
   `CAB2B_NAME` varchar(512) NOT NULL,
   `DATA_PRIMARY_KEY` varchar(512),
   `HOST_PRIMARY_KEY` varchar(512),  
@@ -74,9 +74,9 @@ CREATE TABLE `HOSTING_CENTER` (
   `ID` bigint(20) NOT NULL,
   `COUNTRY_CODE` varchar(255) default NULL,
   `LOCALITY` varchar(255) default NULL,
-  `LONG_NAME` varchar(255) default NULL,
+  `LONG_NAME` varchar(255) NOT NULL UNIQUE,
   `POSTAL_CODE` varchar(255) default NULL,
-  `SHORT_NAME` varchar(255) default NULL,
+  `SHORT_NAME` varchar(255) NOT NULL,
   `STATE_PROVINCE` varchar(255) default NULL,
   `STREET` varchar(255) default NULL,
   PRIMARY KEY  (`ID`)
@@ -123,8 +123,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `SIMPLE_NAME` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `PATTERN` varchar(512) default NULL,
-  `SIMPLE_NAME` varchar(512) default NULL,
+  `PATTERN` varchar(512) NOT NULL UNIQUE,
+  `SIMPLE_NAME` varchar(512) NOT NULL,
   `TYPE` varchar(512) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
