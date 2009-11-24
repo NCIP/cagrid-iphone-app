@@ -8,8 +8,8 @@ import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
-import gov.nih.nci.gss.util.GridServiceDAO;
 import gov.nih.nci.gss.util.Cab2bTranslator;
+import gov.nih.nci.gss.util.GridServiceDAO;
 import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.json.JSONArray;
@@ -52,9 +51,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class JSONDataService extends HttpServlet {
 
     private static Logger log = Logger.getLogger(JSONDataService.class);
-
-    // TODO: externalize this
-    private static final String HOST_KEY = "Hosting Institution";
     
     private enum Verb {
     	GET,
@@ -83,9 +79,7 @@ public class JSONDataService extends HttpServlet {
     
     /** Translates caB2B names to GSS names */
     private Cab2bTranslator cab2bTranslator;
-    
-    private NamingUtil namingUtil;
-    
+        
     @Override
     public void init() throws ServletException {
         
@@ -95,10 +89,8 @@ public class JSONDataService extends HttpServlet {
             this.sessionFactory = ((ORMDAOImpl)ctx.getBean("ORMDAO")).getHibernateTemplate().getSessionFactory();
             this.cab2bTranslator = new Cab2bTranslator(sessionFactory);
             this.queryService = new QueryService(cab2bTranslator);
-            
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
-            this.namingUtil = new NamingUtil(sessionFactory);
             
         }
         catch (Exception e) {
@@ -190,7 +182,7 @@ public class JSONDataService extends HttpServlet {
             if (pathList.length > 2) {
                 id = pathList[2];
             }
-
+            
             boolean includeMetadata = "1".equals(request.getParameter("metadata"));
             boolean includeHost = "1".equals(request.getParameter("host"));
             boolean includeModel = "1".equals(request.getParameter("model"));
@@ -319,7 +311,7 @@ public class JSONDataService extends HttpServlet {
                 }
                 
                 // Block until the query is completed
-                synchronized (query) {
+                synchronized (query) {  
                     try {
                         log.info("Blocking until query is complete: "+jobId);
                         query.wait();
@@ -596,6 +588,7 @@ public class JSONDataService extends HttpServlet {
         	
         	// the key to discriminate on for duplicates
         	String primaryKey = cab2bTranslator.getPrimaryKeyForServiceGroup(serviceGroup);
+            String hostKey = cab2bTranslator.getHostKeyForServiceGroup(serviceGroup);
         	
         	JSONObject queries = json.getJSONObject("results");
         	for(Iterator i = queries.keys(); i.hasNext(); ) {
@@ -616,7 +609,7 @@ public class JSONDataService extends HttpServlet {
             			JSONObject obj = objs.getJSONObject(k);
             			String key = null;
             			try {
-            			    key = obj.getString(HOST_KEY)+"~"+obj.getString(primaryKey);
+            			    key = obj.getString(hostKey)+"~"+obj.getString(primaryKey);
             			}
             			catch (JSONException x) {
             				log.error("Error getting unique key",x);
