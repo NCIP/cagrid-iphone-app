@@ -18,6 +18,7 @@ import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.util.Constants;
+import gov.nih.nci.gss.util.GSSProperties;
 import gov.nih.nci.gss.util.HibernateUtil;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class GridIndexService {
 	public static List<GridService> discoverGridServices() throws GridAutoDiscoveryException {
 		EndpointReferenceType[] returnedServices = null;
 		List<EndpointReferenceType> services = null;
-		String indexServiceURL = getGridIndexServiceUrl();
+		String indexServiceURL = GSSProperties.getGridIndexURL();
 
 		try {
 			DiscoveryClient discoveryClient = new DiscoveryClient(
@@ -241,10 +242,5 @@ public class GridIndexService {
 		
 		return newCenter;
 	}
-
-	public static String getGridIndexServiceUrl() {
-       	String indexService = System.getProperty(Constants.GRID_INDEX_SERVICE_URL);       
-    	return ("http://" + indexService);
-    }
 
 }
