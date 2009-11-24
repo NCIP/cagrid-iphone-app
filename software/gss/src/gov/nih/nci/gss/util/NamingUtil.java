@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -22,28 +23,30 @@ public class NamingUtil {
     private static Logger log = Logger.getLogger(NamingUtil.class);
     
     private Map<String,String> simpleNameMap = new LinkedHashMap<String,String>();
-    private Map<String,String> modelGroupMap = new LinkedHashMap<String,String>();
     
     public NamingUtil(SessionFactory sessionFactory) {
 
         Session s = sessionFactory.openSession();
         try {
-            log.info("Configuring naming map:");
+            log.info("Configuring naming map...");
             List<SimpleName> names = s.createCriteria(SimpleName.class).list();
             
             for(SimpleName simpleName : names) {
-                log.info(simpleName.getPattern()+" -> "+simpleName.getSimpleName());
-                simpleNameMap.put(simpleName.getPattern(), simpleName.getSimpleName());
+                String pattern = simpleName.getPattern();
+                try {
+                    Pattern.compile(pattern);
+                    log.info(pattern+" -> "+simpleName.getSimpleName());
+                    simpleNameMap.put(simpleName.getPattern(), simpleName.getSimpleName());
+                }
+                catch (PatternSyntaxException e) {
+                    log.warn("Invalid SimpleName.pattern "+pattern+": "+e.getMessage());
+                }
             }
+            log.info("Naming map configuration complete.");
         }
         finally {
             s.close();
         }
-        
-        // TODO: Update the SimpleName class to have a mapping to model group also
-        modelGroupMap.put("caArray", "microarray");
-        modelGroupMap.put("caTissue", "biospecimen");
-        modelGroupMap.put("NCIA_Model", "imaging");
     }
     
     /**
@@ -52,11 +55,10 @@ public class NamingUtil {
      * @param originalName a name to simplify
      * @return simple name
      */
-   public String getSimpleName(String originalName) {
+   public String getSimpleServiceName(String originalName) {
         
         for (String pattern : simpleNameMap.keySet()) {
-            Pattern p = Pattern.compile(pattern.replaceAll("\\*", ".*?"));
-            Matcher m = p.matcher(originalName);
+            Matcher m = Pattern.compile(pattern).matcher(originalName);
             if (m.matches()) {
                 String simpleName = simpleNameMap.get(pattern);
                 if (simpleName != null) {
@@ -67,9 +69,10 @@ public class NamingUtil {
         
         return originalName;
     } 
-    
-   public String getModelGroup(String simpleName) {
-       return modelGroupMap.get(simpleName);
+
+   public String getSimpleHostName(String originalName) {
+       // TODO: for now the host and server patterns are mixed, 
+       // but we can separate them later
+       return getSimpleServiceName(originalName);
    }
-   
 }
