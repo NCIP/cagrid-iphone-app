@@ -18,6 +18,7 @@ public class GSSProperties {
     
     private static String cab2b2QueryURL = null;
     private static String hostImageDir = null;
+    private static String gridIndexURL = null;
 
     static {
     	try {
@@ -36,7 +37,9 @@ public class GSSProperties {
 	            
 	            hostImageDir = properties.getProperty("host.image.dir");
 	            log.info("Configured hostImageDir="+hostImageDir);
-	            
+
+	            gridIndexURL = properties.getProperty("grid.index.url");
+                log.info("Configured gridIndexURL="+gridIndexURL);
 	        }
 	        finally {
 	            if (is != null) is.close();
@@ -54,5 +57,9 @@ public class GSSProperties {
 	public static String getHostImageDir() {
 		return hostImageDir;
 	}
+
+    public static String getGridIndexURL() {
+        return gridIndexURL;
+    }
 	
 }
