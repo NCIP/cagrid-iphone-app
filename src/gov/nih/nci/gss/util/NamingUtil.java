@@ -58,7 +58,7 @@ public class NamingUtil {
    public String getSimpleServiceName(String originalName) {
         
         for (String pattern : simpleNameMap.keySet()) {
-            Matcher m = Pattern.compile(pattern).matcher(originalName);
+            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(originalName);
             if (m.matches()) {
                 String simpleName = simpleNameMap.get(pattern);
                 if (simpleName != null) {
@@ -75,4 +75,5 @@ public class NamingUtil {
        // but we can separate them later
        return getSimpleServiceName(originalName);
    }
+   
 }
