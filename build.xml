@@ -117,10 +117,17 @@
             </fileset>
         </copy>
 
+        <!-- replace with values from <tier>.properties -->
+        <replace dir="${project.build.dir}/conf">
+            <include name="deploy.properties"/>
+            <replacefilter token="@GSS_CONTENT_DIR@" value="${gss.content.dir}" />
+        </replace>
+        
         <replace dir="${project.build.dir}/conf">
             <include name="gss.properties"/>
-            <replacefilter token="CAB2B_QUERY_URL" value="${cab2b.query.url}" />
-            <replacefilter token="HOST_IMAGE_DIR" value="${host.image.dir}" />
+            <replacefilter token="@CAB2B_QUERY_URL@" value="${cab2b.query.url}" />
+            <replacefilter token="@HOST_IMAGE_DIR@" value="${host.image.dir}" />
+            <replacefilter token="@GRID_INDEX_URL@" value="${grid.index.url}" />
         </replace>
     	
         <replace dir="${project.build.dir}/conf">
