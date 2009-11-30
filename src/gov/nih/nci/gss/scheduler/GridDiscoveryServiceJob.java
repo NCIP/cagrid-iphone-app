@@ -1,6 +1,3 @@
-/**
- * 
- */
 package gov.nih.nci.gss.scheduler;
 
 import gov.nih.nci.gss.domain.DataService;
@@ -19,7 +16,6 @@ import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.Cab2bAPI.Cab2bService;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -118,39 +114,42 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 		try {
 			// Save in the following order:
-			//   - All POCs
+			// 1) All POCs
 			for (PointOfContact POC : service.getPointOfContacts()) {
-				hibernateSession.save(POC);
+                logger.info("    - Saving Service POC "+POC.getName());
+                POC.setId((Long)hibernateSession.save(POC));
 			}
 			HostingCenter hc = service.getHostingCenter();
 			if (hc != null) {
 				for (PointOfContact POC : hc.getPointOfContacts()) {
-					hibernateSession.save(POC);
+	                logger.info("    - Saving Host POC "+POC.getName());
+	                POC.setId((Long)hibernateSession.save(POC));
 				}
 
-                //   - All Hosting Centers
+                // 2) Hosting Center
 				
 				if (hc.getId() == null) {
 				    logger.info("    - Saving Host "+hc.getLongName());
 				    // Hosting center has not been saved yet
-	                Long id = (Long)hibernateSession.save(hc);
-	                hc.setId(id);
-                    logger.info("    - Saved Host as "+id);
+				    hc.setId((Long)hibernateSession.save(hc));
 				}
 				
 			}
 	
-			//   - All Domain Models (TBD)
+			//   - 3) Domain Model (TBD)
 			if (service.getClass() == DataService.class) {
+	            logger.info("    - Saving Domain Model ");
 				hibernateSession.save(((DataService)service).getDomainModel());
 			}
-			//   - All Grid Services
-			hibernateSession.save(service);
-			//   - All Status Changes
+			//   - 4) Grid Services
+            logger.info("    - Saving Service ");
+            service.setId((Long)hibernateSession.save(service));
+			//   - 5) Status Changes
 			if (sc != null) {
+	            logger.info("    - Saving Status Change ");
 				hibernateSession.save(sc);
 			}
-			//   - All Domain Classes (TBD)
+			//   - 6) Domain Classes (TBD)
 		
 		} catch (ConstraintViolationException e) {
 			logger.warn("Duplicate grid service found: " + service.getUrl());

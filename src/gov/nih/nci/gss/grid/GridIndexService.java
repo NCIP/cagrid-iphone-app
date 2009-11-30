@@ -155,7 +155,7 @@ public class GridIndexService {
     	
     	// Get POC objects
 		newService.setPointOfContacts(populatePOCList(serviceData.getPointOfContactCollection().getPointOfContact()));
-    	
+        
     	// Build Hosting Center object
 		newService.setHostingCenter(populateHostingCenter(metadata));
 		
@@ -195,7 +195,7 @@ public class GridIndexService {
 	private static Collection<gov.nih.nci.gss.domain.PointOfContact> populatePOCList(gov.nih.nci.cagrid.metadata.common.PointOfContact[] POCs) {
 
     	Collection<gov.nih.nci.gss.domain.PointOfContact> POClist = new HashSet<gov.nih.nci.gss.domain.PointOfContact>();
-		
+
 		for (gov.nih.nci.cagrid.metadata.common.PointOfContact POC : POCs) {
 			gov.nih.nci.gss.domain.PointOfContact newPOC = new gov.nih.nci.gss.domain.PointOfContact();
 			
