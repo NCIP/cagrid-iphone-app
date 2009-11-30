@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="windows-1252"?>
-<XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3" timestamp="2009-11-24 14:46:30">
+<XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3" timestamp="2009-11-30 13:27:18">
 	<XMI.header>
 		<XMI.documentation>
 			<XMI.exporter>Enterprise Architect</XMI.exporter>
@@ -1194,6 +1194,7 @@
 												<UML:TaggedValue tag="ea_guid" value="{7F7795D0-A968-4a05-AC59-B879E919EFCF}"/>
 												<UML:TaggedValue tag="ea_localid" value="18"/>
 												<UML:TaggedValue tag="implements-association" value="gov.nih.nci.gss.domain.PointOfContact.gridServices" xmi.id="EAID_343CF323_6E86_4362_BBC1_7E82DE41C172"/>
+												<UML:TaggedValue tag="inverse-of" value="gov.nih.nci.gss.domain.GridService.pointOfContacts" xmi.id="EAID_3D3FFBB0_65B2_4a96_9C60_AEF5A942A811"/>
 											</UML:ModelElement.taggedValue>
 										</UML:Attribute>
 										<UML:Attribute name="POINT_OF_CONTACT_ID" changeable="none" visibility="public" ownerScope="instance" targetScope="instance">
@@ -1221,7 +1222,6 @@
 												<UML:TaggedValue tag="ea_guid" value="{65A1B1C5-FB3F-433a-896E-0AAB263956B0}"/>
 												<UML:TaggedValue tag="ea_localid" value="19"/>
 												<UML:TaggedValue tag="implements-association" value="gov.nih.nci.gss.domain.GridService.pointOfContacts" xmi.id="EAID_5B486CE8_6066_42FD_BE67_FCE01D68CDDB"/>
-												<UML:TaggedValue tag="inverse-of" value="gov.nih.nci.gss.domain.PointOfContact.gridServices" xmi.id="EAID_8806DA06_41BB_4E7A_859A_3977D72A7127"/>
 											</UML:ModelElement.taggedValue>
 										</UML:Attribute>
 									</UML:Classifier.feature>
@@ -4808,7 +4808,7 @@
 			<UML:ModelElement.taggedValue>
 				<UML:TaggedValue tag="version" value="1.0"/>
 				<UML:TaggedValue tag="created_date" value="2009-07-27 15:43:15"/>
-				<UML:TaggedValue tag="modified_date" value="2009-10-06 13:46:49"/>
+				<UML:TaggedValue tag="modified_date" value="2009-11-30 13:27:11"/>
 				<UML:TaggedValue tag="package" value="EAPK_80DF5A84_ABA0_4b4c_8CAD_094578918C2A"/>
 				<UML:TaggedValue tag="type" value="Logical"/>
 				<UML:TaggedValue tag="swimlanes" value="locked=false;orientation=0;width=0;inbar=false;names=false;color=0;bold=false;fcol=0;;cls=0;"/>
@@ -4817,14 +4817,14 @@
 				<UML:TaggedValue tag="styleex" value="ExcludeRTF=0;DocAll=0;HideQuals=0;AttPkg=1;ShowTests=0;ShowMaint=0;SuppressFOC=0;TDurLow=0;TDurHigh=100;TDurUnit=;TDurHide=0;TConnectorNotation=;TExplicitNavigability=0;"/>
 			</UML:ModelElement.taggedValue>
 			<UML:Diagram.element>
-				<UML:DiagramElement geometry="Left=105;Top=60;Right=301;Bottom=147;" subject="EAID_7483E340_4E5E_4c7f_830E_A69E97AD4930" seqno="1" style="DUID=592F1368;"/>
-				<UML:DiagramElement geometry="Left=344;Top=49;Right=569;Bottom=190;" subject="EAID_429A9BEF_E9F5_421a_9965_5089FBCC22C0" seqno="2" style="DUID=E425994B;"/>
+				<UML:DiagramElement geometry="Left=105;Top=60;Right=301;Bottom=160;" subject="EAID_7483E340_4E5E_4c7f_830E_A69E97AD4930" seqno="1" style="DUID=592F1368;"/>
+				<UML:DiagramElement geometry="Left=344;Top=49;Right=569;Bottom=203;" subject="EAID_429A9BEF_E9F5_421a_9965_5089FBCC22C0" seqno="2" style="DUID=E425994B;"/>
 				<UML:DiagramElement geometry="Left=95;Top=192;Right=293;Bottom=305;" subject="EAID_2895C347_5D6C_4e99_80BC_108DED71F056" seqno="3" style="DUID=1183B497;"/>
 				<UML:DiagramElement geometry="Left=602;Top=377;Right=815;Bottom=503;" subject="EAID_F9596EF7_F952_498e_BCDA_459A741A5BE5" seqno="4" style="DUID=AD83BEAB;"/>
 				<UML:DiagramElement geometry="Left=590;Top=557;Right=827;Bottom=644;" subject="EAID_9BBDE797_CB3C_4361_B103_168C5FA96CDE" seqno="5" style="DUID=28574681;"/>
 				<UML:DiagramElement geometry="Left=352;Top=517;Right=561;Bottom=682;" subject="EAID_76562FAC_4634_4bc0_BE6B_23138219C8F8" seqno="6" style="DUID=6C5B5BF9;"/>
-				<UML:DiagramElement geometry="Left=596;Top=242;Right=818;Bottom=329;" subject="EAID_24C2E2BB_8B5C_4215_9E07_EC1F7BF66E26" seqno="7" style="DUID=72472D98;"/>
-				<UML:DiagramElement geometry="Left=345;Top=230;Right=569;Bottom=434;" subject="EAID_23CA3AB7_7FB2_45bc_967B_07F5B5B26FA3" seqno="8" style="DUID=2262BA80;"/>
+				<UML:DiagramElement geometry="Left=606;Top=240;Right=828;Bottom=327;" subject="EAID_24C2E2BB_8B5C_4215_9E07_EC1F7BF66E26" seqno="7" style="DUID=72472D98;"/>
+				<UML:DiagramElement geometry="Left=345;Top=230;Right=587;Bottom=434;" subject="EAID_23CA3AB7_7FB2_45bc_967B_07F5B5B26FA3" seqno="8" style="DUID=2262BA80;"/>
 				<UML:DiagramElement geometry="Left=96;Top=549;Right=293;Bottom=662;" subject="EAID_20A0A4DF_C951_40d8_9628_EEDE73E50912" seqno="9" style="DUID=61FA0859;"/>
 				<UML:DiagramElement geometry="Left=85;Top=332;Right=303;Bottom=458;" subject="EAID_1D41560F_1233_4e27_BC26_1CFD6AA00653" seqno="10" style="DUID=E5630706;"/>
 				<UML:DiagramElement geometry="EDGE=3;$LLB=;LLT=;LMT=;LMB=;LRT=;LRB=;Path=;" subject="EAID_61920D21_FEC4_4e13_B2A6_CD4ABA6BFAB4" style="Mode=3;EOID=2262BA80;SOID=E425994B;Hidden=0;"/>
