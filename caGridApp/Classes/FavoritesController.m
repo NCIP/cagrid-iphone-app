@@ -182,15 +182,21 @@
             cell = [nib objectAtIndex:0];
         }
         
-        // Get service metadata
+        // Get host metadata
         
         NSMutableDictionary *host = [hostList objectAtIndex:indexPath.row];
         
+        // Get custom host image or default
+        
+        NSString *imageName = [host objectForKey:@"image_name"];
+        UIImage *hostImage = [[ServiceMetadata sharedSingleton].hostImagesByName objectForKey:imageName];
+        if (hostImage == nil) hostImage = [UIImage imageNamed:@"house.png"];
+        
         // Populate the cell
         
+        cell.icon.image = hostImage;
         cell.titleLabel.text = [host objectForKey:@"short_name"];
         cell.descLabel.text = [host objectForKey:@"long_name"];
-        cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"house.png"]];
         cell.tickIcon.hidden = YES;
         cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
         

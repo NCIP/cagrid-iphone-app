@@ -8,8 +8,12 @@
 
 #import "ServiceMetadata.h"
 #import "UserPreferences.h"
+#import "CaGridAppDelegate.h"
+#import "HostListController.h"
+#import "FavoritesController.h"
 
 #define servicesFilename @"ServiceMetadata.plist"
+#define hostImagesDirName @"hostImages"
 
 @implementation ServiceMetadata
 @synthesize dlmanager;
@@ -22,7 +26,8 @@
 @synthesize servicesByHostId;
 @synthesize hosts;
 @synthesize hostsById;
-@synthesize hostImagesByUrl;
+@synthesize hostImageNamesByUrl;
+@synthesize hostImagesByName;
 @synthesize nf;
 
 #pragma mark -
@@ -31,8 +36,8 @@
 - (id) init {
 	if (self = [super init]) {
         
-        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
-        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
+        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1&delay=10000",BASE_URL]];
+        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host?delay=10000",BASE_URL]];
         
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];        
@@ -41,7 +46,8 @@
         self.servicesByGroup = [NSMutableDictionary dictionary]; 
         self.servicesByHostId = [NSMutableDictionary dictionary]; 
         self.hostsById = [NSMutableDictionary dictionary];
-        self.hostImagesByUrl = [NSMutableDictionary dictionary];        
+        self.hostImageNamesByUrl = [NSMutableDictionary dictionary];        
+        self.hostImagesByName = [NSMutableDictionary dictionary];       
         
         DownloadManager *dl = [[DownloadManager alloc] init];
         self.dlmanager = dl;
@@ -65,7 +71,8 @@
     self.servicesByGroup = nil;
     self.servicesByHostId = nil;
     self.hostsById = nil;
-    self.hostImagesByUrl = nil;
+    self.hostImageNamesByUrl = nil;
+    self.hostImagesByName = nil;
     [super dealloc];
 }
 
@@ -148,8 +155,9 @@
             }
         	[array addObject:service];           
         }
-        
     }
+    
+    [[UserPreferences sharedSingleton] updateFromDefaults:self.services];
 }
 
 - (void) updateHostDerivedObjects {
@@ -159,8 +167,6 @@
     for(NSMutableDictionary *host in self.hosts) {
 		[self.hostsById setObject:host forKey:[host valueForKey:@"id"]];
     }
-    
-    [[UserPreferences sharedSingleton] updateFromDefaults:self.services];
 }
 
 
@@ -169,38 +175,58 @@
 
 - (void)loadFromFile {
     
-	NSString *filePath = [Util getPathFor:servicesFilename];
-	if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-		NSLog(@"Reading services and hosts from file");
-        @try {            
-            NSDictionary *dict = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
-            self.services = [dict objectForKey:@"services"];
-            self.hosts = [dict objectForKey:@"hosts"];        
-            [dict release];
-            NSLog(@"... Loaded %d services and %d hosts",[self.services count],[self.hosts count]);
+    @synchronized(self) {
+        NSString *filePath = [Util getPathFor:servicesFilename];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+            NSLog(@"Reading services and hosts from file");
+            @try {            
+                NSDictionary *dict = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+                self.services = [dict objectForKey:@"services"];
+                self.hosts = [dict objectForKey:@"hosts"];        
+                [dict release];
+                NSLog(@"... Loaded %d services and %d hosts",[self.services count],[self.hosts count]);
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
+                self.services = [NSMutableArray array];               
+                self.hosts = [NSMutableArray array];
+            }
+            @finally {       
+                [self updateServiceDerivedObjects];
+                [self updateHostDerivedObjects];
+            }
         }
-        @catch (NSException *exception) {
-        	NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
-            self.services = [NSMutableArray array];               
-            self.hosts = [NSMutableArray array];
+        
+        NSString *hostImageDir = [Util getPathFor:hostImagesDirName];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:hostImageDir]) {
+            NSLog(@"Reading host images from files");
+            for(NSMutableDictionary *host in self.hosts) {
+            	NSString *imageName = [host objectForKey:@"image_name"];
+                if (imageName != nil) {
+	                NSString *imageFilePath = [hostImageDir stringByAppendingPathComponent:imageName];
+                    UIImage *img = [UIImage imageWithContentsOfFile:imageFilePath];
+                    if (img.size.width > 0 && img.size.height > 0) {
+                        [self.hostImagesByName setObject:img forKey:imageName];
+                        NSLog(@"Loaded image: %@",imageName);
+                    }
+                }
+            }
         }
-        @finally {       
-            [self updateServiceDerivedObjects];
-            [self updateHostDerivedObjects];
-        }
-	}
+    }
 }
 
 - (void) saveToFile {
-	NSLog(@"Saving %d services and %d hosts to file",[self.services count],[self.hosts count]);    
-    @try { 
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        [dict setObject:self.services forKey:@"services"];
-        [dict setObject:self.hosts forKey:@"hosts"]; 
-        [dict writeToFile:[Util getPathFor:servicesFilename] atomically:YES];
-    }    
-    @catch (NSException *exception) {
-        NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
+    @synchronized(self) {
+        NSLog(@"Saving %d services and %d hosts to file",[self.services count],[self.hosts count]);    
+        @try { 
+            NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+            [dict setObject:self.services forKey:@"services"];
+            [dict setObject:self.hosts forKey:@"hosts"]; 
+            [dict writeToFile:[Util getPathFor:servicesFilename] atomically:YES];
+        }    
+        @catch (NSException *exception) {
+            NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
+        }
     }
 }
 
@@ -214,8 +240,9 @@
 }
 
 - (void) loadHosts {
-	[dlmanager beginDownload:hostsUrl delegate:self];
+    [dlmanager beginDownload:hostsUrl delegate:self];
 }
+
 
 - (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
     
@@ -238,9 +265,9 @@
             return;
         }
         
-        NSLog(@"Received %d services",[services count]);
         @synchronized(self) {        
-            self.services = serviceDict;	
+            self.services = serviceDict;
+            NSLog(@"Received %d services",[services count]);
             
             [services sortUsingDescriptors:[NSArray arrayWithObjects:
                                             [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
@@ -249,6 +276,8 @@
             
             [self updateServiceDerivedObjects];
         }
+        
+        [self saveToFile];
         
     }
     else if ([url isEqual:hostsUrl]) {
@@ -265,9 +294,9 @@
             return;
         }
         
-        NSLog(@"Received %d hosts",[hosts count]);
         @synchronized(self) {  
             self.hosts = hostDict;
+            NSLog(@"Received %d hosts",[hosts count]);
             
             [self.hosts sortUsingDescriptors:[NSArray arrayWithObjects:
                                               [[[NSSortDescriptor alloc] initWithKey:@"long_name" ascending:YES] autorelease],
@@ -275,9 +304,57 @@
             
             [self updateHostDerivedObjects];
         }
+
+        [self saveToFile];
+        
+        // Now load hosts images
+        
+        @synchronized(self) {  
+            for(NSMutableDictionary *host in self.hosts) {
+                NSString *imageName = [host objectForKey:@"image_name"];
+                if (imageName != nil) {
+                    NSURL *imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",BASE_URL,imageName]];
+                    [self.hostImageNamesByUrl setObject:imageName forKey:imageURL];
+                    [dlmanager beginDownload:imageURL delegate:self];
+                }
+            }
+        }
+        
     }
-    else {
-    	NSLog(@"Received unknown data from: %@",url);
+    else { // This should be a host image
+        
+        if (data.length == 0) return;
+        
+        UIImage *img = [UIImage imageWithData:data];
+        if (img.size.width <= 0 || img.size.height <= 0) return;
+        
+        NSString *imageName = [self.hostImageNamesByUrl objectForKey:url];
+        
+        // save image to disk
+        
+        NSString *hostImageDir = [Util getPathFor:hostImagesDirName];
+        
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:hostImageDir withIntermediateDirectories:YES attributes:nil error:&error];
+        
+        if (error) {
+        	NSLog(@"Error creating host image directory: %@",error);
+        }
+        else {
+            NSString *imageFilePath = [hostImageDir stringByAppendingPathComponent:imageName];
+            [data writeToFile:imageFilePath atomically:NO];
+        }
+        
+        // cache in memory
+        
+        @synchronized(self) {  
+	        [self.hostImagesByName setObject:img forKey:imageName];
+            NSLog(@"Received image: %@",imageName);
+            
+            CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
+            [delegate.hostListController.hostTable reloadData];
+            [delegate.favoritesController.favoritesTable reloadData];
+        }
     }
 }
 

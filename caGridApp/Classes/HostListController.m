@@ -9,7 +9,6 @@
 #import "HostDetailController.h"
 #import "UserPreferences.h"
 #import "Util.h"
-#import "AsyncImageView.h"
 #import "ServiceMetadata.h"
 
 @implementation HostListController
@@ -122,52 +121,22 @@
 		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
 		cell = [nib objectAtIndex:0];
 	}
-	else {
-        AsyncImageView *asyncImage = (AsyncImageView *)[cell.contentView viewWithTag:99];
-        [asyncImage removeFromSuperview];
-    }
     
 	// Get host metadata
 	
 	NSMutableDictionary *host = [filtered objectAtIndex:indexPath.row];
 	
-    // Load custom host image asynchronously, if one exists
-    
+    // Get custom host image or default
     
     NSString *imageName = [host objectForKey:@"image_name"];
-    NSURL *imageURL = nil;
-    UIImage *hostImage = nil;
-
-    if (imageName != nil) {
-		imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",BASE_URL,imageName]];
-        hostImage = [[ServiceMetadata sharedSingleton].hostImagesByUrl objectForKey:imageURL];
-    }
-
-    BOOL loadedFromCache = NO;
-	if (hostImage != nil) {
-        loadedFromCache = YES;
-    }
-	else {
-        hostImage = [UIImage imageNamed:@"house.png"];
-    }
-    
-    CGRect imageFrame = CGRectMake(6, 6, 32, 32);
-    AsyncImageView *asyncImage = [[[AsyncImageView alloc] initWithFrame:imageFrame andImage:hostImage] autorelease];
-    asyncImage.tag = 99;
-    
-    UIView *view = [[cell.contentView subviews] objectAtIndex:0];
-    [view addSubview:asyncImage];
-    [view bringSubviewToFront:cell.favIcon];
-    
-    if (!loadedFromCache && imageURL != nil) {
-    	[asyncImage loadImageFromURL:imageURL];
-    }
+    UIImage *hostImage = [[ServiceMetadata sharedSingleton].hostImagesByName objectForKey:imageName];
+	if (hostImage == nil) hostImage = [UIImage imageNamed:@"house.png"];
     
 	// Populate the cell
     
+    cell.icon.image = hostImage;
 	cell.titleLabel.text = [host objectForKey:@"short_name"];
 	cell.descLabel.text = [host objectForKey:@"long_name"];
-    cell.icon.hidden = YES;
     cell.tickIcon.hidden = YES;
     cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
     
