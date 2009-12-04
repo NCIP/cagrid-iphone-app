@@ -82,7 +82,6 @@
 		A9DC7E0A10A616F800535680 /* HostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E0910A616F800535680 /* HostCell.xib */; };
 		A9DC7E1810A6188400535680 /* HostDetailCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E1710A6188400535680 /* HostDetailCell.xib */; };
 		A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DC7E2910A7901B00535680 /* KeyValuePair.m */; };
-		A9DC7F5A10ABAEF200535680 /* AsyncImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DC7F5910ABAEF200535680 /* AsyncImageView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -191,8 +190,6 @@
 		A9DC7E1710A6188400535680 /* HostDetailCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HostDetailCell.xib; sourceTree = "<group>"; };
 		A9DC7E2810A7901B00535680 /* KeyValuePair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyValuePair.h; sourceTree = "<group>"; };
 		A9DC7E2910A7901B00535680 /* KeyValuePair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyValuePair.m; sourceTree = "<group>"; };
-		A9DC7F5810ABAEF200535680 /* AsyncImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncImageView.h; sourceTree = "<group>"; };
-		A9DC7F5910ABAEF200535680 /* AsyncImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AsyncImageView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -341,8 +338,6 @@
 				A93543EE101BF06300988B88 /* Util.m */,
 				A9DC7E2810A7901B00535680 /* KeyValuePair.h */,
 				A9DC7E2910A7901B00535680 /* KeyValuePair.m */,
-				A9DC7F5810ABAEF200535680 /* AsyncImageView.h */,
-				A9DC7F5910ABAEF200535680 /* AsyncImageView.m */,
 				A954F18F10AE041A005CD568 /* DownloadManager.h */,
 				A954F19010AE041A005CD568 /* DownloadManager.m */,
 			);
@@ -526,7 +521,6 @@
 				A9DC7D6010A6082900535680 /* HostListController.m in Sources */,
 				A9DC7D6510A6084500535680 /* HostDetailController.m in Sources */,
 				A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */,
-				A9DC7F5A10ABAEF200535680 /* AsyncImageView.m in Sources */,
 				A954F19110AE041A005CD568 /* DownloadManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
