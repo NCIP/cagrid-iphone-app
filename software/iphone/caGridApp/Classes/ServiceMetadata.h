@@ -22,12 +22,13 @@
     @private NSURL *hostsUrl;
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *servicesById;	
-	@private NSMutableDictionary *servicesByUrl;		
+	@private NSMutableDictionary *servicesByUrl;
 	@private NSMutableDictionary *servicesByGroup;
 	@private NSMutableDictionary *servicesByHostId;
 	@private NSMutableArray *hosts;
 	@private NSMutableDictionary *hostsById;
-	@private NSMutableDictionary *hostImagesByUrl;    
+	@private NSMutableDictionary *hostImageNamesByUrl;
+    @private NSMutableDictionary *hostImagesByName;
 	@private NSNumberFormatter *nf;
 }
 
@@ -41,7 +42,8 @@
 @property (nonatomic, retain) NSMutableDictionary *servicesByHostId;
 @property (nonatomic, retain) NSMutableArray *hosts;
 @property (nonatomic, retain) NSMutableDictionary *hostsById;
-@property (nonatomic, retain) NSMutableDictionary *hostImagesByUrl;
+@property (nonatomic, retain) NSMutableDictionary *hostImageNamesByUrl;
+@property (nonatomic, retain) NSMutableDictionary *hostImagesByName;
 @property (nonatomic, retain) NSNumberFormatter *nf;
 
 + (ServiceMetadata *)sharedSingleton;
