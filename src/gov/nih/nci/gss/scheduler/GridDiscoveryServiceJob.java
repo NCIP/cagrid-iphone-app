@@ -60,8 +60,6 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 
-		Map<String,GridService> gridNodes = populateServicesFromIndex();
-
 		try {
 	        this.xlateUtil = new Cab2bTranslator(HibernateUtil.getSessionFactory());
             this.namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
@@ -70,10 +68,11 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		}
 		catch (Exception e) {
 		    throw new JobExecutionException(
-		        "Could not retrieve caB2B services",e,true);
+		        "Could not retrieve caB2B services",e,false);
 		}
 		
 		// Update services as necessary or add new ones
+		Map<String,GridService> gridNodes = populateServicesFromIndex();
 		updateGssServices(gridNodes);
 	}
 
@@ -302,8 +301,8 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					Collection<StatusChange> changes = service.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
-						// Service was marked as inactive, need to make it active now
-						newSC = populateStatusChange(service, true);
+						// Service was marked as active, need to make it inactive now
+						newSC = populateStatusChange(service, false);
 						service.getStatusHistory().add(newSC);
 						saveService(service,newSC,hibernateSession);
 					}
@@ -323,14 +322,50 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 	}
 
 	private HostingCenter updateHostData(HostingCenter matchingHost,
-			HostingCenter thisHC) {
-		// TODO Auto-generated method stub
+			HostingCenter newHC) {
+
+		// Copy over data from the new host data
+		// - Do not overwrite: long name (unique key), id (db primary key)
+		matchingHost.setCountryCode(newHC.getCountryCode());
+		matchingHost.setLocality(newHC.getLocality());
+		matchingHost.setPostalCode(newHC.getPostalCode());
+		matchingHost.setShortName(newHC.getShortName());
+		matchingHost.setStateProvince(newHC.getStateProvince());
+		matchingHost.setStreet(newHC.getStreet());
+		
 		return matchingHost;
 	}
 
 	private GridService updateServiceData(GridService matchingSvc,
 			GridService service) {
-		// TODO Auto-generated method stub
+
+		// Copy over data from the new service
+		// - Do not overwrite: url (unique key), id (db primary key), publish date (should stay the original value)
+		matchingSvc.setName(service.getName());
+		matchingSvc.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+		matchingSvc.setVersion(service.getVersion());
+		matchingSvc.setDescription(service.getDescription());
+
+		// We are consciously overwriting things here that likely will not change,
+		// since they are based on the URL, which is guaranteed to be the same if we
+		// call this function.  However, on the off chance that the DB lookup tables or
+		// caB2B content has changed, we need to overwrite here to be sure.
+		if (matchingSvc instanceof DataService && service instanceof DataService) {
+		    DataService dataService = (DataService)service;
+		    
+            // Do not select for search by default
+		    ((DataService)matchingSvc).setSearchDefault(false);
+		    
+		    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
+		    if (cab2bService != null) {
+		        // Translate the caB2B model group to a service group
+		        DataServiceGroup group = xlateUtil.getServiceGroupObj(
+		                cab2bService.getModelGroupName());
+		        // Populate service attributes
+		        ((DataService)matchingSvc).setGroup(group);
+		        ((DataService)matchingSvc).setSearchDefault(cab2bService.isSearchDefault());
+		    }
+		}
 		return matchingSvc;
 	}
 }

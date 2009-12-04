@@ -83,7 +83,7 @@ public class SchedulerControllerServlet extends HttpServlet {
 			if (intervalInMinutes == 0) {
 				intervalInMinutes = Constants.DEFAULT_DISCOVERY_INTERVAL_IN_MINS; // default
 																					// is
-																					// 15
+																					// 720
 																					// minutes
 			}
 			trigger = TriggerUtils.makeMinutelyTrigger(
@@ -92,10 +92,9 @@ public class SchedulerControllerServlet extends HttpServlet {
 
 			JobDetail jobDetail = new JobDetail("GridDiscoveryServiceJob",
 					null, GridDiscoveryServiceJob.class);
-			// Trigger name must be unique so include type and email
 
 			scheduler.scheduleJob(jobDetail, trigger);
-			logger.debug("Discover Scheduler started......");
+			logger.debug("Discover Scheduler started, will run every " + Integer.toString(intervalInMinutes) + " minutes");
 
 		} catch (SchedulerException e) {
 			logger.error(e.getMessage(), e);
