@@ -82,8 +82,8 @@ static BOOL alerted = NO;
 + (void) displayNetworkError {
     @synchronized(self) {    
         if (!alerted) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data" 
-                                                            message:@"Could not connect to the network." 
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error retrieving data (ERR01)" 
+                                                            message:@"Could not connect to the server." 
                                                            delegate:self 
                                                   cancelButtonTitle:@"OK" 
                                                   otherButtonTitles:nil];
