@@ -17,6 +17,8 @@
 
 @implementation ServiceMetadata
 @synthesize dlmanager;
+@synthesize servicesCallback;
+@synthesize hostsCallback;
 @synthesize servicesUrl;
 @synthesize hostsUrl;
 @synthesize services;
@@ -36,8 +38,8 @@
 - (id) init {
 	if (self = [super init]) {
         
-        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1&delay=10000",BASE_URL]];
-        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host?delay=10000",BASE_URL]];
+        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
+        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
         
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];        
@@ -235,16 +237,20 @@
 #pragma mark Data retrieval
 
 
-- (void) loadServices {
+- (void) loadServices:(SEL)callback {
+    self.servicesCallback = callback;
     [dlmanager beginDownload:servicesUrl delegate:self];
 }
 
-- (void) loadHosts {
+- (void) loadHosts:(SEL)callback; {
+    self.hostsCallback = callback;
     [dlmanager beginDownload:hostsUrl delegate:self];
 }
 
 
 - (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
+    
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
     
     [Util clearNetworkErrorState];
     
@@ -262,6 +268,7 @@
             if (message == nil) message = @"Service data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
+            [delegate performSelector:servicesCallback];
             return;
         }
         
@@ -275,10 +282,9 @@
                                             nil]];
             
             [self updateServiceDerivedObjects];
+            [self saveToFile];
+            [delegate performSelector:servicesCallback];
         }
-        
-        [self saveToFile];
-        
     }
     else if ([url isEqual:hostsUrl]) {
                 
@@ -291,6 +297,7 @@
             if (message == nil) message = @"Host data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
+            [delegate performSelector:hostsCallback];
             return;
         }
         
@@ -303,10 +310,10 @@
                                               nil]];
             
             [self updateHostDerivedObjects];
+            [self saveToFile];
+            [delegate performSelector:hostsCallback];
         }
 
-        [self saveToFile];
-        
         // Now load hosts images
         
         @synchronized(self) {  
@@ -351,7 +358,6 @@
 	        [self.hostImagesByName setObject:img forKey:imageName];
             NSLog(@"Received image: %@",imageName);
             
-            CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
             [delegate.hostListController.hostTable reloadData];
             [delegate.favoritesController.favoritesTable reloadData];
         }

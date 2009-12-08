@@ -88,7 +88,7 @@
 #pragma mark Info Button Methods
 
 - (void)infoButtonPressed:(id)sender {
-	self.view.superview.userInteractionEnabled = NO;
+	//self.view.superview.userInteractionEnabled = NO;
 	[UIView beginAnimations:@"frame" context:nil];
 	[UIView setAnimationDuration:0.5];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:self.view cache:YES];
@@ -103,7 +103,7 @@
 }
 
 - (IBAction)closeInfoButtonPressed:(id)sender {
-	self.view.superview.userInteractionEnabled = NO;
+	//self.view.superview.userInteractionEnabled = NO;
 	[UIView beginAnimations:@"frame" context:nil];
 	[UIView setAnimationDuration:0.5];
     [UIView setAnimationDelegate:self];
@@ -117,8 +117,7 @@
 
 - (void)transitionDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
 	// re-enable user interaction when the flip is completed.
-	self.view.superview.userInteractionEnabled = YES;
-    
+	//self.view.superview.userInteractionEnabled = YES;
 }
 
 #pragma mark -
@@ -150,7 +149,7 @@
     cell.titleLabel.text = [Util getLabelForDataType:dataType];
     NSUInteger count = [[[ServiceMetadata sharedSingleton] getServicesOfType:dataType] count];
     
-    static NSString *none = @"No services found";
+    static NSString *none = @"";
     
     if (row == DataTypeMicroarray) {
         cell.descLabel.text = count > 0 ? [NSString stringWithFormat:@"%d caArray services",count] : none;
