@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">528</int>
 		<string key="IBDocument.SystemVersion">9L30</string>
-		<string key="IBDocument.InterfaceBuilderVersion">677</string>
+		<string key="IBDocument.InterfaceBuilderVersion">680</string>
 		<string key="IBDocument.AppKitVersion">949.54</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="106"/>
+			<integer value="262"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -56,7 +56,6 @@
 							<string key="NSClassName">NSImage</string>
 							<string key="NSResourceName">folder.png</string>
 						</object>
-						<reference key="IBUITabBar"/>
 					</object>
 					<reference key="IBUIParentViewController" ref="1034742383"/>
 					<object class="IBUINavigationBar" key="IBUINavigationBar" id="691544548">
@@ -75,7 +74,6 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="IBUIViewController" id="160641377">
 							<object class="IBUINavigationItem" key="IBUINavigationItem" id="348880310">
-								<reference key="IBUINavigationBar"/>
 								<string key="IBUITitle">Grid Services</string>
 							</object>
 							<reference key="IBUIParentViewController" ref="164749354"/>
@@ -89,7 +87,6 @@
 						<string key="IBUITitle"/>
 						<object class="IBUITabBarItem" key="IBUITabBarItem" id="7552595">
 							<string key="IBUITitle"/>
-							<reference key="IBUITabBar"/>
 							<int key="IBUISystemItemIdentifier">8</int>
 						</object>
 						<reference key="IBUIParentViewController" ref="1034742383"/>
@@ -125,7 +122,6 @@
 								<string key="NSClassName">NSImage</string>
 								<string key="NSResourceName">results.png</string>
 							</object>
-							<reference key="IBUITabBar"/>
 						</object>
 						<object class="NSArray" key="IBUIToolbarItems">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -166,7 +162,6 @@
 								<string key="NSClassName">NSImage</string>
 								<string key="NSResourceName">hosts.png</string>
 							</object>
-							<reference key="IBUITabBar"/>
 						</object>
 						<object class="NSArray" key="IBUIToolbarItems">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -211,7 +206,6 @@
 						<string key="IBUITitle"/>
 						<object class="IBUITabBarItem" key="IBUITabBarItem" id="852196221">
 							<string key="IBUITitle"/>
-							<reference key="IBUITabBar"/>
 							<int key="IBUISystemItemIdentifier">1</int>
 						</object>
 						<reference key="IBUIParentViewController" ref="1034742383"/>
@@ -249,6 +243,52 @@
 					</object>
 					<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 				</object>
+			</object>
+			<object class="IBUIView" id="1031159679">
+				<reference key="NSNextResponder"/>
+				<int key="NSvFlags">292</int>
+				<object class="NSMutableArray" key="NSSubviews">
+					<bool key="EncodedWithXMLCoder">YES</bool>
+					<object class="IBUIActivityIndicatorView" id="340338945">
+						<reference key="NSNextResponder" ref="1031159679"/>
+						<int key="NSvFlags">292</int>
+						<string key="NSFrame">{{142, 174}, {37, 37}}</string>
+						<reference key="NSSuperview" ref="1031159679"/>
+						<bool key="IBUIOpaque">NO</bool>
+						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+						<bool key="IBUIUserInteractionEnabled">NO</bool>
+						<bool key="IBUIHidesWhenStopped">NO</bool>
+						<bool key="IBUIAnimating">YES</bool>
+						<int key="IBUIStyle">0</int>
+					</object>
+					<object class="IBUILabel" id="213236492">
+						<reference key="NSNextResponder" ref="1031159679"/>
+						<int key="NSvFlags">292</int>
+						<string key="NSFrame">{{81, 145}, {158, 21}}</string>
+						<reference key="NSSuperview" ref="1031159679"/>
+						<bool key="IBUIOpaque">NO</bool>
+						<bool key="IBUIClipsSubviews">YES</bool>
+						<bool key="IBUIUserInteractionEnabled">NO</bool>
+						<string key="IBUIText">Downloading data...</string>
+						<object class="NSColor" key="IBUITextColor">
+							<int key="NSColorSpace">1</int>
+							<bytes key="NSRGB">MSAxIDEAA</bytes>
+							<object class="NSColorSpace" key="NSCustomColorSpace">
+								<int key="NSID">1</int>
+							</object>
+						</object>
+						<nil key="IBUIHighlightedColor"/>
+						<int key="IBUIBaselineAdjustment">1</int>
+						<float key="IBUIMinimumFontSize">1.000000e+01</float>
+					</object>
+				</object>
+				<string key="NSFrameSize">{320, 480}</string>
+				<reference key="NSSuperview"/>
+				<object class="NSColor" key="IBUIBackgroundColor">
+					<int key="NSColorSpace">1</int>
+					<bytes key="NSRGB">MC4wMDE3MDY0ODQ2IDAgMCAwLjg5OTk5OTk4AA</bytes>
+				</object>
+				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -365,6 +405,14 @@
 						<reference key="destination" ref="112133532"/>
 					</object>
 					<int key="connectionID">261</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">loadingView</string>
+						<reference key="source" ref="664661524"/>
+						<reference key="destination" ref="1031159679"/>
+					</object>
+					<int key="connectionID">266</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -602,6 +650,26 @@
 						<reference key="object" ref="135204761"/>
 						<reference key="parent" ref="112133532"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">262</int>
+						<reference key="object" ref="1031159679"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="340338945"/>
+							<reference ref="213236492"/>
+						</object>
+						<reference key="parent" ref="957960031"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">264</int>
+						<reference key="object" ref="213236492"/>
+						<reference key="parent" ref="1031159679"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">265</int>
+						<reference key="object" ref="340338945"/>
+						<reference key="parent" ref="1031159679"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -622,6 +690,10 @@
 					<string>2.IBPluginDependency</string>
 					<string>245.CustomClassName</string>
 					<string>253.CustomClassName</string>
+					<string>262.IBEditorWindowLastContentRect</string>
+					<string>262.IBPluginDependency</string>
+					<string>264.IBPluginDependency</string>
+					<string>265.IBPluginDependency</string>
 					<string>3.CustomClassName</string>
 					<string>3.IBPluginDependency</string>
 				</object>
@@ -649,6 +721,10 @@
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>HostListController</string>
 					<string>QueryRequestController</string>
+					<string>{{168, 210}, {320, 480}}</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>CaGridAppDelegate</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				</object>
@@ -673,7 +749,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">261</int>
+			<int key="maxID">267</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -688,6 +764,7 @@
 							<string>dashboardController</string>
 							<string>favoritesController</string>
 							<string>hostListController</string>
+							<string>loadingView</string>
 							<string>queryRequestController</string>
 							<string>serviceListController</string>
 							<string>tabBarController</string>
@@ -698,6 +775,7 @@
 							<string>DashboardController</string>
 							<string>FavoritesController</string>
 							<string>HostListController</string>
+							<string>UIView</string>
 							<string>QueryRequestController</string>
 							<string>ServiceListController</string>
 							<string>UITabBarController</string>
@@ -801,6 +879,13 @@
 					<string key="className">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Classes/DownloadManager.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">Classes/QueryService.h</string>
 					</object>
 				</object>
@@ -878,11 +963,13 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>filterBar</string>
 							<string>navController</string>
 							<string>serviceTable</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UISearchBar</string>
 							<string>UINavigationController</string>
 							<string>UITableView</string>
 						</object>
@@ -897,6 +984,6 @@
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.LastKnownRelativeProjectPath">CaGrid.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
-		<string key="IBCocoaTouchPluginVersion">3.0</string>
+		<string key="IBCocoaTouchPluginVersion">3.1</string>
 	</data>
 </archive>

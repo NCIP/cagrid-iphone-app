@@ -44,27 +44,34 @@
 
 - (void)beginDownload:(NSURL *)url delegate:(id)delegateObj {
     
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
-    [req setHTTPMethod:@"GET"];
-    NSConnection *conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-    
-    if (conn) {
-        Download *dl = [[[Download alloc] init] autorelease];
-        dl.url = url;
-        dl.receivedData = [NSMutableData data];
-        dl.delegate = delegateObj;
-        
-        @synchronized(self) {
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	        CFDictionaryAddValue(connectionRequestMap, conn, dl);
-        }
-        return;
-    }
-    
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    [dict setObject:@"Could not create network connection." forKey:NSLocalizedDescriptionKey];
-    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileReadUnknownError userInfo:dict];
     
+    @try {
+        NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
+        [req setHTTPMethod:@"GET"];
+        NSConnection *conn = [[NSURLConnection alloc] initWithRequest:req delegate:self];
+        
+        if (conn) {
+            Download *dl = [[[Download alloc] init] autorelease];
+            dl.url = url;
+            dl.receivedData = [NSMutableData data];
+            dl.delegate = delegateObj;
+            
+            @synchronized(self) {
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+                CFDictionaryAddValue(connectionRequestMap, conn, dl);
+            }
+            return;
+        }
+        
+        [dict setObject:@"Could not establish connection." forKey:NSLocalizedDescriptionKey];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Error creating connection: %@",exception);
+        [dict setObject:@"Could not create network connection." forKey:NSLocalizedDescriptionKey];
+    }
+        
+    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileReadUnknownError userInfo:dict];
     if ([delegateObj respondsToSelector:@selector(download:failedWithError:)]) {
         [delegateObj download:url failedWithError:error];
     }
