@@ -16,15 +16,18 @@
 
 @interface CaGridAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate> {
     IBOutlet UIWindow *window;
+    IBOutlet UIView *loadingView;
     IBOutlet UITabBarController *tabBarController;
     IBOutlet DashboardController *dashboardController;
     IBOutlet QueryRequestController *queryRequestController;
     IBOutlet ServiceListController *serviceListController;
     IBOutlet HostListController *hostListController;
 	IBOutlet FavoritesController *favoritesController;
+    int receivedContent;
 }
 
 @property (nonatomic, retain) UIWindow *window;
+@property (nonatomic, retain) UIView *loadingView;
 @property (nonatomic, retain) UITabBarController *tabBarController;
 @property (nonatomic, retain) DashboardController *dashboardController;
 @property (nonatomic, retain) QueryRequestController *queryRequestController;

@@ -18,6 +18,8 @@
 @interface ServiceMetadata : NSObject {
     
 	@private DownloadManager *dlmanager;
+	@private SEL servicesCallback;
+	@private SEL hostsCallback;    
 	@private NSURL *servicesUrl;
     @private NSURL *hostsUrl;
 	@private NSMutableArray *services;
@@ -33,6 +35,8 @@
 }
 
 @property (nonatomic, retain) DownloadManager *dlmanager;
+@property (nonatomic) SEL servicesCallback;
+@property (nonatomic) SEL hostsCallback;  
 @property (nonatomic, retain) NSURL *servicesUrl;
 @property (nonatomic, retain) NSURL *hostsUrl;
 @property (nonatomic, retain) NSMutableArray *services;
@@ -52,9 +56,9 @@
 
 - (void) saveToFile;
 
-- (void) loadServices;
+- (void) loadServices:(SEL)callback;
 
-- (void) loadHosts;
+- (void) loadHosts:(SEL)callback;
 
 - (NSMutableArray *)getServices;
 

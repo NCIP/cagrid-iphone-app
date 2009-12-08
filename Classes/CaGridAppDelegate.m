@@ -19,6 +19,7 @@
 @implementation CaGridAppDelegate
 
 @synthesize window;
+@synthesize loadingView;
 @synthesize tabBarController;
 @synthesize dashboardController;
 @synthesize queryRequestController;
@@ -53,16 +54,38 @@
     // Check if any queries finished
 	[qs restartUnfinishedQueries];	
     
-    NSLog(@"Finished launching, now retrieving new data...");
-    
-    // Attempt to load new data
-    [sm loadServices];
-    [sm loadHosts];
+    NSLog(@"Creating UI...");
     
 	// add main view
     [window addSubview:tabBarController.view];
 	
-    NSLog(@"Finished setting up.");
+    // one-time setup
+    if ([sm.services count] == 0 || [sm.hosts count] == 0) {
+        [window addSubview:loadingView];
+    }
+    
+    // Attempt to load new data
+    NSLog(@"Retrieving new data...");
+    receivedContent = 0;
+    [sm loadServices:@selector(completedServices)];
+    [sm loadHosts:@selector(completedHosts)];
+}
+
+- (void) doneSetup {
+    NSLog(@"Completed loading both services and hosts");
+    [self.dashboardController reload];
+	[loadingView removeFromSuperview];
+	self.loadingView = nil;	
+}
+
+- (void)completedServices {
+    NSLog(@"Completed loading services");
+    if (++receivedContent > 1) [self doneSetup];    
+}
+
+- (void)completedHosts {
+    NSLog(@"Completed loading hosts");
+    if (++receivedContent > 1) [self doneSetup];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
@@ -80,6 +103,7 @@
 }
 
 - (void)dealloc {
+    self.loadingView = nil;
     self.tabBarController = nil;
     self.dashboardController = nil;
     self.queryRequestController = nil;

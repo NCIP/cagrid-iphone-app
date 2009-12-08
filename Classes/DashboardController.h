@@ -36,4 +36,6 @@
 
 - (void)selectDataType:(DataType)dataType;
 
+- (void)reload;
+
 @end
