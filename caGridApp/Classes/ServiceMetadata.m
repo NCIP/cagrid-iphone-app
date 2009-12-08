@@ -264,7 +264,7 @@
         if (serviceDict == nil) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
-            if (error == nil) error = @"Error loading data";
+            if (error == nil) error = @"Error loading data (ERR02)";
             if (message == nil) message = @"Service data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
@@ -293,7 +293,7 @@
         if (hostDict == nil) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
-            if (error == nil) error = @"Error loading data";
+            if (error == nil) error = @"Error loading data (ERR03)";
             if (message == nil) message = @"Host data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
@@ -366,14 +366,26 @@
 
 
 - (void)download:(NSURL *)url failedWithError:(NSError *)error {
-
+	
+    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
+	
     NSLog(@"Error retrieving URL %@: %@",url,error);
-    if ([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) {
+    if (([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) || 
+			([error domain] == NSURLErrorDomain && [error code] == NSURLErrorTimedOut)) {
         [Util displayNetworkError];
     }
     else {
-        [Util displayCustomError:@"Error loading data" withMessage:[error localizedDescription]];
+        [Util displayCustomError:@"Error loading data (ERR04)" withMessage:[error localizedDescription]];
     }
+	
+	if ([url isEqual:servicesUrl]) {
+		[delegate performSelector:servicesCallback];
+		
+	}
+    else if ([url isEqual:hostsUrl]) {
+		[delegate performSelector:hostsCallback];
+	}
+	
 }
 
 
