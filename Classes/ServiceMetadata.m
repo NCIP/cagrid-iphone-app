@@ -38,8 +38,11 @@
 - (id) init {
 	if (self = [super init]) {
         
-        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",BASE_URL]];
-        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",BASE_URL]];
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		NSString *baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
+		
+        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",baseUrl]];
+        self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",baseUrl]];
         
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];        
@@ -320,7 +323,9 @@
             for(NSMutableDictionary *host in self.hosts) {
                 NSString *imageName = [host objectForKey:@"image_name"];
                 if (imageName != nil) {
-                    NSURL *imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",BASE_URL,imageName]];
+					NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+					NSString *baseUrl = [defaults objectForKey:@"base_url"];
+                    NSURL *imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",baseUrl,imageName]];
                     [self.hostImageNamesByUrl setObject:imageName forKey:imageURL];
                     [dlmanager beginDownload:imageURL delegate:self];
                 }
