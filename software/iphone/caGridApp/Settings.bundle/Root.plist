@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSTextFieldSpecifier</string>
+			<key>Title</key>
+			<string>Server URL</string>
+			<key>Key</key>
+			<string>base_url</string>
+			<key>DefaultValue</key>
+			<string>http://cab2b-dev.nci.nih.gov/gss10</string>
+			<key>IsSecure</key>
+			<false/>
+			<key>KeyboardType</key>
+			<string>URL</string>
+			<key>AutocapitalizationType</key>
+			<string>None</string>
+			<key>AutocorrectionType</key>
+			<string>No</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>History</string>
+			<key>Key</key>
+			<string>max_queries</string>
+			<key>DefaultValue</key>
+			<integer>5</integer>
+			<key>Values</key>
+			<array>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>20</integer>
+				<integer>50</integer>
+				<integer>100</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>5 queries</string>
+				<string>10 queries</string>
+				<string>20 queries</string>
+				<string>50 queries</string>
+				<string>100 queries</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

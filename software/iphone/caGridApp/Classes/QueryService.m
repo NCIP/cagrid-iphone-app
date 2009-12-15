@@ -131,7 +131,11 @@
 - (void) executeQuery:(NSMutableDictionary *)request {
 @synchronized(self) {
     
-    while ([queryRequests count] >= maxRequests) {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *baseUrl = [defaults objectForKey:@"base_url"];
+	NSNumber *maxRequests = [defaults objectForKey:@"max_queries"];
+	
+    while ([queryRequests count] >= [maxRequests intValue]) {
         [queryRequests removeLastObject];
     }
     
@@ -145,8 +149,8 @@
         if (![serviceIds isEqualToString:@""]) serviceIds = [serviceIds stringByAppendingString:@","];
         serviceIds = [serviceIds stringByAppendingString:serviceId];
     }
-    
-    NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",BASE_URL,deviceId,searchString,serviceIds];
+		
+    NSString *queryStr = [NSString stringWithFormat:@"%@/json/runQuery?clientId=%@&searchString=%@&serviceIds=%@",baseUrl,deviceId,searchString,serviceIds];
     NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     if (escapedQueryStr == nil) {
@@ -167,7 +171,9 @@
         
     NSString *jobId = [request objectForKey:@"jobId"];
     
-	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",BASE_URL,deviceId,jobId];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *baseUrl = [defaults objectForKey:@"base_url"];
+	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",baseUrl,deviceId,jobId];
 	NSString *escapedQueryStr = [queryStr stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
     
     if (escapedQueryStr == nil) {
