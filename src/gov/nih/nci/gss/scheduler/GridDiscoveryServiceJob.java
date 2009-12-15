@@ -170,8 +170,6 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 	private void updateGssServices(Map<String,GridService> gridNodes) {
 
-		StatusChange newSC = null;
-		
 		Transaction tx = null;
 		
 		Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
@@ -239,11 +237,14 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_INACTIVE.equals(mostRecentChange.getNewStatus())) {
 						// Service was marked as inactive, need to make it active now
-						newSC = populateStatusChange(matchingSvc, true);
+						StatusChange newSC = populateStatusChange(matchingSvc, true);
 						matchingSvc.getStatusHistory().add(newSC);
+						saveService(matchingSvc,newSC,hibernateSession);
+					} else {
+						saveService(matchingSvc,null,hibernateSession);
 					}
 
-					saveService(matchingSvc,newSC,hibernateSession);
+					
 					
 				} else {
                     logger.info("  New service");
@@ -281,6 +282,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					    
 					    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
 					    if (cab2bService != null) {
+	                        logger.info("    Found caB2BService: "+cab2bService.getUrl()+", group "+cab2bService.getModelGroupName());
 					        // Translate the caB2B model group to a service group
 					        DataServiceGroup group = xlateUtil.getServiceGroupObj(
 					                cab2bService.getModelGroupName());
@@ -294,7 +296,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 				}
 			}
 			
-			// TODO: Walk the list of currentServices and remove those not in gridNodes
+			// Walk the list of currentServices and remove those not in gridNodes
 			for (GridService service : currentServices) {
 				if (!gridNodes.containsKey(service.getUrl())) {
 					// Check to see if this service is active once again
@@ -302,7 +304,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
 						// Service was marked as active, need to make it inactive now
-						newSC = populateStatusChange(service, false);
+						StatusChange newSC = populateStatusChange(service, false);
 						service.getStatusHistory().add(newSC);
 						saveService(service,newSC,hibernateSession);
 					}
@@ -358,6 +360,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		    
 		    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
 		    if (cab2bService != null) {
+                logger.info("    Found caB2BService: "+cab2bService.getUrl()+", group "+cab2bService.getModelGroupName());
 		        // Translate the caB2B model group to a service group
 		        DataServiceGroup group = xlateUtil.getServiceGroupObj(
 		                cab2bService.getModelGroupName());
@@ -365,6 +368,9 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		        ((DataService)matchingSvc).setGroup(group);
 		        ((DataService)matchingSvc).setSearchDefault(cab2bService.isSearchDefault());
 		    }
+
+		    // TODO: Temporary attempt to fix unloaded proxy when saving grid services
+		    ((DataService)matchingSvc).setDomainModel(null);
 		}
 		return matchingSvc;
 	}
