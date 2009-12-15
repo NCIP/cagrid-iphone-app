@@ -11,10 +11,6 @@
 #import "Util.h"
 #import "DownloadManager.h"
 
-// TODO: Externalize this
-#define BASE_URL @"http://cab2b-dev.nci.nih.gov/gss10"
-//#define BASE_URL @"http://biowiki.dnsalias.net:52210/gss10"
-
 @interface ServiceMetadata : NSObject {
     
 	@private DownloadManager *dlmanager;

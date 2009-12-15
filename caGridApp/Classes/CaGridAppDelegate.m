@@ -28,6 +28,28 @@
 @synthesize favoritesController;
 
 
+// Borrowed code from http://paulsolt.com/2009/06/iphone-default-user-settings-null/
+- (void)registerDefaultsFromSettingsBundle {
+    NSString *settingsBundle = [[NSBundle mainBundle] pathForResource:@"Settings" ofType:@"bundle"];
+    if(!settingsBundle) {
+        NSLog(@"Could not find Settings.bundle");
+        return;
+    }
+	
+    NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[settingsBundle stringByAppendingPathComponent:@"Root.plist"]];
+    NSArray *preferences = [settings objectForKey:@"PreferenceSpecifiers"];
+	
+    NSMutableDictionary *defaultsToRegister = [[NSMutableDictionary alloc] initWithCapacity:[preferences count]];
+    for(NSDictionary *prefSpecification in preferences) {
+        NSString *key = [prefSpecification objectForKey:@"Key"];
+        if(key) {
+            [defaultsToRegister setObject:[prefSpecification objectForKey:@"DefaultValue"] forKey:key];
+        }
+    }
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaultsToRegister];
+    [defaultsToRegister release];
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application {
     NSLog(@"Application is about to terminate... write everything to files.");
    	[[QueryService sharedSingleton] saveToFile];    
@@ -39,6 +61,23 @@
 
     NSLog(@"Finished launching, now loading cached data...");
     
+	// Validate user defaults
+	NSLog(@"Reading from Settings Bundle...");
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
+	NSNumber *maxQueries = (NSNumber *)[defaults objectForKey:@"max_queries"];
+	
+	if (baseUrl == nil || maxQueries == nil) {
+		NSLog(@"Settings Bundle is not initialized, loading defaults...");
+		[self registerDefaultsFromSettingsBundle];
+		baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
+		maxQueries = (NSNumber *)[defaults objectForKey:@"max_queries"];
+	}
+	
+	NSLog(@"  base_url: %@",baseUrl);
+	NSLog(@"  max_queries: %@",maxQueries);
+	
     QueryService *qs = [QueryService sharedSingleton];
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     UserPreferences *up = [UserPreferences sharedSingleton];
