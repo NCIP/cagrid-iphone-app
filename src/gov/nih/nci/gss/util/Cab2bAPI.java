@@ -1,5 +1,7 @@
 package gov.nih.nci.gss.util;
 
+import gov.nih.nci.gss.scheduler.GridDiscoveryServiceJob;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +17,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,7 +28,9 @@ import org.json.JSONObject;
  */
 public class Cab2bAPI {
     
-    private Cab2bTranslator cab2bTranslator;
+	private static Logger logger = Logger.getLogger(Cab2bAPI.class);
+
+	private Cab2bTranslator cab2bTranslator;
     
     public Cab2bAPI(Cab2bTranslator cab2bTranslator) {
     	this.cab2bTranslator = cab2bTranslator;
@@ -97,7 +102,8 @@ public class Cab2bAPI {
         finally {
         	httpclient.getConnectionManager().shutdown();
         }
-        
+		logger.info("Retrieved " + services.size() + " services from caB2B");
+
         return services;
     }
 
