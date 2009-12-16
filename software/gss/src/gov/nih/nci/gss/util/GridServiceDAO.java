@@ -1,17 +1,19 @@
 package gov.nih.nci.gss.util;
 
-import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.GridService;
+import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 
+/**
+ * Common queries for retrieving services and hosts from GSS.
+ * 
+ * @author <a href="mailto:rokickik@mail.nih.gov">Konrad Rokicki</a>
+ */
 public class GridServiceDAO {
 
 	public static final String GET_SERVICE_HQL_SELECT = 
@@ -33,8 +35,6 @@ public class GridServiceDAO {
     public static List<GridService> getServices(String serviceId, boolean includeModel, Session s) 
 	            throws ApplicationException {
 
-    	List<GridService> services = new ArrayList<GridService>();
-
         // Create the HQL query
         StringBuffer hql = new StringBuffer(GET_SERVICE_HQL_SELECT);
         hql.append(GET_SERVICE_HQL_JOIN_STATUS);
@@ -48,16 +48,12 @@ public class GridServiceDAO {
         if (serviceId != null) q.setString(0, serviceId);
         
         // Execute the query
-        services = q.list();
-
-        return services;
+        return q.list();
      }
 
     public static List<HostingCenter> getHosts(String hostId, Session s) 
 	    		throws ApplicationException {
 	
-		List<HostingCenter> hosts = new ArrayList<HostingCenter>();
-		
         // Create the HQL query
         StringBuffer hql = new StringBuffer(GET_HOST_HQL_SELECT);
         if (hostId != null) hql.append("where host.id = ?");
@@ -67,9 +63,7 @@ public class GridServiceDAO {
         if (hostId != null) q.setString(0, hostId);
         
         // Execute the query
-        hosts = q.list();
-		
-		return hosts;
+		return q.list();
 	}
 
 }
