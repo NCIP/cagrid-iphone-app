@@ -1,6 +1,6 @@
 package gov.nih.nci.gss.util;
 
-import gov.nih.nci.gss.scheduler.GridDiscoveryServiceJob;
+import gov.nih.nci.gss.domain.DataServiceGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,13 +22,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Interface to caB2B.
+ * Interface to caB2B via a JSON API. 
  * 
  * @author <a href="mailto:rokickik@mail.nih.gov">Konrad Rokicki</a>
  */
 public class Cab2bAPI {
     
-	private static Logger logger = Logger.getLogger(Cab2bAPI.class);
+	private static Logger log = Logger.getLogger(Cab2bAPI.class);
 
 	private Cab2bTranslator cab2bTranslator;
     
@@ -88,8 +88,8 @@ public class Cab2bAPI {
         		    String serviceURL = jsonService.getString("url");
         		    
         		    boolean searchDefault = false;
-        		    if (jsonService.has(serviceURL)) {
-        		        searchDefault = "true".equals(jsonService.getString(serviceURL));
+        		    if (jsonService.has("searchDefault")) {
+        		        searchDefault = "true".equals(jsonService.getString("searchDefault"));
         		    }
         		    
         		    Cab2bService service = new Cab2bService(
@@ -102,8 +102,8 @@ public class Cab2bAPI {
         finally {
         	httpclient.getConnectionManager().shutdown();
         }
-		logger.info("Retrieved " + services.size() + " services from caB2B");
-
+        
+		log.info("Retrieved " + services.size() + " services from caB2B");
         return services;
     }
 
@@ -118,7 +118,7 @@ public class Cab2bAPI {
     public String search(String searchString, String serviceGroup, List<String> serviceUrls) throws Exception {
 
     	DefaultHttpClient httpclient = new DefaultHttpClient();
-    	String modelGroup = cab2bTranslator.getModelGroupForServiceGroup(serviceGroup);
+    	DataServiceGroup group = cab2bTranslator.getServiceGroupByName(serviceGroup);
     	
         try {
             String url = GSSProperties.getCab2b2QueryURL()+"/search/";
@@ -126,7 +126,7 @@ public class Cab2bAPI {
 
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("searchString", searchString));
-            nvps.add(new BasicNameValuePair("modelGroup", modelGroup));
+            nvps.add(new BasicNameValuePair("modelGroup", group.getCab2bName()));
             for(String serviceUrl : serviceUrls) {
                 nvps.add(new BasicNameValuePair("serviceUrl", serviceUrl));
             }
