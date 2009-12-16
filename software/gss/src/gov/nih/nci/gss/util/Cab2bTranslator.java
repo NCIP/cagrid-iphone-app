@@ -47,24 +47,12 @@ public class Cab2bTranslator {
         }
     }
 	
-	public String getServiceGroupForModelGroup(String modelGroup) {
-		return byModelGroup.get(modelGroup).getName();
+	public DataServiceGroup getServiceGroupForModelGroup(String modelGroup) {
+		return byModelGroup.get(modelGroup);
 	}
-	
-	public String getModelGroupForServiceGroup(String scope) {
-		return byServiceGroup.get(scope).getCab2bName();
-	}
-	
-	public String getPrimaryKeyForServiceGroup(String scope) {
-		return byServiceGroup.get(scope).getDataPrimaryKey();
-	}
-
-    public String getHostKeyForServiceGroup(String scope) {
-        return byServiceGroup.get(scope).getHostPrimaryKey();
-    }
     
-	public DataServiceGroup getServiceGroupObj(String scope) {
-		return byServiceGroup.get(scope);
+	public DataServiceGroup getServiceGroupByName(String serviceGroupName) {
+		return byServiceGroup.get(serviceGroupName);
 	}
 	
 }

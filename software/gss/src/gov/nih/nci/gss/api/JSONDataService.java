@@ -576,10 +576,10 @@ public class JSONDataService extends HttpServlet {
         }
 
     	String modelGroupName = json.getString("modelGroupName");
-        String serviceGroup = cab2bTranslator.getServiceGroupForModelGroup(modelGroupName);
+        DataServiceGroup serviceGroup = cab2bTranslator.getServiceGroupForModelGroup(modelGroupName);
     	if (modelGroupName != null) {
             json.remove("modelGroupName");
-    		json.put("serviceGroup", serviceGroup);
+    		json.put("serviceGroup", serviceGroup.getName());
     	}
     	
         if (collapse) {
@@ -587,8 +587,8 @@ public class JSONDataService extends HttpServlet {
         	    new LinkedHashMap<String,Map<String,JSONObject>>();
         	
         	// the key to discriminate on for duplicates
-        	String primaryKey = cab2bTranslator.getPrimaryKeyForServiceGroup(serviceGroup);
-            String hostKey = cab2bTranslator.getHostKeyForServiceGroup(serviceGroup);
+        	String primaryKey = serviceGroup.getDataPrimaryKey();
+            String hostKey = serviceGroup.getHostPrimaryKey();
         	
         	JSONObject queries = json.getJSONObject("results");
         	for(Iterator i = queries.keys(); i.hasNext(); ) {
