@@ -98,6 +98,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		logger.debug("Discovering grid services");
 
 		// auto-discover grid nodes and save in session
+		
 		List<GridService> list = GridIndexService.discoverGridServices();
 
 		if (list != null) {
@@ -269,9 +270,9 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					// Mark this service as published/discovered now.  Also, give it a default status change of "up".
 					// TODO: Is there a better "publish date" in the service metadata?
 					service.setPublishDate(new Date());
-					StatusChange sc = createStatusChange(service, true);
+					StatusChange newSC = createStatusChange(service, true);
 					Collection<StatusChange> scList = new HashSet<StatusChange>();
-					scList.add(sc);
+					scList.add(newSC);
 					service.setStatusHistory(scList);
 
 					// Set up service simple name and linkage to correct caB2B model group
@@ -282,7 +283,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 					    dataService = updateCab2bData(dataService);
 					}
 					
-					saveService(service,sc,hibernateSession);
+					saveService(service,newSC,hibernateSession);
 				}
 			}
 			
