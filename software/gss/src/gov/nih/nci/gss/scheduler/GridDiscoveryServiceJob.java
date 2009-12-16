@@ -394,9 +394,6 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		if (matchingSvc instanceof DataService && service instanceof DataService) {
 		    DataService dataService = (DataService)matchingSvc;
 		    dataService = updateCab2bData(dataService);
-		    
-		    // TODO: Temporary attempt to fix unloaded proxy when saving grid services
-		    //dataService.setDomainModel(null);
 		}
 		
 		return matchingSvc;
