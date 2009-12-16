@@ -39,6 +39,8 @@ public class SchedulerControllerServlet extends HttpServlet {
 	public void init() throws ServletException {
 		ServletContext context = this.getServletContext();
 
+		logger.info("Initializing SchedulerControllerServlet");
+		
         WebApplicationContext ctx =  
             WebApplicationContextUtils.getWebApplicationContext(context);
         HibernateUtil.setSessionFactory(((ORMDAOImpl)ctx.getBean("ORMDAO")).getHibernateTemplate().getSessionFactory());
