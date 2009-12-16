@@ -61,19 +61,13 @@ public class GridIndexService {
 		String indexServiceURL = GSSProperties.getGridIndexURL();
 
 		try {
-			DiscoveryClient discoveryClient = new DiscoveryClient(
-					indexServiceURL);
-			returnedServices = discoveryClient.getAllServices(true);
-		} catch (MalformedURIException e) {
-			logger.error(e.getMessage(), e);
-		} catch (RemoteResourcePropertyRetrievalException e) {
-			logger.error(e.getMessage(), e);
-		} catch (QueryInvalidException e) {
-			logger.error(e.getMessage(), e);
-		} catch (ResourcePropertyRetrievalException e) {
-			logger.error(e.getMessage(), e);
+    		DiscoveryClient discoveryClient = new DiscoveryClient(
+    				indexServiceURL);
+    		returnedServices = discoveryClient.getAllServices(true);
 		}
-
+		catch (Exception e) {
+		    throw new GridAutoDiscoveryException("Error discovering services",e);
+		}
 		if (returnedServices != null) {
 			services = new ArrayList<EndpointReferenceType>(Arrays
 					.asList(returnedServices));
