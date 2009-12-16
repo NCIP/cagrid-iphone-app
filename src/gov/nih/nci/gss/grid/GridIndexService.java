@@ -5,6 +5,7 @@ import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 import gov.nih.nci.cagrid.metadata.common.Address;
 import gov.nih.nci.cagrid.metadata.common.ResearchCenter;
+import gov.nih.nci.cagrid.metadata.common.ResearchCenterPointOfContactCollection;
 import gov.nih.nci.cagrid.metadata.dataservice.DomainModel;
 import gov.nih.nci.cagrid.metadata.dataservice.UMLClass;
 import gov.nih.nci.cagrid.metadata.exceptions.InvalidResourcePropertyException;
@@ -135,50 +136,58 @@ public class GridIndexService {
 		return version;
 	}
 	
-    public static GridService populateGridService(EndpointReferenceType serviceER, ServiceMetadata metadata, DomainModel model) {    	
-    	GridService newService = null;
-    	
-    	if (metadata != null && model != null) {
-    		newService = new DataService();
-    	} else {
-    		newService = new AnalyticalService();
-    	}
-    	
-    	// Get the buried service description from the metadata
-    	Service serviceData = metadata.getServiceDescription().getService();
+    public static GridService populateGridService(EndpointReferenceType serviceER, ServiceMetadata metadata, DomainModel model) {
+        
+    	GridService newService = model != null ? 
+    	        new DataService() : new AnalyticalService();
 
-    	// Build GridService object
-    	newService.setName(serviceData.getName());
-    	newService.setDescription(serviceData.getDescription());
-    	newService.setVersion(serviceData.getVersion());
+        // Build GridService object
+    	        
+        if (metadata != null) {
+            // Get the buried service description from the metadata
+            Service serviceData = metadata.getServiceDescription().getService();
+            
+            if (serviceData != null) {
+                newService.setName(serviceData.getName());
+                newService.setDescription(serviceData.getDescription());
+                newService.setVersion(serviceData.getVersion());
+
+                // Get POC objects
+                ServicePointOfContactCollection pocs = serviceData.getPointOfContactCollection();
+                if (pocs != null) {
+                    newService.setPointOfContacts(populatePOCList(pocs.getPointOfContact()));    
+                }
+            }
+            
+            // Build Hosting Center object
+            newService.setHostingCenter(populateHostingCenter(metadata));
+        }
+
+        // Set the service URL (unique key)
     	newService.setUrl(serviceER.getAddress().toString());
-    	newService.setSimpleName(null);    // Deferred to caller, not available in metadata
-    	newService.setPublishDate(null);    // Deferred to caller, not available in metadata
     	
-    	// Get POC objects
-    	ServicePointOfContactCollection pocs = serviceData.getPointOfContactCollection();
-    	if (pocs != null) {
-    	    newService.setPointOfContacts(populatePOCList(pocs.getPointOfContact()));    
-    	}
-		
-    	// Build Hosting Center object
-		newService.setHostingCenter(populateHostingCenter(metadata));
-		
-		newService.setStatusHistory(null); // Deferred to caller, not available in metadata
+    	// Deferred to caller, not available in metadata
+    	newService.setSimpleName(null);    
+    	newService.setPublishDate(null);
+		newService.setStatusHistory(null);
 		
 		// Build Domain Model object for data services
-		if (newService.getClass() == DataService.class) {
-			((DataService)newService).setDomainModel(populateDomainModel(model));
-			((DataService)newService).setGroup(null);  // Deferred to caller, not available in metadata
+		if (newService instanceof DataService) {
+		    DataService dataService = ((DataService)newService);
+		    dataService.setDomainModel(populateDomainModel(model));
+			// Deferred to caller, not available in metadata
+		    dataService.setGroup(null);
+		    dataService.setSearchDefault(false);
 		}
 		
-    	logger.debug("Built GridService for " + newService.getName());
     	return newService;
     }
     
     private static gov.nih.nci.gss.domain.DomainModel populateDomainModel(DomainModel model) {
         gov.nih.nci.gss.domain.DomainModel newModel = new gov.nih.nci.gss.domain.DomainModel();
     	
+        if (model == null) return newModel;
+        
     	newModel.setDescription(model.getProjectDescription());
     	newModel.setLongName(model.getProjectLongName());
     	newModel.setVersion(model.getProjectVersion());
@@ -199,9 +208,11 @@ public class GridIndexService {
 	}
 
 	private static Collection<gov.nih.nci.gss.domain.PointOfContact> populatePOCList(gov.nih.nci.cagrid.metadata.common.PointOfContact[] POCs) {
-
+	    
     	Collection<gov.nih.nci.gss.domain.PointOfContact> POClist = new HashSet<gov.nih.nci.gss.domain.PointOfContact>();
 
+    	if (POCs == null) return POClist;
+    	
 		for (gov.nih.nci.cagrid.metadata.common.PointOfContact POC : POCs) {
 			gov.nih.nci.gss.domain.PointOfContact newPOC = new gov.nih.nci.gss.domain.PointOfContact();
 			
@@ -231,29 +242,32 @@ public class GridIndexService {
 
 		ResearchCenter center = metadata.getHostingResearchCenter().getResearchCenter();
 		
-		if (center != null) {
-			Address rcAddress = center.getAddress();
-			newCenter.setCountryCode(rcAddress.getCountry());
-			newCenter.setLocality(rcAddress.getLocality());
-			newCenter.setPostalCode(rcAddress.getPostalCode());
-			newCenter.setStateProvince(rcAddress.getStateProvince());
-			String streetAddr = rcAddress.getStreet2();
-			if (streetAddr == null || streetAddr.trim().length() == 0) {
-				streetAddr = rcAddress.getStreet1();
-			} else {
-				streetAddr = rcAddress.getStreet1() + "\n" + streetAddr;
-			}
-			newCenter.setStreet(streetAddr);
-			newCenter.setLongName(center.getDisplayName());
-			newCenter.setShortName(center.getShortName());
-			
-            if (StringUtil.isEmpty(newCenter.getLongName())) {
-                return null;
-            }
-			
-			// Build Hosting Center POCs
-			newCenter.setPointOfContacts(populatePOCList(center.getPointOfContactCollection().getPointOfContact()));
+		if (center == null) return newCenter;
+		
+		Address rcAddress = center.getAddress();
+		newCenter.setCountryCode(rcAddress.getCountry());
+		newCenter.setLocality(rcAddress.getLocality());
+		newCenter.setPostalCode(rcAddress.getPostalCode());
+		newCenter.setStateProvince(rcAddress.getStateProvince());
+		String streetAddr = rcAddress.getStreet2();
+		if (streetAddr == null || streetAddr.trim().length() == 0) {
+			streetAddr = rcAddress.getStreet1();
+		} else {
+			streetAddr = rcAddress.getStreet1() + "\n" + streetAddr;
 		}
+		newCenter.setStreet(streetAddr);
+		newCenter.setLongName(center.getDisplayName());
+		newCenter.setShortName(center.getShortName());
+		
+        if (StringUtil.isEmpty(newCenter.getLongName())) {
+            return null;
+        }
+		
+		// Build Hosting Center POCs
+        ResearchCenterPointOfContactCollection pocs = center.getPointOfContactCollection();
+        if (pocs != null) {
+            newCenter.setPointOfContacts(populatePOCList(pocs.getPointOfContact()));
+        }
 		
 		return newCenter;
 	}
