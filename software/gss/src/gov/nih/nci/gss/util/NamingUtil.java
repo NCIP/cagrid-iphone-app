@@ -74,16 +74,16 @@ public class NamingUtil {
     private String getSimpleName(String originalName, 
             Map<String,String> simpleNameMap) {
 
+        if (originalName == null) return null;
+        
+        String simpleName = originalName.trim();
         for (String pattern : simpleNameMap.keySet()) {
             String replacement = simpleNameMap.get(pattern);
-            
-            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(originalName);
-            String finalName = m.replaceAll(replacement);
-            
-            return finalName;
+            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(simpleName);
+            simpleName = m.replaceAll(replacement);
         }
         
-        return originalName;
+        return simpleName;
     } 
 
     public String getSimpleServiceName(String originalName) {
@@ -97,5 +97,21 @@ public class NamingUtil {
         return getSimpleName(originalName, simpleHostNameMap);
     }
     
+    /**
+     * Test harness for regular expressions.
+     * @param args
+     */
+    public static final void main(String[] args) {
+
+        String originalName = "camod ";
+        String pattern = "^camod$";
+
+        Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(originalName);
+        if (m.matches()) {
+            String finalName = m.replaceAll("caMOD");
+            System.out.println("Simplify: "+originalName+" -> "+finalName);
+        }
+        
+    }
    
 }
