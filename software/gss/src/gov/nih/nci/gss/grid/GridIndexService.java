@@ -142,7 +142,8 @@ public class GridIndexService {
     	        new DataService() : new AnalyticalService();
 
         // Build GridService object
-    	        
+    	newService.setPointOfContacts(new HashSet<gov.nih.nci.gss.domain.PointOfContact>());
+    	            
         if (metadata != null) {
             // Get the buried service description from the metadata
             Service serviceData = metadata.getServiceDescription().getService();
