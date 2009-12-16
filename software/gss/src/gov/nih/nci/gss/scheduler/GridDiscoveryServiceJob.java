@@ -166,10 +166,10 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			
 		} 
 		catch (ConstraintViolationException e) {
-			logger.warn("Duplicate grid service found: " + service.getUrl());
+			logger.warn("Duplicate object for: " + service.getUrl(),e);
 		} 
 		catch (RuntimeException e) {
-			logger.warn("Unable to save GridService: " + e.getMessage());
+			logger.warn("Unable to save GridService",e);
 		}
 	}
 
@@ -290,10 +290,15 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			for (GridService service : currentServices) {
 				if (!gridNodes.containsKey(service.getUrl())) {
 				    countInactive++;
+	                logger.info("-------------------------------------------------");
+	                logger.info("Name: "+service.getName());
+	                logger.info("URL: "+service.getUrl());
+                    logger.info("Not found in index service metadata.");
 					// Is the service currently marked active? 
 					Collection<StatusChange> changes = service.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
+	                    logger.info("Marking service inactive.");
 						// Service was marked as active, need to make it inactive now
 						StatusChange newSC = createStatusChange(service, false);
 						service.getStatusHistory().add(newSC);
