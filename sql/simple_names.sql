@@ -2,8 +2,8 @@
 TRUNCATE TABLE SIMPLE_NAME;
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","Svc_v\\d+_\\d+$","");
-INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","(caBIO)\\d+","\\1");
-INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","camod","caMOD");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","^(caBIO)\\d+$","$1");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName","^camod$","caMOD");
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","NCI(\\s)?CB(IIT)?","NCI Center for Biomedical Informatics and Information Technology");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",".*?-\\s?NCICB","NCI Center for Biomedical Informatics and Information Technology");
