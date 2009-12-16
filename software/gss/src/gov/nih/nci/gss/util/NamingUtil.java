@@ -22,7 +22,8 @@ public class NamingUtil {
 
     private static Logger log = Logger.getLogger(NamingUtil.class);
     
-    private Map<String,String> simpleNameMap = new LinkedHashMap<String,String>();
+    private Map<String,String> simpleServiceNameMap = new LinkedHashMap<String,String>();
+    private Map<String,String> simpleHostNameMap = new LinkedHashMap<String,String>();
     
     public NamingUtil(SessionFactory sessionFactory) {
 
@@ -33,13 +34,28 @@ public class NamingUtil {
             
             for(SimpleName simpleName : names) {
                 String pattern = simpleName.getPattern();
+                
                 try {
                     Pattern.compile(pattern);
-                    log.info(pattern+" -> "+simpleName.getSimpleName());
-                    simpleNameMap.put(simpleName.getPattern(), simpleName.getSimpleName());
+                    String type = simpleName.getType();
+                    if ("ServiceName".equals(type)) {
+                        log.info("Service pattern: /"+pattern+"/"+simpleName.getSimpleName()+"/");
+                        simpleServiceNameMap.put(
+                            simpleName.getPattern(), simpleName.getSimpleName());
+                    }
+                    else if ("HostName".equals(type)) {
+                        log.info("Host pattern: /"+pattern+"/"+simpleName.getSimpleName()+"/");
+                        simpleHostNameMap.put(
+                            simpleName.getPattern(), simpleName.getSimpleName());
+                    }
+                    else {
+                        log.info("Unknown SimpleName type: "+
+                            type+" (id="+simpleName.getId()+")");
+                    }
                 }
                 catch (PatternSyntaxException e) {
-                    log.warn("Invalid SimpleName.pattern "+pattern+": "+e.getMessage());
+                    log.warn("Invalid SimpleName pattern: "+pattern+" " +
+                    		"("+e.getMessage()+")");
                 }
             }
             log.info("Naming map configuration complete.");
@@ -55,26 +71,31 @@ public class NamingUtil {
      * @param originalName a name to simplify
      * @return simple name
      */
-   public String getSimpleServiceName(String originalName) {
-        
+    private String getSimpleName(String originalName, 
+            Map<String,String> simpleNameMap) {
+
         for (String pattern : simpleNameMap.keySet()) {
-            Matcher m = Pattern.compile("^"+pattern+"$", 
-                Pattern.CASE_INSENSITIVE).matcher(originalName);
-            if (m.matches()) {
-                String simpleName = simpleNameMap.get(pattern);
-                if (simpleName != null) {
-                    return simpleName; 
-                }
-            }
+            String replacement = simpleNameMap.get(pattern);
+            
+            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(originalName);
+            String finalName = m.replaceAll(replacement);
+            
+            return finalName;
         }
         
         return originalName;
     } 
 
-   public String getSimpleHostName(String originalName) {
-       // TODO: for now the host and server patterns are mixed, 
-       // but we can separate them later
-       return getSimpleServiceName(originalName);
-   }
+    public String getSimpleServiceName(String originalName) {
+        String simpleName = originalName.
+            replaceAll("(Grid|Data|Analytical)?(Service|Svc)$", "").
+            replaceAll("^Ca", "ca");
+        return getSimpleName(simpleName, simpleServiceNameMap);
+    }
+    
+    public String getSimpleHostName(String originalName) {
+        return getSimpleName(originalName, simpleHostNameMap);
+    }
+    
    
 }
