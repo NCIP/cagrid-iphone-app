@@ -2,6 +2,8 @@ package gov.nih.nci.gss.scheduler;
 
 import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DataServiceGroup;
+import gov.nih.nci.gss.domain.DomainClass;
+import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
@@ -34,7 +36,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
- * 
+ * Scheduled job for updating the GSS database periodically. Reads from the 
+ * caGrid Index Service and updates corresponding objects in GSS. Everything
+ * happens in a single atomic transaction. 
  * 
  * @author sahnih
  * Modified by piepenbringc for use in GSS
@@ -42,8 +46,8 @@ import org.quartz.JobExecutionException;
  *   grid services accordingly.
  */
 public class GridDiscoveryServiceJob extends HttpServlet implements Job {
-	private static Logger logger = Logger
-			.getLogger(GridDiscoveryServiceJob.class.getName());
+    
+	private static Logger logger = Logger.getLogger(GridDiscoveryServiceJob.class);
 
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
@@ -61,120 +65,125 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			throws JobExecutionException {
 
 		try {
+		    
+		    // Initialize helper classes
 	        this.xlateUtil = new Cab2bTranslator(HibernateUtil.getSessionFactory());
             this.namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
 	        Cab2bAPI cab2bAPI = new Cab2bAPI(xlateUtil);
 	        this.cab2bServices = cab2bAPI.getServices();
+	        
+            // Update services as necessary or add new ones
+            updateGssServices(populateRemoteServices());
+            
 		}
+        catch (GridAutoDiscoveryException e) {
+            throw new JobExecutionException(
+                "Could not discover grid services", e, false);
+        }
 		catch (Exception e) {
 		    throw new JobExecutionException(
-		        "Could not retrieve caB2B services",e,false);
+		        "Could not update the GSS database", e, false);
 		}
-		
-		// Update services as necessary or add new ones
-		Map<String,GridService> gridNodes = populateServicesFromIndex();
-		updateGssServices(gridNodes);
-	}
-
-	public Map<String,GridService> populateServicesFromIndex() {
-		return populateRemoteServices();
 	}
 
 	/**
 	 * @return List<GridNodeBean>
 	 */
-	private Map<String,GridService> populateRemoteServices() {
+	private Map<String,GridService> populateRemoteServices() 
+	        throws GridAutoDiscoveryException {
 
 		// Build a hash on URL for GridServices
 		HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
 
-		logger.debug("Refreshing Grid Nodes via discoverServices");
+		logger.debug("Discovering grid services");
 
 		// auto-discover grid nodes and save in session
-		List<GridService> list = null;
-		try {
-			list = GridIndexService.discoverGridServices();
-		} catch (GridAutoDiscoveryException e) {
-			String err = "Error in discovering grid services from the index server";
-			logger.warn(err);
-			list = null;
-		}
+		List<GridService> list = GridIndexService.discoverGridServices();
+
 		if (list != null) {
 			for (GridService service : list) {
+			    if (serviceMap.containsKey(service.getUrl())) {
+			        logger.warn("Index Service returned duplicate service URL: "+
+			            service.getUrl());
+			    }
 				serviceMap.put(service.getUrl(), service);
 			}
 		}
+		
 		return serviceMap;
 	}
 
 	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
-		logger.info("    - Saving GridService: " + service.getName());
-
 		try {
-			// Save in the following order:
+			// Domain classes are saved in reverse referencing order 
+
 			// 1) All POCs
 			for (PointOfContact POC : service.getPointOfContacts()) {
-                logger.info("    - Saving Service POC "+POC.getName());
+                logger.info("Saving Service POC "+POC.getName());
                 POC.setId((Long)hibernateSession.save(POC));
 			}
 			HostingCenter hc = service.getHostingCenter();
 			if (hc != null) {
 				for (PointOfContact POC : hc.getPointOfContacts()) {
-	                logger.info("    - Saving Host POC "+POC.getName());
+	                logger.info("Saving Host POC "+POC.getName());
 	                POC.setId((Long)hibernateSession.save(POC));
 				}
 
                 // 2) Hosting Center
-				
 				if (hc.getId() == null) {
-				    logger.info("    - Saving Host "+hc.getLongName());
+				    logger.info("Saving Host: "+hc.getLongName());
 				    // Hosting center has not been saved yet
 				    hc.setId((Long)hibernateSession.save(hc));
 				}
-				
 			}
 	
-			//   - 3) Domain Model (TBD)
-			if (service.getClass() == DataService.class) {
-	            logger.info("    - Saving Domain Model ");
-				hibernateSession.save(((DataService)service).getDomainModel());
+			// 3) Domain Model
+			if (service instanceof DataService) {
+			    DomainModel model = ((DataService)service).getDomainModel();
+			    if (model != null) {
+    	            logger.info("Saving Domain Model: "+model.getLongName());
+    				model.setId((Long)hibernateSession.save(model));
+    				
+                    // 4) Domain Classes 
+                    // TODO: implement domain class saving
+                    logger.info("Saving "+model.getClasses().size()+" Domain Classes");
+                    for(DomainClass domainClass : model.getClasses()) {
+                        domainClass.setId((Long)hibernateSession.save(domainClass));
+                    }
+			    }
 			}
-			//   - 4) Grid Services
-            logger.info("    - Saving Service ");
+			
+			// 5) Grid Service
+            logger.info("Saving Service: "+service.getName());
             service.setId((Long)hibernateSession.save(service));
-			//   - 5) Status Changes
+            
+			// 6) Status Changes
 			if (sc != null) {
-	            logger.info("    - Saving Status Change ");
-				hibernateSession.save(sc);
+	            logger.info("Saving Status Change ");
+				sc.setId((Long)hibernateSession.save(sc));
 			}
-			//   - 6) Domain Classes (TBD)
-		
-		} catch (ConstraintViolationException e) {
+			
+		} 
+		catch (ConstraintViolationException e) {
 			logger.warn("Duplicate grid service found: " + service.getUrl());
-		} catch (RuntimeException e) {
+		} 
+		catch (RuntimeException e) {
 			logger.warn("Unable to save GridService: " + e.getMessage());
 		}
-	}
-
-	private static StatusChange populateStatusChange(GridService service, Boolean isActive) {
-
-		StatusChange newSC = new StatusChange();
-		
-		newSC.setChangeDate(new Date());
-		newSC.setGridService(service);
-		newSC.setNewStatus(isActive ? STATUS_CHANGE_ACTIVE : STATUS_CHANGE_INACTIVE);
-		
-		return newSC;
 	}
 
 	private void updateGssServices(Map<String,GridService> gridNodes) {
 
 		Transaction tx = null;
-		
 		Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 		
+		int countNew = 0;
+		int countUpdated = 0;
+		int countInactive = 0;
+		
 		try {
+            logger.info("Beginning transaction");
 			tx = hibernateSession.beginTransaction();
 			
 			Collection<GridService> currentServices = GridServiceDAO.getServices(null,false,hibernateSession);
@@ -194,7 +203,9 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 			// Walk the list of gridNodes and update the current services and hosting centers where necessary
 			for (GridService service : gridNodes.values()) {
 
-                logger.info("SAVE: "+service.getUrl());
+                logger.info("-------------------------------------------------");
+                logger.info("Name: "+service.getName());
+                logger.info("URL: "+service.getUrl());
                 
                 // Standardize the host long name
                 HostingCenter thisHC = service.getHostingCenter();
@@ -207,66 +218,58 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
                     hostLongName = hostLongName.trim();
                     
                     if (!thisHC.getLongName().equals(hostLongName)) {
-                        logger.info("  Changing host name: "+thisHC.getLongName()+" -> "+hostLongName);
+                        logger.info("Host name: "+hostLongName+" (was "+thisHC.getLongName()+")");
+                        thisHC.setLongName(hostLongName);
                     }
-                    thisHC.setLongName(hostLongName);
+                    else {
+                        logger.info("Host name: "+thisHC.getLongName());
+                    }
+                }
+                
+                // Check to see if the hosting center already exists.
+                if (thisHC != null) {
+                    if (hostMap.containsKey(hostLongName)) {
+                        HostingCenter matchingHost = hostMap.get(hostLongName);
+                        matchingHost = updateHostData(matchingHost, thisHC);
+                        service.setHostingCenter(matchingHost);
+                        logger.info("Using existing host with id: "+matchingHost.getId());
+                    }
+                    else {
+                        hostMap.put(hostLongName, thisHC);
+                    }
                 }
                 
 				if (serviceMap.containsKey(service.getUrl())) {
-				    logger.info("  Service already exists");
+				    logger.info("Service already exists, updating...");
+				    countUpdated++;
+				    
 					// This service is already in the list of current services
 					GridService matchingSvc = serviceMap.get(service.getUrl());
 					
 					// Update any new data about this service
 					matchingSvc = updateServiceData(matchingSvc, service);
-					
-	                // Make sure the hosting center exists and is up to date
-	                if (thisHC != null) {
-    					if (hostMap.containsKey(hostLongName)) {
-    						HostingCenter matchingHost = hostMap.get(hostLongName);
-    						matchingHost = updateHostData(matchingHost, thisHC);
-    						matchingSvc.setHostingCenter(matchingHost);
-    					}
-    					else {
-    		                hostMap.put(hostLongName, thisHC);
-    					}
-	                }
-
+							
 					// Check to see if this service is active once again
 					Collection<StatusChange> changes = matchingSvc.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_INACTIVE.equals(mostRecentChange.getNewStatus())) {
 						// Service was marked as inactive, need to make it active now
-						StatusChange newSC = populateStatusChange(matchingSvc, true);
+						StatusChange newSC = createStatusChange(matchingSvc, true);
 						matchingSvc.getStatusHistory().add(newSC);
 						saveService(matchingSvc,newSC,hibernateSession);
-					} else {
+					} 
+					else {
 						saveService(matchingSvc,null,hibernateSession);
 					}
-
-					
-					
-				} else {
-                    logger.info("  New service");
-					// This is a new service.
-					// Check to see if the hosting center already exists.
-				    if (thisHC != null) {
-    					if (hostMap.containsKey(hostLongName)) {
-    						HostingCenter matchingHost = hostMap.get(hostLongName);
-    						matchingHost = updateHostData(matchingHost, thisHC);
-    						service.setHostingCenter(matchingHost);
-                            logger.info("    Using Host: "+matchingHost.getId()+" "+matchingHost.getLongName());
-    					}
-                        else {
-                            hostMap.put(hostLongName, thisHC);
-                            logger.info("    New Host: "+thisHC.getId()+" "+thisHC.getLongName());
-                        }
-				    }
-					
+				} 
+				else {
+                    logger.info("Creating new service...");
+                    countNew++;
+                    
 					// Mark this service as published/discovered now.  Also, give it a default status change of "up".
 					// TODO: Is there a better "publish date" in the service metadata?
 					service.setPublishDate(new Date());
-					StatusChange sc = populateStatusChange(service, true);
+					StatusChange sc = createStatusChange(service, true);
 					Collection<StatusChange> scList = new HashSet<StatusChange>();
 					scList.add(sc);
 					service.setStatusHistory(scList);
@@ -276,52 +279,58 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 					if (service instanceof DataService) {
 					    DataService dataService = (DataService)service;
-					    
-	                    // Do not select for search by default
-					    dataService.setSearchDefault(false);
-					    
-					    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
-					    if (cab2bService != null) {
-	                        logger.info("    Found caB2BService: "+cab2bService.getUrl()+", group "+cab2bService.getModelGroupName());
-					        // Translate the caB2B model group to a service group
-					        DataServiceGroup group = xlateUtil.getServiceGroupObj(
-					                cab2bService.getModelGroupName());
-					        // Populate service attributes
-					        dataService.setGroup(group);
-					        dataService.setSearchDefault(cab2bService.isSearchDefault());
-					    }
+					    dataService = updateCab2bData(dataService);
 					}
 					
 					saveService(service,sc,hibernateSession);
 				}
 			}
 			
-			// Walk the list of currentServices and remove those not in gridNodes
+			// Mark the services we didn't see as inactive
 			for (GridService service : currentServices) {
 				if (!gridNodes.containsKey(service.getUrl())) {
-					// Check to see if this service is active once again
+				    countInactive++;
+					// Is the service currently marked active? 
 					Collection<StatusChange> changes = service.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
 					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
 						// Service was marked as active, need to make it inactive now
-						StatusChange newSC = populateStatusChange(service, false);
+						StatusChange newSC = createStatusChange(service, false);
 						service.getStatusHistory().add(newSC);
 						saveService(service,newSC,hibernateSession);
 					}
 				}
 			}
-
+			
+            logger.info("Commiting changes...");
 			tx.commit();
-		} catch (ApplicationException e) {
+
+            logger.info("Commit complete, database has been updated as follows:");
+            logger.info("New services added: "+countNew);
+            logger.info("Existing services updated: "+countUpdated);
+            logger.info("Existing services marked inactive: "+countInactive);
+			
+		} 
+		catch (ApplicationException e) {
 			if (tx != null) {
 				tx.rollback();
 			}
-			e.printStackTrace();
+			logger.error("Error updating GSS database",e);
 		}
 		finally {
 			hibernateSession.close();
 		}
 	}
+	
+    private StatusChange createStatusChange(GridService service, Boolean isActive) {
+
+        StatusChange newSC = new StatusChange();
+        newSC.setChangeDate(new Date());
+        newSC.setGridService(service);
+        newSC.setNewStatus(isActive ? STATUS_CHANGE_ACTIVE : STATUS_CHANGE_INACTIVE);
+        
+        return newSC;
+    }
 
 	private HostingCenter updateHostData(HostingCenter matchingHost,
 			HostingCenter newHC) {
@@ -338,6 +347,29 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		return matchingHost;
 	}
 
+	private DataService updateCab2bData(DataService dataService) {
+        
+        Cab2bService cab2bService = cab2bServices.get(dataService.getUrl());
+        if (cab2bService != null) {
+            
+            // Translate the caB2B model group to a service group
+            DataServiceGroup group = xlateUtil.getServiceGroupForModelGroup(
+                    cab2bService.getModelGroupName());
+            // Populate service attributes
+            dataService.setGroup(group);
+            dataService.setSearchDefault(cab2bService.isSearchDefault());
+            
+            logger.info("Found service in caB2B under group "+
+                group.getName()+" with searchDefault="+
+                cab2bService.isSearchDefault());
+        }
+        else {
+            dataService.setSearchDefault(false);
+        }
+        
+        return dataService;
+	}
+	
 	private GridService updateServiceData(GridService matchingSvc,
 			GridService service) {
 
@@ -347,31 +379,20 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		matchingSvc.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
 		matchingSvc.setVersion(service.getVersion());
 		matchingSvc.setDescription(service.getDescription());
-
+		matchingSvc.setHostingCenter(service.getHostingCenter());
+		
 		// We are consciously overwriting things here that likely will not change,
 		// since they are based on the URL, which is guaranteed to be the same if we
 		// call this function.  However, on the off chance that the DB lookup tables or
 		// caB2B content has changed, we need to overwrite here to be sure.
 		if (matchingSvc instanceof DataService && service instanceof DataService) {
-		    DataService dataService = (DataService)service;
+		    DataService dataService = (DataService)matchingSvc;
+		    dataService = updateCab2bData(dataService);
 		    
-            // Do not select for search by default
-		    ((DataService)matchingSvc).setSearchDefault(false);
-		    
-		    Cab2bService cab2bService = cab2bServices.get(service.getUrl());
-		    if (cab2bService != null) {
-                logger.info("    Found caB2BService: "+cab2bService.getUrl()+", group "+cab2bService.getModelGroupName());
-		        // Translate the caB2B model group to a service group
-		        DataServiceGroup group = xlateUtil.getServiceGroupObj(
-		                cab2bService.getModelGroupName());
-		        // Populate service attributes
-		        ((DataService)matchingSvc).setGroup(group);
-		        ((DataService)matchingSvc).setSearchDefault(cab2bService.isSearchDefault());
-		    }
-
 		    // TODO: Temporary attempt to fix unloaded proxy when saving grid services
-		    ((DataService)matchingSvc).setDomainModel(null);
+		    //dataService.setDomainModel(null);
 		}
+		
 		return matchingSvc;
 	}
 }
