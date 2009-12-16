@@ -12,6 +12,7 @@ import gov.nih.nci.cagrid.metadata.exceptions.QueryInvalidException;
 import gov.nih.nci.cagrid.metadata.exceptions.RemoteResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.exceptions.ResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.service.Service;
+import gov.nih.nci.cagrid.metadata.service.ServicePointOfContactCollection;
 import gov.nih.nci.gss.domain.AnalyticalService;
 import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DomainClass;
@@ -102,6 +103,7 @@ public class GridIndexService {
 					String err = "Can't successfully obtain grid service metadata: "
 							+ service.getAddress().toString();
 					logger.warn(err);
+					logger.warn("Error",e);
 				}
 				if (gridNode != null) {
 					logger.info("Adding a GridService: " + gridNode.getName() + " : "
@@ -154,8 +156,11 @@ public class GridIndexService {
     	newService.setPublishDate(null);    // Deferred to caller, not available in metadata
     	
     	// Get POC objects
-		newService.setPointOfContacts(populatePOCList(serviceData.getPointOfContactCollection().getPointOfContact()));
-        
+    	ServicePointOfContactCollection pocs = serviceData.getPointOfContactCollection();
+    	if (pocs != null) {
+    	    newService.setPointOfContacts(populatePOCList(pocs.getPointOfContact()));    
+    	}
+		
     	// Build Hosting Center object
 		newService.setHostingCenter(populateHostingCenter(metadata));
 		
@@ -185,6 +190,7 @@ public class GridIndexService {
     	  newClass.setClassName(umlClass.getClassName());
     	  newClass.setDescription(umlClass.getDescription());
     	  newClass.setDomainPackage(umlClass.getPackageName());
+    	  newClass.setModel(newModel);
     	  classList.add(newClass);
     	}
 		newModel.setClasses(classList);
