@@ -12,12 +12,14 @@ import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
 import gov.nih.nci.gss.util.Cab2bAPI;
 import gov.nih.nci.gss.util.Cab2bTranslator;
+import gov.nih.nci.gss.util.GSSUtil;
 import gov.nih.nci.gss.util.GridServiceDAO;
-import gov.nih.nci.gss.util.HibernateUtil;
 import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.Cab2bAPI.Cab2bService;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,15 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServlet;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 /**
  * Scheduled job for updating the GSS database periodically. Reads from the 
@@ -45,7 +43,7 @@ import org.quartz.JobExecutionException;
  * - Retrieve all grid services from an index service and update the local database of
  *   grid services accordingly.
  */
-public class GridDiscoveryServiceJob extends HttpServlet implements Job {
+public class GridDiscoveryServiceJob {
     
 	private static Logger logger = Logger.getLogger(GridDiscoveryServiceJob.class);
 
@@ -56,36 +54,42 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
     private NamingUtil namingUtil = null;
     private Map<String,Cab2bService> cab2bServices = null;
     
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
-	 */
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
+    private SessionFactory sessionFactory;
 
-		try {
-		    
-		    // Initialize helper classes
-	        this.xlateUtil = new Cab2bTranslator(HibernateUtil.getSessionFactory());
-            this.namingUtil = new NamingUtil(HibernateUtil.getSessionFactory());
-	        Cab2bAPI cab2bAPI = new Cab2bAPI(xlateUtil);
-	        this.cab2bServices = cab2bAPI.getServices();
-	        
-            // Update services as necessary or add new ones
-            updateGssServices(populateRemoteServices());
-            
-		}
-        catch (GridAutoDiscoveryException e) {
-            throw new JobExecutionException(
-                "Could not discover grid services", e, false);
-        }
-		catch (Exception e) {
-		    throw new JobExecutionException(
-		        "Could not update the GSS database", e, false);
-		}
+	public GridDiscoveryServiceJob() {
+		logger.info("Creating GridDiscoveryServiceJob");
 	}
 
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		logger.info("Setting session factory: "+sessionFactory);
+		this.sessionFactory = sessionFactory;
+	}
+
+	public void execute() throws Exception {
+
+	    // Initialize helper classes
+        this.xlateUtil = new Cab2bTranslator(sessionFactory);
+        this.namingUtil = new NamingUtil(sessionFactory);
+        Cab2bAPI cab2bAPI = new Cab2bAPI(xlateUtil);
+        this.cab2bServices = cab2bAPI.getServices();
+        
+        try {
+        	Map<String,GridService> services = populateRemoteServices();
+            // Update services as necessary or add new ones
+            updateGssServices(services);
+        }
+        catch (GridAutoDiscoveryException e) {
+        	Throwable root = GSSUtil.getRootException(e);
+			if (root instanceof SocketException || 
+					root instanceof SocketTimeoutException) {
+				logger.warn("Could not connect to index service.");
+			}
+			else {
+				throw e;
+			}
+        }  
+	}
+	
 	/**
 	 * @return List<GridNodeBean>
 	 */
@@ -95,7 +99,7 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 		// Build a hash on URL for GridServices
 		HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
 
-		logger.debug("Discovering grid services");
+		logger.info("Discovering grid services");
 
 		// auto-discover grid nodes and save in session
 		
@@ -176,8 +180,10 @@ public class GridDiscoveryServiceJob extends HttpServlet implements Job {
 
 	private void updateGssServices(Map<String,GridService> gridNodes) {
 
+		logger.info("Updating GSS database...");
+		
 		Transaction tx = null;
-		Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+		Session hibernateSession = sessionFactory.openSession();
 		
 		int countNew = 0;
 		int countUpdated = 0;
