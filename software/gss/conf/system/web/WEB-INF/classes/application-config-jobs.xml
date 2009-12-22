@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-lazy-init="false" default-dependency-check="none" default-autowire="no">
+
+	<bean id="discoveryJob" class="gov.nih.nci.gss.scheduler.GridDiscoveryServiceJob">
+		<property name="sessionFactory" ref="SessionFactory" />
+	</bean>
+
+	<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="discoveryJob"/>
+		<property name="targetMethod" value="execute"/>
+		<property name="concurrent" value="false" />
+	</bean>
+	
+     <bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+         <property name="jobDetail" ref="jobDetail"/>
+         <!-- wait 5 seconds for the server to complete startup -->
+         <property name="startDelay" value="5000"/>
+         <!-- repeat every 30 minutes -->
+         <property name="repeatInterval" value="1800000"/>
+    </bean>
+
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="simpleTrigger"/>
+			</list>
+		</property>
+    </bean>
+	
+</beans>

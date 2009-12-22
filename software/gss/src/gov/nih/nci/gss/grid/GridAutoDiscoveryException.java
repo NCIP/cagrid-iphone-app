@@ -16,7 +16,7 @@ public class GridAutoDiscoveryException extends Exception {
 	}
 
 	public GridAutoDiscoveryException(String message, Throwable cause) {
-		super(message);
+		super(message, cause);
 	}
 
 	public GridAutoDiscoveryException(Throwable cause) {

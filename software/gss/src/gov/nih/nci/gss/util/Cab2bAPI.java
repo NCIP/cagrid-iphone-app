@@ -74,6 +74,7 @@ public class Cab2bAPI {
         
         try {
             String queryURL = GSSProperties.getCab2b2QueryURL()+"/services";
+            log.info("Getting "+queryURL);
             HttpGet httpget = new HttpGet(queryURL);
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             String result = httpclient.execute(httpget, responseHandler);
@@ -118,23 +119,24 @@ public class Cab2bAPI {
     public String search(String searchString, String serviceGroup, List<String> serviceUrls) throws Exception {
 
     	DefaultHttpClient httpclient = new DefaultHttpClient();
-    	DataServiceGroup group = cab2bTranslator.getServiceGroupByName(serviceGroup);
     	
         try {
             String url = GSSProperties.getCab2b2QueryURL()+"/search/";
             HttpPost httppost = new HttpPost(url);
-
+            
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("searchString", searchString));
-            nvps.add(new BasicNameValuePair("modelGroup", group.getCab2bName()));
+            if (!StringUtil.isEmpty(serviceGroup)) {
+            	DataServiceGroup group = cab2bTranslator.getServiceGroupByName(serviceGroup);
+            	nvps.add(new BasicNameValuePair("modelGroup", group.getCab2bName()));
+            }
             for(String serviceUrl : serviceUrls) {
                 nvps.add(new BasicNameValuePair("serviceUrl", serviceUrl));
             }
             
             httppost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
             
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            return httpclient.execute(httppost, responseHandler);
+            return httpclient.execute(httppost, new BasicResponseHandler());
         }
         finally {
         	httpclient.getConnectionManager().shutdown();

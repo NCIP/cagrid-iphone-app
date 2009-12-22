@@ -9,7 +9,6 @@ import gov.nih.nci.cagrid.metadata.common.ResearchCenterPointOfContactCollection
 import gov.nih.nci.cagrid.metadata.dataservice.DomainModel;
 import gov.nih.nci.cagrid.metadata.dataservice.UMLClass;
 import gov.nih.nci.cagrid.metadata.exceptions.InvalidResourcePropertyException;
-import gov.nih.nci.cagrid.metadata.exceptions.QueryInvalidException;
 import gov.nih.nci.cagrid.metadata.exceptions.RemoteResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.exceptions.ResourcePropertyRetrievalException;
 import gov.nih.nci.cagrid.metadata.service.Service;
@@ -20,8 +19,12 @@ import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.util.GSSProperties;
+import gov.nih.nci.gss.util.GSSUtil;
 import gov.nih.nci.gss.util.StringUtil;
 
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
-import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
 
 /**
@@ -41,8 +43,8 @@ import org.apache.log4j.Logger;
  * 
  */
 public class GridIndexService {
-	private static Logger logger = Logger
-			.getLogger(GridIndexService.class.getName());
+	
+	private static Logger logger = Logger.getLogger(GridIndexService.class);
 
 	/**
 	 * Query the grid index service by domain model name and return a list of
@@ -77,36 +79,61 @@ public class GridIndexService {
 
 	public static List<GridService> populateServiceMetadata(
 			List<EndpointReferenceType> services) {
+		
+		if (services == null) return new ArrayList<GridService>();
+
 		Set<GridService> gridNodeSet = new HashSet<GridService>();
-		if (services != null) {
-			for (EndpointReferenceType service : services) {
-				GridService gridNode = null;
-				try {
-					ServiceMetadata serviceMetaData = MetadataUtils.getServiceMetadata(service);
-					if (serviceMetaData != null) {
-						DomainModel domainModel = null;
-						try {
+		
+		for (EndpointReferenceType service : services) {
+			String url = service.getAddress().toString();
+
+			// TODO: parallelize this 
+			try {
+				ServiceMetadata serviceMetaData =
+					MetadataUtils.getServiceMetadata(service);
+				
+				if (serviceMetaData != null) {
+					
+					DomainModel domainModel = null;
+					
+					try {
 						domainModel = MetadataUtils.getDomainModel(service);
-						} catch (Exception e) {
-							String err = "No domain model for: "
-								+ service.getAddress().toString();
-							logger.info(err);
-						}
-						gridNode = populateGridService(service,serviceMetaData,domainModel);
+					} 
+					catch (InvalidResourcePropertyException e) {
+						logger.info("No domain model for: " + url);
 					}
-				} catch (Exception e) {
-					String err = "Can't successfully obtain grid service metadata: "
-							+ service.getAddress().toString();
-					logger.warn(err);
-					logger.warn("Error",e);
-				}
-				if (gridNode != null) {
-					logger.info("Adding a GridService: " + gridNode.getName() + " : "
-							+ gridNode.getUrl());
-					gridNodeSet.add(gridNode);
+					catch (RemoteResourcePropertyRetrievalException e) {
+						logger.info("Could not retrieve domain model for: " + url);
+					}
+					catch (ResourcePropertyRetrievalException e) {
+						logger.info("Could not parse domain model for: " + url);
+					}
+					
+					GridService gridNode = populateGridService(
+							service,serviceMetaData,domainModel);
+					
+					if (gridNode != null) {
+						logger.info("Discovered service: " + gridNode.getUrl() +
+								" ("+gridNode.getName()+")");
+						gridNodeSet.add(gridNode);
+					}
 				}
 			}
+			catch (Exception e) {
+				String err = "Can't retrieve service metadata for: "
+					+ service.getAddress().toString();
+	        	Throwable root = GSSUtil.getRootException(e);
+				if (root instanceof SocketException || 
+						root instanceof SocketTimeoutException) {
+					logger.warn(err);
+				}
+				else {
+					logger.error(err,e);
+				}
+			}
+			
 		}
+		
 		return new ArrayList<GridService>(gridNodeSet);
 	}
 
