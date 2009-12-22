@@ -13,6 +13,6 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^(.*?)-\\
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^(.*?)-\\s?GTEM$","GTEM");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^(.*?)-\\s?Stanford$","Stanford University Cancer Center");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^(The Broad Institute).+$","$1");
-INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^Washington University( at St.Louis)?$","Washington University in St.Louis");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^Washington University( at St.\\s?Louis)?$","Washington University in St.Louis");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^Fred Hutch Cancer Research Center$","Fred Hutchinson Cancer Research Center");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^\"(.*?)\"$","$1");
