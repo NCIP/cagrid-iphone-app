@@ -120,6 +120,7 @@
         <!-- replace with values from <tier>.properties -->
         <replace dir="${project.build.dir}/conf">
             <include name="deploy.properties"/>
+            <include name="gss_ehcache.xml"/>
             <replacefilter token="@GSS_CONTENT_DIR@" value="${gss.content.dir}" />
         </replace>
         
@@ -129,12 +130,6 @@
             <replacefilter token="@HOST_IMAGE_DIR@" value="${host.image.dir}" />
             <replacefilter token="@GRID_INDEX_URL@" value="${grid.index.url}" />
         </replace>
-    	
-        <replace dir="${project.build.dir}/conf">
-            <include name="gss_ehcache.xml"/>
-            <replacefilter token="GSS_EHCACHE_PATH" value="${GSS_EHCACHE_PATH}" />
-        </replace>
-        
     	
         <!-- copy SDK configuration -->
         <copy todir="${project.build.dir}" overwrite="true">
