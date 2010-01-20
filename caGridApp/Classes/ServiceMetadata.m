@@ -101,13 +101,17 @@
     
     // parse certain fields into native objects
     [service setObject:[Util getDateFromString:[service objectForKey:@"publish_date"]] forKey:@"publish_date_obj"];
-    
+	
+	NSString *serviceAndVersion = [service objectForKey:@"version"] == nil ? 
+		[service objectForKey:@"simple_name"] :
+		[NSString stringWithFormat:@"%@ %@",[service objectForKey:@"simple_name"],[service objectForKey:@"version"]];
+	
     NSString *host = [service objectForKey:@"host_short_name"];
     if (host == nil) {
-        [service setObject: [service objectForKey:@"simple_name"] forKey:@"display_name"];
+        [service setObject:serviceAndVersion forKey:@"display_name"];
     }
     else {
-	    [service setObject: [NSString stringWithFormat:@"%@ at %@",[service objectForKey:@"simple_name"],host] forKey:@"display_name"];
+	    [service setObject: [NSString stringWithFormat:@"%@ at %@",serviceAndVersion,host] forKey:@"display_name"];
     }
     
     NSString *group = [service objectForKey:@"group"];
@@ -281,6 +285,8 @@
             
             [services sortUsingDescriptors:[NSArray arrayWithObjects:
                                             [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
+                                            [[[NSSortDescriptor alloc] initWithKey:@"class" ascending:YES] autorelease],
+                                            [[[NSSortDescriptor alloc] initWithKey:@"version" ascending:YES] autorelease],
                                             [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES] autorelease],
                                             nil]];
             
