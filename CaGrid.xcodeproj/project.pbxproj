@@ -21,6 +21,7 @@
 		9DA62414105C1AB700117D95 /* FullAttributeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9DA62413105C1AB700117D95 /* FullAttributeController.m */; };
 		A90524D0108A9B0300619018 /* AttributeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A90524CF108A9B0300619018 /* AttributeCell.xib */; };
 		A926ED5C10B0ECA200AA0BFC /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = A926ED5B10B0ECA200AA0BFC /* Default.png */; };
+		A934FD7711051C480060514B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A934FD7611051C480060514B /* Icon.png */; };
 		A93543461019362C00988B88 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = A93543451019362C00988B88 /* folder.png */; };
 		A935435D101BD97000988B88 /* GridServicePropCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A935435C101BD97000988B88 /* GridServicePropCell.m */; };
 		A93543EF101BF06300988B88 /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A93543EE101BF06300988B88 /* Util.m */; };
@@ -108,6 +109,7 @@
 		9DA62413105C1AB700117D95 /* FullAttributeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAttributeController.m; sourceTree = "<group>"; };
 		A90524CF108A9B0300619018 /* AttributeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AttributeCell.xib; sourceTree = "<group>"; };
 		A926ED5B10B0ECA200AA0BFC /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		A934FD7611051C480060514B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		A93543451019362C00988B88 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		A935435B101BD97000988B88 /* GridServicePropCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridServicePropCell.h; sourceTree = "<group>"; };
 		A935435C101BD97000988B88 /* GridServicePropCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridServicePropCell.m; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A934FD7611051C480060514B /* Icon.png */,
 				A9DC7E1F10A618AA00535680 /* Xibs */,
 				A9DC7E1910A6188D00535680 /* Images */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -488,6 +491,7 @@
 				A9DC7E1810A6188400535680 /* HostDetailCell.xib in Resources */,
 				A926ED5C10B0ECA200AA0BFC /* Default.png in Resources */,
 				A93FB89A10D6D904007A9FDF /* Settings.bundle in Resources */,
+				A934FD7711051C480060514B /* Icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
