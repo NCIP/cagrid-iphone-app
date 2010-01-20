@@ -7,6 +7,7 @@
 //
 
 #import "Util.h"
+#import "Label2.h"
 
 // has the user been alerted that there is a network problem?
 static BOOL alerted = NO;
@@ -195,5 +196,76 @@ static BOOL alerted = NO;
     [errorDict setObject:message forKey:@"message"];    
     return errorDict;
 }
+
++ (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width {
+	CGSize withinSize = CGSizeMake(width, MAXFLOAT); 
+	CGSize size = [value sizeWithFont: [UIFont systemFontOfSize: [UIFont systemFontSize]] constrainedToSize:withinSize lineBreakMode:UILineBreakModeCharacterWrap]; 
+	return size.height; 
+}
+
+
++ (UITableViewCell *)getKeyValueCell:(KeyValuePair *)pair fromTableView:(UITableView *)tableView {
+
+	NSString *key = pair.key;
+	NSString *value = pair.value;
+	
+	// Calculate cellHeight 
+	CGFloat valueWidth = tableView.bounds.size.width - (sidePadding*2 + insetPadding + keyWidth + valueSpacing);
+	// I can't figure out why the +10 is needed, but without it, values that have spaces can reserve 2 lines even if they fit on 1
+	CGFloat h1 = [Util heightForLabel:key constrainedToWidth:keyWidth+10];
+	CGFloat h2 = [Util heightForLabel:value constrainedToWidth:valueWidth];
+	CGFloat cellHeight = ((h1 > h2) ? h1:h2) + verticalSpacing;
+	
+	// Calculate labelHeight by subtracting the vertical padding 
+	float labelHeight = cellHeight - verticalSpacing;
+	
+	CGRect keyLabelFrame = CGRectMake(insetPadding / 2, verticalSpacing / 2, 
+									  (insetPadding / 2) + keyWidth, labelHeight); 
+	
+	// The +8 to width is to get around the right margin issue with UITextView (ContentInset doesn't do anything)
+	CGRect valueLabelFrame = CGRectMake((insetPadding / 2) + keyWidth + valueSpacing, verticalSpacing / 2, 
+										valueWidth+8, labelHeight); 
+	
+	CGRect cellFrame = CGRectMake(0, 0, 0, cellHeight); 
+	
+	static NSString *cellIdentifier = @"VariableHeightCell"; 
+	UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+	if (cell == nil) {
+		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:cellIdentifier] autorelease];
+		
+		Label2 *keyLabel = [[Label2 alloc] initWithFrame: keyLabelFrame]; 
+		[keyLabel setTag:10];
+		[keyLabel setNumberOfLines:0];  // auto-expand
+		[keyLabel setFont:[UIFont systemFontOfSize: [UIFont systemFontSize]]];
+		[keyLabel setVerticalAlignment:VerticalAlignmentTop];
+		[keyLabel setTextColor: [UIColor grayColor]];
+		[cell.contentView addSubview:keyLabel];
+		[keyLabel release];
+		
+		UITextView *valueLabel = [[UITextView alloc] initWithFrame: valueLabelFrame]; 
+		[valueLabel setTag:11];
+		[valueLabel setFont:[UIFont systemFontOfSize: [UIFont systemFontSize]]];
+		[valueLabel setEditable:NO];
+		[valueLabel setDataDetectorTypes:UIDataDetectorTypeLink];
+		[valueLabel setUserInteractionEnabled:YES];
+		[valueLabel setScrollEnabled:NO];
+		[valueLabel setContentInset:UIEdgeInsetsMake(-9,-6,0,0)];
+
+		[cell.contentView addSubview:valueLabel];
+		[valueLabel release];
+	}
+	
+	Label2 *keyLabel = (Label2 *)[cell viewWithTag:10];
+	Label2 *valueLabel = (Label2 *)[cell viewWithTag:11];
+	
+	cell.bounds = cellFrame;
+	[keyLabel setFrame: keyLabelFrame]; 
+	[valueLabel setFrame: valueLabelFrame]; 
+	[keyLabel setText:key];
+	[valueLabel setText:value];
+	
+	return cell; 	
+}
+
 
 @end

@@ -16,14 +16,11 @@
 	NSMutableDictionary *host;
 	NSMutableArray *sections;
 	NSMutableArray *headers;
-	NSMutableDictionary *heights;	
-	CGFloat labelFontSize;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *host;
 @property (nonatomic, retain) NSMutableArray *sections;
 @property (nonatomic, retain) NSMutableArray *headers;
-@property (nonatomic, retain) NSMutableDictionary *heights;
 
 - (void)displayHost:(NSMutableDictionary *)hostDict;
 
