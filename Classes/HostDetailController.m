@@ -15,11 +15,6 @@
 #import "UserPreferences.h"
 #import "KeyValuePair.h"
 
-#define sidePadding 10 
-#define insetPadding 20 
-#define verticalSpacing 10
-#define keyWidth 70
-#define valueSpacing 20
 #define buttonHeight 36
 #define buttonVerticalPadding 8
 #define buttonSpacing 10
@@ -28,23 +23,12 @@
 @synthesize host;
 @synthesize sections;
 @synthesize headers;
-@synthesize heights;
-
-#pragma mark -
-#pragma mark Cell Precaching
-
-- (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width {
-	CGSize withinSize = CGSizeMake(width, MAXFLOAT); 
-	CGSize size = [value sizeWithFont: [UIFont systemFontOfSize: labelFontSize] constrainedToSize:withinSize]; 
-	return size.height; 
-}
 
 
 #pragma mark -
 #pragma mark Object Methods
 
 - (void)viewDidLoad {
-	labelFontSize = [UIFont systemFontSize]; // or 12 for smaller?
 	self.tableView.allowsSelection = NO;
 	[super viewDidLoad];
 }
@@ -63,7 +47,6 @@
 	self.title = [host objectForKey:@"short_name"];
 	self.sections = [NSMutableArray array];
 	self.headers = [NSMutableArray array];
-	self.heights = [NSMutableDictionary dictionary];
 	
 	[headers addObject:@""];
 	
@@ -175,7 +158,7 @@
 		CGRect cellFrame = CGRectMake(0, 0, 300, 80);
 		
 		// Calculate new heights
-		CGFloat labelHeight = [self heightForLabel:desc constrainedToWidth:descFrame.size.width];
+		CGFloat labelHeight = [Util heightForLabel:desc constrainedToWidth:descFrame.size.width];
 		cellFrame.size.height = cellFrame.size.height - descFrame.size.height + labelHeight;
 		descFrame.size.height = labelHeight;
 		
@@ -197,72 +180,14 @@
 		cell.descLabel.text = desc;
 		cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
         cell.icon.image = hostImage;
-        
-		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
 		
 		return cell; 
 		
 	}
 	else {
-		
 		KeyValuePair *pair = (KeyValuePair *)[[sections objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-		NSString *key = pair.key;
-		NSString *value = pair.value;
-		
-		// Calculate cellHeight 
-		CGFloat valueWidth = self.tableView.bounds.size.width - (sidePadding*2 + insetPadding + keyWidth + valueSpacing);
-		// I can't figure out why the +10 is needed, but without it, values that have spaces can reserve 2 lines even if they fit on 1
-		CGFloat h1 = [self heightForLabel:key constrainedToWidth:keyWidth+10];
-		CGFloat h2 = [self heightForLabel:value constrainedToWidth:valueWidth];
-		CGFloat cellHeight = ((h1 > h2) ? h1:h2) + verticalSpacing;
-		
-		// Calculate labelHeight by subtracting the vertical padding 
-		float labelHeight = cellHeight - verticalSpacing;
-		
-		CGRect keyLabelFrame = CGRectMake(insetPadding / 2, verticalSpacing / 2, 
-										  (insetPadding / 2) + keyWidth, labelHeight); 
-		
-		CGRect valueLabelFrame = CGRectMake((insetPadding / 2) + keyWidth + valueSpacing, verticalSpacing / 2, 
-											valueWidth, labelHeight); 
-		
-		CGRect cellFrame = CGRectMake(0, 0, 0, cellHeight); 
-		
-		static NSString *cellIdentifier = @"VariableHeightCell"; 
-		UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-		if (cell == nil) {
-			cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:cellIdentifier] autorelease];
-			
-			Label2 *keyLabel = [[Label2 alloc] initWithFrame: keyLabelFrame]; 
-			[keyLabel setTag:10];
-			[keyLabel setNumberOfLines:0];  // auto-expand
-			[keyLabel setFont:[UIFont systemFontOfSize: labelFontSize]];
-			//[keyLabel setTextAlignment:UITextAlignmentRight];
-			[keyLabel setVerticalAlignment:VerticalAlignmentTop];
-			[keyLabel setTextColor: [UIColor grayColor]];
-			[cell.contentView addSubview:keyLabel];
-			[keyLabel release];
-			
-			Label2 *valueLabel = [[Label2 alloc] initWithFrame: valueLabelFrame]; 
-			[valueLabel setTag:11];
-			[valueLabel setNumberOfLines:0];  // auto-expand
-			[valueLabel setFont:[UIFont systemFontOfSize: labelFontSize]];
-			[valueLabel setVerticalAlignment:VerticalAlignmentTop];
-			[cell.contentView addSubview:valueLabel];
-			[valueLabel release];
-		}
-		
-		Label2 *keyLabel = (Label2 *)[cell viewWithTag:10];
-		Label2 *valueLabel = (Label2 *)[cell viewWithTag:11];
-		
-		cell.bounds = cellFrame;
-		[keyLabel setFrame: keyLabelFrame]; 
-		[valueLabel setFrame: valueLabelFrame]; 
-		[keyLabel setText:key];
-		[valueLabel setText:value];
-		
-		[heights setObject:[NSNumber numberWithFloat:labelHeight] forKey:indexPath];
-		
-		return cell; 	
+		UITableViewCell *cell = [Util getKeyValueCell:pair fromTableView:self.tableView];
+		return cell;
 	}
 }
 

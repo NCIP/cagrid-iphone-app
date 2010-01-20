@@ -16,14 +16,11 @@
 	NSMutableDictionary *service;
 	NSMutableArray *sections;
 	NSMutableArray *headers;
-	NSMutableDictionary *heights;	
-	CGFloat labelFontSize;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *service;
 @property (nonatomic, retain) NSMutableArray *sections;
 @property (nonatomic, retain) NSMutableArray *headers;
-@property (nonatomic, retain) NSMutableDictionary *heights;
 
 - (void)displayService:(NSMutableDictionary *)serviceDict;
 

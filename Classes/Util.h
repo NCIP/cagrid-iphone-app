@@ -7,6 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "KeyValuePair.h"
+
+// These values are for key/value cells in UITableViews
+#define sidePadding 10 
+#define insetPadding 20 
+#define verticalSpacing 10
+#define keyWidth 70
+#define valueSpacing 20
 
 typedef enum {
     DataTypeMicroarray   = 0,
@@ -50,4 +58,8 @@ typedef enum {
 
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
 
++ (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width;
+
++ (UITableViewCell *)getKeyValueCell:(KeyValuePair *)pair fromTableView:(UITableView *)tableView;
+	
 @end
