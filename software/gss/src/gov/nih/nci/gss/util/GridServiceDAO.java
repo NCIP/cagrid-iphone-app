@@ -17,31 +17,18 @@ import org.hibernate.Session;
 public class GridServiceDAO {
 
 	public static final String GET_SERVICE_HQL_SELECT = 
-        "select service from gov.nih.nci.gss.domain.GridService service ";
-
-	public static final String GET_SERVICE_HQL_JOIN_STATUS = 
-       "left join fetch service.statusHistory status ";
-   
-	public static final String GET_SERVICE_HQL_WHERE_STATUS = 
-        "where ((status.changeDate is null) or (status.changeDate = (" +
-        "  select max(changeDate) " +
-        "  from gov.nih.nci.gss.domain.StatusChange s " +
-        "  where s.gridService = service " +
-        "))) ";
+        "select service from gov.nih.nci.gss.domain.GridService service " +
+        "left join fetch service.hostingCenter ";
 
 	public static final String GET_HOST_HQL_SELECT = 
         "select host from gov.nih.nci.gss.domain.HostingCenter host ";
 
-    public static List<GridService> getServices(String serviceId, boolean includeModel, Session s) 
+    public static List<GridService> getServices(String serviceId, Session s) 
 	            throws ApplicationException {
 
         // Create the HQL query
         StringBuffer hql = new StringBuffer(GET_SERVICE_HQL_SELECT);
-        hql.append(GET_SERVICE_HQL_JOIN_STATUS);
-        hql.append("left join fetch service.hostingCenter ");
-        if (includeModel) hql.append("left join fetch service.domainModel ");
-        hql.append(GET_SERVICE_HQL_WHERE_STATUS);
-        if (serviceId != null) hql.append("and service.id = ?");
+        if (serviceId != null) hql.append("where service.identifier = ?");
         
         // Create the Hibernate Query
         Query q = s.createQuery(hql.toString());
@@ -56,7 +43,7 @@ public class GridServiceDAO {
 	
         // Create the HQL query
         StringBuffer hql = new StringBuffer(GET_HOST_HQL_SELECT);
-        if (hostId != null) hql.append("where host.id = ?");
+        if (hostId != null) hql.append("where host.identifier = ?");
         
         // Create the Hibernate Query
         Query q = s.createQuery(hql.toString());
