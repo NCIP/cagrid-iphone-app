@@ -88,7 +88,9 @@
 - (void)showServicesAction:(id)sender {
     
     CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
-    [delegate.serviceListController searchFor:[host objectForKey:@"long_name"]];
+    ServiceListController *slc = delegate.serviceListController;
+	[slc searchFor:[host objectForKey:@"long_name"]];
+	slc.scopeControl.selectedSegmentIndex = 0;
     delegate.tabBarController.selectedIndex = 2;
 }
 
