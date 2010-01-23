@@ -16,6 +16,7 @@
 @synthesize serviceTable;
 @synthesize navController;
 @synthesize filterBar;
+@synthesize scopeControl;
 @synthesize detailController;
 @synthesize serviceList;
 @synthesize filterString;
@@ -72,7 +73,7 @@
 - (void)viewWillAppear:(BOOL)animated {
 	[self reload];
     [self.filterBar setText:self.filterString];
-    [self.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
+    //[self.serviceTable setContentOffset:CGPointMake(0,0) animated:NO];
 }
 
 - (void)searchFor:(NSString *)searchText {
