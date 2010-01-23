@@ -16,3 +16,8 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^(The Bro
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^Washington University( at St.\\s?Louis)?$","Washington University in St.Louis");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^Fred Hutch Cancer Research Center$","Fred Hutchinson Cancer Research Center");
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^\"(.*?)\"$","$1");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^WESTAT$","Westat Inc.");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^The (Holden Comprehensive Cancer Center)$","$1");
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName","^UVA Medical School","UVA Cancer Center");
+
+
