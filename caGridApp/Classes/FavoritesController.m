@@ -75,18 +75,16 @@
         NSMutableDictionary *host = [smdata getHostById:hostId];
         if (host == nil) {
             host = [NSMutableDictionary dictionary];
-            [host setObject:@"Unknown" forKey:@"display_name"];
+            [host setObject:@"Unknown" forKey:@"short_name"];
             [host setObject:hostId forKey:@"id"];                
         }
         [hostList addObject:host];
     }
-    
-    [self.favoritesTable reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
 	[self reload];
-    [self.favoritesTable setContentOffset:CGPointMake(0,0) animated:NO];
+    [self.favoritesTable reloadData];
 }
 
 
@@ -107,14 +105,14 @@
 		forRowAtIndexPath:(NSIndexPath *)indexPath {
 	
     UserPreferences *prefs = [UserPreferences sharedSingleton];
-    
+	
     if (indexPath.section == 0) {
         [prefs.favoriteServices removeObjectAtIndex:indexPath.row]; 
     }
     else {
         [prefs.favoriteHosts removeObjectAtIndex:indexPath.row];  
     }
-    
+				
     [self reload];
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                      withRowAnimation:UITableViewRowAnimationFade]; 
@@ -168,17 +166,17 @@
         cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
         cell.tickIcon.hidden = YES;
         cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-        
+		
         return cell;
     }
     else {
         
         // Get a cell
         
-        static NSString *cellIdentifier = @"HostCell";
-        GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        static NSString *hostCellIdentifier = @"HostCell";
+        GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:hostCellIdentifier];
         if (cell == nil) {
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:hostCellIdentifier owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
         
@@ -231,7 +229,7 @@
 
 
 - (CGFloat)tableView:(UITableView *)tableView
-heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+		heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return DEFAULT_2VAL_CELL_HEIGHT;
 }
 

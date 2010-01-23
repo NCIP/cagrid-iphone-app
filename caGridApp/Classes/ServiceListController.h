@@ -17,6 +17,7 @@
     IBOutlet UITableView *serviceTable;
 	IBOutlet UINavigationController *navController;
     IBOutlet UISearchBar *filterBar;
+	IBOutlet UISegmentedControl *scopeControl;
 	ServiceDetailController *detailController;
 	NSMutableArray *serviceList;
     NSString *filterString;
@@ -28,6 +29,7 @@
 @property (nonatomic, retain) UITableView *serviceTable;
 @property (nonatomic, retain) UINavigationController *navController;
 @property (nonatomic, retain) UISearchBar *filterBar;
+@property (nonatomic, retain) UISegmentedControl *scopeControl;
 @property (nonatomic, retain) ServiceDetailController *detailController;
 @property (nonatomic, retain) NSMutableArray *serviceList;
 @property (nonatomic, retain) NSString *filterString;
