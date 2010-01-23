@@ -12,7 +12,6 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-
 /**
  * Utilities for translating and generating names.
  * 
@@ -25,7 +24,7 @@ public class NamingUtil {
     private Map<String,String> simpleServiceNameMap = new LinkedHashMap<String,String>();
     private Map<String,String> simpleHostNameMap = new LinkedHashMap<String,String>();
     
-    public NamingUtil(SessionFactory sessionFactory) {
+	public NamingUtil(SessionFactory sessionFactory) {
 
         Session s = sessionFactory.openSession();
         try {
@@ -96,7 +95,7 @@ public class NamingUtil {
     public String getSimpleHostName(String originalName) {
         return getSimpleName(originalName, simpleHostNameMap);
     }
-    
+
     /**
      * Test harness for regular expressions.
      * @param args

@@ -7,10 +7,10 @@ import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
-import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.util.Cab2bTranslator;
+import gov.nih.nci.gss.util.Constants;
+import gov.nih.nci.gss.util.GSSUtil;
 import gov.nih.nci.gss.util.GridServiceDAO;
-import gov.nih.nci.gss.util.NamingUtil;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.dao.orm.ORMDAOImpl;
@@ -79,7 +79,11 @@ public class JSONDataService extends HttpServlet {
     
     /** Translates caB2B names to GSS names */
     private Cab2bTranslator cab2bTranslator;
-        
+
+    /** Cache for JSON responses */
+    private Map cache;
+    
+    
     @Override
     public void init() throws ServletException {
         
@@ -89,6 +93,7 @@ public class JSONDataService extends HttpServlet {
             this.sessionFactory = ((ORMDAOImpl)ctx.getBean("ORMDAO")).getHibernateTemplate().getSessionFactory();
             this.cab2bTranslator = new Cab2bTranslator(sessionFactory);
             this.queryService = new QueryService(cab2bTranslator);
+            this.cache = (Map)ctx.getBean("memoryCache");
             this.usage = FileCopyUtils.copyToString(new InputStreamReader(
                 JSONDataService.class.getResourceAsStream("/rest_api_usage.js")));
             
@@ -183,10 +188,7 @@ public class JSONDataService extends HttpServlet {
                 id = pathList[2];
             }
             
-            boolean includeMetadata = "1".equals(request.getParameter("metadata"));
-            boolean includeHost = "1".equals(request.getParameter("host"));
-            boolean includeModel = "1".equals(request.getParameter("model"));
-            return getServiceJSON(id, includeMetadata, includeHost, includeModel);
+            return getServiceJSON(id);
         }
         if ("host".equals(noun)) {
             // Return details about hosts, or a single hosts
@@ -233,8 +235,7 @@ public class JSONDataService extends HttpServlet {
                 
                 for(String serviceId : serviceIds) {
                     
-                    String hql = GridServiceDAO.GET_SERVICE_HQL_SELECT+" where service.id = ?";
-                    List<GridService> services = s.createQuery(hql).setString(0, serviceId).list();
+                    List<GridService> services = GridServiceDAO.getServices(serviceId, s);
                     
                     if (services.isEmpty()) {
                         return getJSONError("UsageError", "Unknown service id: "+serviceId);
@@ -338,17 +339,21 @@ public class JSONDataService extends HttpServlet {
     private JSONObject getJSONObjectForService(GridService service)
             throws JSONException {
 
+        HostingCenter host = service.getHostingCenter();
+        
+        
+        
         JSONObject jsonService = new JSONObject();
-        jsonService.put("id", service.getId().toString());
+        jsonService.put("id", service.getIdentifier());
         jsonService.put("name", service.getName());
         jsonService.put("version", service.getVersion());
         jsonService.put("class", service.getClass().getSimpleName());
         jsonService.put("simple_name", service.getSimpleName());
         jsonService.put("url", service.getUrl());
+        jsonService.put("publish_date", df.format(service.getPublishDate()));
 
-        HostingCenter host = service.getHostingCenter();
         if (host != null) {
-            jsonService.put("host_id", host.getId().toString());
+            jsonService.put("host_id", host.getIdentifier());
             jsonService.put("host_short_name", host.getShortName());
         }
         
@@ -359,18 +364,6 @@ public class JSONDataService extends HttpServlet {
             if (dataService.getSearchDefault()) {
                 jsonService.put("search_default", "true");
             }
-        }
-        
-        Collection<StatusChange> scs = service.getStatusHistory(); 
-        if (scs.size() > 1) {
-            log.warn("More than 1 status change was returned for service with id="+service.getId());
-        }
-
-        if (!scs.isEmpty()) {
-            StatusChange statusChange = scs.iterator().next();
-            jsonService.put("status", statusChange.getNewStatus());
-            jsonService.put("last_update", df.format(statusChange.getChangeDate()));
-            jsonService.put("publish_date", df.format(service.getPublishDate()));
         }
         
         return jsonService;
@@ -389,7 +382,7 @@ public class JSONDataService extends HttpServlet {
                         
         // service host details
         
-        hostObj.put("id", host.getId().toString());
+        hostObj.put("id", host.getIdentifier());
         hostObj.put("short_name", host.getShortName());
         hostObj.put("long_name", host.getLongName());
         hostObj.put("country_code", host.getCountryCode());
@@ -436,16 +429,22 @@ public class JSONDataService extends HttpServlet {
      * @throws JSONException
      * @throws ApplicationException
      */
-    private String getServiceJSON(String serviceId, 
-            boolean includeMetadata, boolean includeHost, boolean includeModel) 
+    private String getServiceJSON(String serviceId) 
             throws JSONException, ApplicationException {
 
+    	if (serviceId == null) {
+    		if (cache.containsKey(Constants.SERVICE_CACHE_KEY)) {
+    			log.info("Returning cached service JSON");
+    			return cache.get(Constants.SERVICE_CACHE_KEY).toString();
+    		}
+    	}
+    	
         Session s = sessionFactory.openSession();
         JSONObject json = new JSONObject();
         
         try {
             // Retrieve the list of services
-            Collection<GridService> services = GridServiceDAO.getServices(serviceId, includeModel, s);
+            Collection<GridService> services = GridServiceDAO.getServices(serviceId, s);
             
             JSONArray jsonArray = new JSONArray();
             json.put("services", jsonArray);
@@ -455,59 +454,49 @@ public class JSONDataService extends HttpServlet {
                 JSONObject jsonService = getJSONObjectForService(service);
                 jsonArray.put(jsonService);
                 
-                if (includeMetadata) {
                     
-                    // Add service details
-                    jsonService.put("description", service.getDescription());
-                    
-                    // Add service pocs
-                    JSONArray jsonPocs = new JSONArray();
-                    for (PointOfContact poc : service.getPointOfContacts()) {
-                        JSONObject jsonPoc = new JSONObject();
-                        jsonPoc.put("name", poc.getName());
-                        jsonPoc.put("role", poc.getRole());
-                        jsonPoc.put("affiliation", poc.getAffiliation());
-                        jsonPoc.put("email", poc.getEmail());
-                        jsonPocs.put(jsonPoc);
-                    }
-                    jsonService.put("pocs", jsonPocs);
-                    
-                }
+                // Add service details
+                jsonService.put("description", service.getDescription());
                 
-                if (includeHost) {
+                // Add service pocs
+                JSONArray jsonPocs = new JSONArray();
+                for (PointOfContact poc : service.getPointOfContacts()) {
+                    JSONObject jsonPoc = new JSONObject();
+                    jsonPoc.put("name", poc.getName());
+                    jsonPoc.put("role", poc.getRole());
+                    jsonPoc.put("affiliation", poc.getAffiliation());
+                    jsonPoc.put("email", poc.getEmail());
+                    jsonPocs.put(jsonPoc);
+                }
+                jsonService.put("pocs", jsonPocs);
+                
+                if (serviceId != null) {
+                	// output more metadata if a service is specified
                 	
-                    // Add host details
-                    HostingCenter host = service.getHostingCenter();
-                    JSONObject hostObj = host != null ? 
-                    		getJSONObjectForHost(host, false) : new JSONObject();
-                    jsonService.put("hosting_center", hostObj);
-                    
-                }
-                
-                if (includeModel && (service instanceof DataService)) {
-                    
-                    DomainModel model = ((DataService)service).getDomainModel();
+                    if (service instanceof DataService) {
+                        DomainModel model = ((DataService)service).getDomainModel();
 
-                    JSONObject modelObj = new JSONObject();
-                    jsonService.put("domain_model", modelObj);
-                    
-                    if (model != null) {
-                        
                         // Add domain model
-                        modelObj.put("long_name", model.getLongName());
-                        modelObj.put("version", model.getVersion());
-                        modelObj.put("description", model.getDescription());
+                        JSONObject modelObj = new JSONObject();
+                        jsonService.put("domain_model", modelObj);
                         
-                        // Add model classes
-                        JSONArray jsonClasses = new JSONArray();
-                        for (DomainClass dc : model.getClasses()) {
-                            JSONObject jsonClass = new JSONObject();
-                            jsonClass.put("name", dc.getClassName());
-                            jsonClass.put("package", dc.getDomainPackage());
-                            jsonClass.put("description", dc.getDescription());
-                            jsonClasses.put(jsonClass);
+                        if (model != null) {
+                            
+                            modelObj.put("long_name", model.getLongName());
+                            modelObj.put("version", model.getVersion());
+                            modelObj.put("description", model.getDescription());
+                            
+                            // Add model classes
+                            JSONArray jsonClasses = new JSONArray();
+                            for (DomainClass dc : model.getClasses()) {
+                                JSONObject jsonClass = new JSONObject();
+                                jsonClass.put("name", dc.getClassName());
+                                jsonClass.put("package", dc.getDomainPackage());
+                                jsonClass.put("description", dc.getDescription());
+                                jsonClasses.put(jsonClass);
+                            }
+                            modelObj.put("classes", jsonClasses);
                         }
-                        modelObj.put("classes", jsonClasses);
                     }
                 }
             }
@@ -517,7 +506,11 @@ public class JSONDataService extends HttpServlet {
             s.close();
         }
         
-        return json.toString();
+        String jsonStr = json.toString();
+    	if (serviceId == null) {
+    		cache.put(Constants.SERVICE_CACHE_KEY, jsonStr);
+    	}
+        return jsonStr;
     }
 
     /**
@@ -529,6 +522,13 @@ public class JSONDataService extends HttpServlet {
     private String getHostJSON(String hostId, boolean includeKey) 
             throws JSONException, ApplicationException {
 
+    	if (hostId == null) {
+    		if (cache.containsKey(Constants.HOST_CACHE_KEY)) {
+    			log.info("Returning cached host JSON");
+    			return cache.get(Constants.HOST_CACHE_KEY).toString();
+    		}
+    	}
+    	
         Session s = sessionFactory.openSession();
         JSONObject json = new JSONObject();
         
@@ -546,8 +546,12 @@ public class JSONDataService extends HttpServlet {
         finally {
             s.close();
         }
-        
-        return json.toString();
+
+        String jsonStr = json.toString();
+    	if (hostId == null) {
+    		cache.put(Constants.HOST_CACHE_KEY, jsonStr);
+    	}
+        return jsonStr;
     }
     
     /**

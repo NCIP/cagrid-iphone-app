@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-lazy-init="false" default-dependency-check="none" default-autowire="no">
-
+	
+	<bean id="memoryCache" class="org.springframework.beans.factory.config.MapFactoryBean">
+	    <property name="targetMapClass" value="java.util.Hashtable"/>
+	    <property name="sourceMap"><map/></property>
+	</bean>
+		
 	<bean id="discoveryJob" class="gov.nih.nci.gss.scheduler.GridDiscoveryServiceJob">
 		<property name="sessionFactory" ref="SessionFactory" />
+		<property name="cache" ref="memoryCache" />
 	</bean>
 
 	<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -17,7 +23,7 @@
          <!-- wait 5 seconds for the server to complete startup -->
          <property name="startDelay" value="5000"/>
          <!-- repeat every 30 minutes -->
-         <property name="repeatInterval" value="1800000"/>
+         <property name="repeatInterval" value="3600000"/>
     </bean>
 
     <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

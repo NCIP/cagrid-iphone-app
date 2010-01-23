@@ -189,6 +189,7 @@ public class GridIndexService {
     	newService.setUrl(serviceER.getAddress().toString());
     	
     	// Deferred to caller, not available in metadata
+    	newService.setIdentifier(null);
     	newService.setSimpleName(null);    
     	newService.setPublishDate(null);
 		newService.setStatusHistory(null);

@@ -53,11 +53,18 @@ public class GridDiscoveryServiceJob {
     private Cab2bTranslator xlateUtil = null;
     private NamingUtil namingUtil = null;
     private Map<String,Cab2bService> cab2bServices = null;
+
+    /** Cache for JSON responses */
+    private Map cache;
     
     private SessionFactory sessionFactory;
 
 	public GridDiscoveryServiceJob() {
 		logger.info("Creating GridDiscoveryServiceJob");
+	}
+	
+	public void setCache(Map cache) {
+		this.cache = cache;
 	}
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
@@ -77,6 +84,8 @@ public class GridDiscoveryServiceJob {
         	Map<String,GridService> services = populateRemoteServices();
             // Update services as necessary or add new ones
             updateGssServices(services);
+            // Clear the JSON cache
+            cache.clear();
         }
         catch (GridAutoDiscoveryException e) {
         	Throwable root = GSSUtil.getRootException(e);
@@ -87,7 +96,7 @@ public class GridDiscoveryServiceJob {
 			else {
 				throw e;
 			}
-        }  
+        }
 	}
 	
 	/**
@@ -193,7 +202,7 @@ public class GridDiscoveryServiceJob {
             logger.info("Beginning transaction");
 			tx = hibernateSession.beginTransaction();
 			
-			Collection<GridService> currentServices = GridServiceDAO.getServices(null,false,hibernateSession);
+			Collection<GridService> currentServices = GridServiceDAO.getServices(null,hibernateSession);
 			// Build a hash on URL for GridServices
 			HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
 			for (GridService service : currentServices) {
@@ -231,6 +240,9 @@ public class GridDiscoveryServiceJob {
                     else {
                         logger.info("Host name: "+thisHC.getLongName());
                     }
+                    
+                    // Create persistent identifier based on the long name
+                    thisHC.setIdentifier(GSSUtil.generateHostIdentifier(thisHC));
                 }
                 
                 // Check to see if the hosting center already exists.
@@ -283,6 +295,8 @@ public class GridDiscoveryServiceJob {
 
 					// Set up service simple name and linkage to correct caB2B model group
 			    	service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+			    	// Create a persistent identifier based on the URL
+					service.setIdentifier(GSSUtil.generateServiceIdentifier(service));
 
 					if (service instanceof DataService) {
 					    DataService dataService = (DataService)service;
@@ -345,16 +359,16 @@ public class GridDiscoveryServiceJob {
     }
 
 	private HostingCenter updateHostData(HostingCenter matchingHost,
-			HostingCenter newHC) {
+			HostingCenter host) {
 
 		// Copy over data from the new host data
 		// - Do not overwrite: long name (unique key), id (db primary key)
-		matchingHost.setCountryCode(newHC.getCountryCode());
-		matchingHost.setLocality(newHC.getLocality());
-		matchingHost.setPostalCode(newHC.getPostalCode());
-		matchingHost.setShortName(newHC.getShortName());
-		matchingHost.setStateProvince(newHC.getStateProvince());
-		matchingHost.setStreet(newHC.getStreet());
+		matchingHost.setCountryCode(host.getCountryCode());
+		matchingHost.setLocality(host.getLocality());
+		matchingHost.setPostalCode(host.getPostalCode());
+		matchingHost.setShortName(host.getShortName());
+		matchingHost.setStateProvince(host.getStateProvince());
+		matchingHost.setStreet(host.getStreet());
 		
 		return matchingHost;
 	}
@@ -386,7 +400,7 @@ public class GridDiscoveryServiceJob {
 			GridService service) {
 
 		// Copy over data from the new service
-		// - Do not overwrite: url (unique key), id (db primary key), publish date (should stay the original value)
+		// - Do not overwrite: url (unique keys), id (db primary key), publish date (should stay the original value)
 		matchingSvc.setName(service.getName());
 		matchingSvc.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
 		matchingSvc.setVersion(service.getVersion());

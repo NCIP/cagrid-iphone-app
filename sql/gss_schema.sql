@@ -42,6 +42,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `GRID_SERVICE` (
   `ID` bigint(20) NOT NULL,
+  `IDENTIFIER` varchar(255) NOT NULL,
   `DISCRIMINATOR` varchar(255) NOT NULL,
   `DESCRIPTION` varchar(2000) default NULL,
   `NAME` varchar(512) NOT NULL,
@@ -72,6 +73,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `HOSTING_CENTER` (
   `ID` bigint(20) NOT NULL,
+  `IDENTIFIER` varchar(255) NOT NULL,
   `COUNTRY_CODE` varchar(255) default NULL,
   `LOCALITY` varchar(255) default NULL,
   `LONG_NAME` varchar(255) NOT NULL UNIQUE,
