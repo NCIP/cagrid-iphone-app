@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GridServiceCell.h"
+#import "FavorableCell.h"
 
-@interface QueryServiceCell : GridServiceCell {
+@interface QueryServiceCell : FavorableCell {
 	IBOutlet UILabel *countLabel;
 }
 

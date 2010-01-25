@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "KeyValuePair.h"
+#import "FavorableCell.h"
 
 // These values are for key/value cells in UITableViews
 #define sidePadding 10 
@@ -37,6 +38,8 @@ typedef enum {
 
 + (NSString *) getStringFromDate:(NSDate *)date;
     
++ (NSString *) getDateStringFromDate:(NSDate *)date;
+		
 + (NSString *) dateDifferenceStringFromDate:(NSDate *)date;
 
 /** Display an error popup indicating that data could not be retrieved */
@@ -57,6 +60,8 @@ typedef enum {
 + (DataType)getDataTypeForDataTypeName:(NSString *)dataTypeName;
 
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
+
++ (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView;
 
 + (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width;
 

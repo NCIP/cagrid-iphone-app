@@ -6,10 +6,10 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
-#import "GridServicePropCell.h"
+#import "ServiceDetailCell.h"
 
 
-@implementation GridServicePropCell
+@implementation ServiceDetailCell
 
 @synthesize titleLabel;
 @synthesize descLabel;
@@ -27,7 +27,5 @@
 	self.favIcon = nil;
     [super dealloc];
 }
-
-
 
 @end

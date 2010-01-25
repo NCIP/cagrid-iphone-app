@@ -8,13 +8,14 @@
 
 #import "Util.h"
 #import "Label2.h"
+#import "UserPreferences.h"
+#import "ServiceMetadata.h"
 
 // has the user been alerted that there is a network problem?
 static BOOL alerted = NO;
 
 @implementation Util
 
-// TODO: remove status parameter
 + (NSString *) getIconNameForServiceOfType:(NSString *)class {
     return [class isEqualToString:@"DataService"] ? @"database" : @"chart_bar";
 }
@@ -37,6 +38,14 @@ static BOOL alerted = NO;
 + (NSString *) getStringFromDate:(NSDate *)date {
 	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
 	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2009-02-01 19:50:41 PST
+	NSString *dateString = [dateFormat stringFromDate:date];
+    [dateFormat release];
+    return dateString;
+}
+
++ (NSString *) getDateStringFromDate:(NSDate *)date {
+	NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+	[dateFormat setDateFormat: @"MM/dd/yyyy"]; // 01/02/2009 
 	NSString *dateString = [dateFormat stringFromDate:date];
     [dateFormat release];
     return dateString;
@@ -196,6 +205,64 @@ static BOOL alerted = NO;
     [errorDict setObject:message forKey:@"message"];    
     return errorDict;
 }
+
++ (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView {
+	
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *subtitle = [defaults stringForKey:@"service_subtitle"];
+	
+	// Get a cell
+
+	NSString *cellIdentifier = [subtitle isEqualToString:@"none"] ? @"FavorableCell" : @"FavorableDescCell";
+	FavorableCell *cell = (FavorableCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+	if (cell == nil) {
+		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
+		cell = [nib objectAtIndex:0];
+	}
+	
+	// Get service metadata
+	NSString *class = [service objectForKey:@"class"];
+	NSString *name = [service objectForKey:@"display_name"];
+	
+	// Populate the cell
+	cell.titleLabel.text = name;
+	
+	if ([subtitle isEqualToString:@"software"]) {
+		cell.descLabel.text = [NSString stringWithFormat:@"%@ %@",[service objectForKey:@"name"],[service objectForKey:@"version"]];
+	}
+	else if ([subtitle isEqualToString:@"url"]) {
+		cell.descLabel.text = [service objectForKey:@"url"];
+	}	
+	else if ([subtitle isEqualToString:@"host"]) {
+		NSString *hostId = [service valueForKey:@"host_id"];
+		if (hostId != nil) {
+			ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+			NSMutableDictionary *host = [sm.hostsById valueForKey:hostId];
+			cell.descLabel.text = [host valueForKey:@"long_name"];
+		}
+		else {		
+			cell.descLabel.text = @"";
+		}
+	}
+	else {
+		cell.descLabel.text = @"";
+	}
+	
+	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
+    cell.tickIcon.hidden = YES;
+    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
+    
+	if (service == nil || [name isEqualToString:@"Unknown"]) {
+		cell.accessoryType = UITableViewCellAccessoryNone;
+	} 
+	else {
+        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton; 
+	}
+	
+	return cell;
+}
+
 
 + (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width {
 	CGSize withinSize = CGSizeMake(width, MAXFLOAT); 

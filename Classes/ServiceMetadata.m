@@ -101,17 +101,15 @@
     
     // parse certain fields into native objects
     [service setObject:[Util getDateFromString:[service objectForKey:@"publish_date"]] forKey:@"publish_date_obj"];
-	
-	NSString *serviceAndVersion = [service objectForKey:@"version"] == nil ? 
-		[service objectForKey:@"simple_name"] :
-		[NSString stringWithFormat:@"%@ %@",[service objectForKey:@"simple_name"],[service objectForKey:@"version"]];
-	
-    NSString *host = [service objectForKey:@"host_short_name"];
+
+	NSString *name = [service objectForKey:@"simple_name"];
+	NSString *host = [service objectForKey:@"host_short_name"];
+
     if (host == nil) {
-        [service setObject:serviceAndVersion forKey:@"display_name"];
+        [service setObject:name forKey:@"display_name"];
     }
     else {
-	    [service setObject: [NSString stringWithFormat:@"%@ at %@",serviceAndVersion,host] forKey:@"display_name"];
+	    [service setObject:[NSString stringWithFormat:@"%@ at %@",name,host] forKey:@"display_name"];
     }
     
     NSString *group = [service objectForKey:@"group"];
@@ -176,6 +174,7 @@
     for(NSMutableDictionary *host in self.hosts) {
 		[self.hostsById setObject:host forKey:[host valueForKey:@"id"]];
     }
+	
 }
 
 

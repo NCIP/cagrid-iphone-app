@@ -26,6 +26,7 @@
 #pragma mark -
 #pragma mark Object Methods
 
+
 - (void)viewDidLoad {
 	self.serviceTable.allowsSelection = NO;
 	[super viewDidLoad];
@@ -137,29 +138,8 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-	// Get a cell
-
-	static NSString *cellIdentifier = @"GridServiceCell";
-	GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-	if (cell == nil) {
-		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-		cell = [nib objectAtIndex:0];
-	}
-	
-	// Get service metadata
-	
 	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
-	NSString *class = [service objectForKey:@"class"];
-	
-	// Populate the cell
-	
-	cell.titleLabel.text = [service objectForKey:@"display_name"];
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
-    cell.tickIcon.hidden = YES;
-    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-    
-	return cell;
+	return [Util getServiceCell:service fromTableView:tableView];
 }
 
 
