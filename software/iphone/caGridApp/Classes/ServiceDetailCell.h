@@ -11,7 +11,7 @@
 
 @interface ServiceDetailCell : UITableViewCell {
 	IBOutlet UILabel *titleLabel;
-	IBOutlet UILabel *descLabel;
+	IBOutlet UITextView *descLabel;
 	IBOutlet UILabel *typeLabel;
 	IBOutlet UILabel *statusLabel;
 	IBOutlet UIImageView *icon;
@@ -19,7 +19,7 @@
 }
 
 @property (nonatomic, retain) UILabel *titleLabel;
-@property (nonatomic, retain) UILabel *descLabel;
+@property (nonatomic, retain) UITextView *descLabel;
 @property (nonatomic, retain) UILabel *typeLabel;
 @property (nonatomic, retain) UILabel *statusLabel;
 @property (nonatomic, retain) UIImageView *icon;

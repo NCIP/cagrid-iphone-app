@@ -69,14 +69,14 @@
 							</object>
 							<object class="IBUILabel" id="208098037">
 								<reference key="NSNextResponder" ref="288339065"/>
-								<int key="NSvFlags">292</int>
+								<int key="NSvFlags">-2147483356</int>
 								<string key="NSFrame">{{12, 50}, {268, 21}}</string>
 								<reference key="NSSuperview" ref="288339065"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<string key="IBUIText">The CaBIOSvc grid service</string>
-								<object class="NSFont" key="IBUIFont" id="757542584">
+								<object class="NSFont" key="IBUIFont" id="539989258">
 									<string key="NSName">Helvetica</string>
 									<double key="NSSize">14</double>
 									<int key="NSfFlags">16</int>
@@ -134,23 +134,26 @@
 									<string key="NSResourceName">yellow_star_sm.png</string>
 								</object>
 							</object>
-							<object class="IBUITextView" id="932263140">
+							<object class="IBUITextView" id="759601746">
 								<reference key="NSNextResponder" ref="288339065"/>
-								<int key="NSvFlags">-2147483356</int>
+								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{12, 50}, {268, 21}}</string>
 								<reference key="NSSuperview" ref="288339065"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
 								<bool key="IBUIMultipleTouchEnabled">YES</bool>
+								<bool key="IBUIBounces">NO</bool>
 								<bool key="IBUIShowsHorizontalScrollIndicator">NO</bool>
 								<bool key="IBUIDelaysContentTouches">NO</bool>
 								<bool key="IBUICanCancelContentTouches">NO</bool>
 								<bool key="IBUIBouncesZoom">NO</bool>
-								<string key="IBUIText">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
-								<reference key="IBUIFont" ref="757542584"/>
+								<bool key="IBUIEditable">NO</bool>
+								<string key="IBUIText">The caBIO grid service.</string>
+								<reference key="IBUIFont" ref="539989258"/>
 								<object class="IBUITextInputTraits" key="IBUITextInputTraits">
 									<int key="IBUIAutocapitalizationType">2</int>
 								</object>
+								<int key="IBUIDataDetectorTypes">2</int>
 							</object>
 						</object>
 						<string key="NSFrameSize">{300, 80}</string>
@@ -199,14 +202,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">descLabel</string>
-						<reference key="source" ref="316789821"/>
-						<reference key="destination" ref="208098037"/>
-					</object>
-					<int key="connectionID">39</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">icon</string>
 						<reference key="source" ref="316789821"/>
 						<reference key="destination" ref="88611941"/>
@@ -220,6 +215,14 @@
 						<reference key="destination" ref="344989416"/>
 					</object>
 					<int key="connectionID">44</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">descLabel</string>
+						<reference key="source" ref="316789821"/>
+						<reference key="destination" ref="759601746"/>
+					</object>
+					<int key="connectionID">53</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -252,7 +255,7 @@
 							<reference ref="344989416"/>
 							<reference ref="130768901"/>
 							<reference ref="670540519"/>
-							<reference ref="932263140"/>
+							<reference ref="759601746"/>
 						</object>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -283,7 +286,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">52</int>
-						<reference key="object" ref="932263140"/>
+						<reference key="object" ref="759601746"/>
 						<reference key="parent" ref="316789821"/>
 					</object>
 				</object>
@@ -333,7 +336,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">52</int>
+			<int key="maxID">53</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -368,7 +371,7 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>UILabel</string>
+							<string>UITextView</string>
 							<string>UIImageView</string>
 							<string>UIImageView</string>
 							<string>UILabel</string>
