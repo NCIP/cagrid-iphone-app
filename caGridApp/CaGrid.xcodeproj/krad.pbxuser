@@ -23,7 +23,7 @@
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
 		activeBuildConfigurationName = Distribution;
 		activeExecutable = A9AE08120FF2BA75002A773F /* CaGrid */;
-		activeSDKPreference = iphonesimulator3.1.2;
+		activeSDKPreference = iphoneos3.1.2;
 		activeTarget = 1D6058900D05DD3D006BFB54 /* CaGrid */;
 		addToTargets = (
 			1D6058900D05DD3D006BFB54 /* CaGrid */,
@@ -116,6 +116,7 @@
 			A9340034110D5E180060514B /* PBXTextBookmark */ = A9340034110D5E180060514B /* PBXTextBookmark */;
 			A9340035110D5E180060514B /* PBXTextBookmark */ = A9340035110D5E180060514B /* PBXTextBookmark */;
 			A9340038110D5E530060514B /* PBXTextBookmark */ = A9340038110D5E530060514B /* PBXTextBookmark */;
+			A934003B110D5E6E0060514B /* PBXTextBookmark */ = A934003B110D5E6E0060514B /* PBXTextBookmark */;
 			A934FD4D1104F6A00060514B /* PlistBookmark */ = A934FD4D1104F6A00060514B /* PlistBookmark */;
 			A934FDCE1107B09E0060514B /* PBXTextBookmark */ = A934FDCE1107B09E0060514B /* PBXTextBookmark */;
 			A934FDCF1107B09E0060514B /* XCBuildMessageTextBookmark */ = A934FDCF1107B09E0060514B /* XCBuildMessageTextBookmark */;
@@ -887,6 +888,16 @@
 		vrLoc = 645;
 	};
 	A9340038110D5E530060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 59";
+		rLen = 0;
+		rLoc = 1378;
+		rType = 0;
+		vrLen = 1470;
+		vrLoc = 645;
+	};
+	A934003B110D5E6E0060514B /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 59";
