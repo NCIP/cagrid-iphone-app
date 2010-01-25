@@ -229,6 +229,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -278,14 +280,11 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>46</integer>
-									<integer>24</integer>
-									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 240}, {308, 653}}</string>
+							<string>{{0, 0}, {308, 653}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -317,8 +316,6 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -336,7 +333,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A9340003110D583B0060514B</string>
+										<string>A9340038110D5E530060514B</string>
 										<key>history</key>
 										<array>
 											<string>A9693A801003A03F00FA59F5</string>
@@ -433,13 +430,11 @@
 											<string>A934FF1F110D205F0060514B</string>
 											<string>A934FF21110D205F0060514B</string>
 											<string>A934FF2D110D2B540060514B</string>
-											<string>A934FF2E110D2B540060514B</string>
 											<string>A934FF5A110D30F40060514B</string>
 											<string>A934FF5B110D30F40060514B</string>
 											<string>A934FF5D110D30F40060514B</string>
 											<string>A934FF7F110D3B6D0060514B</string>
 											<string>A934FF80110D3B6D0060514B</string>
-											<string>A934FF81110D3B6D0060514B</string>
 											<string>A934FF82110D3B6D0060514B</string>
 											<string>A934FF83110D3B6D0060514B</string>
 											<string>A934FF84110D3B6D0060514B</string>
@@ -450,7 +445,9 @@
 											<string>A934FFCB110D4EA30060514B</string>
 											<string>A934FFD4110D4ECF0060514B</string>
 											<string>A934FFEC110D50190060514B</string>
-											<string>A934FFED110D50190060514B</string>
+											<string>A9340033110D5E180060514B</string>
+											<string>A9340034110D5E180060514B</string>
+											<string>A9340028110D5D270060514B</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

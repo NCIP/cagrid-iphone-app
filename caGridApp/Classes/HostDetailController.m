@@ -54,7 +54,7 @@
 	[main_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[host objectForKey:@"short_name"]]];
 	[sections addObject:main_section];
 	
-	for(NSMutableDictionary *poc in [host objectForKey:@"pocs"]) {	
+	for(NSMutableDictionary *poc in [host objectForKey:@"pocs"]) {
 		[headers addObject:@"Point of Contact"];	
 		NSMutableArray *poc_section = [NSMutableArray array];
 		[poc_section addObject:[KeyValuePair pairWithKey:@"Name"		andValue:[poc objectForKey:@"name"]]];

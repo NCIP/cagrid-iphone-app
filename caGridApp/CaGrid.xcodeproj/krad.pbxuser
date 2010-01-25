@@ -21,7 +21,7 @@
 		);
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Debug;
+		activeBuildConfigurationName = Distribution;
 		activeExecutable = A9AE08120FF2BA75002A773F /* CaGrid */;
 		activeSDKPreference = iphonesimulator3.1.2;
 		activeTarget = 1D6058900D05DD3D006BFB54 /* CaGrid */;
@@ -103,6 +103,19 @@
 			A9340001110D517B0060514B /* PBXTextBookmark */ = A9340001110D517B0060514B /* PBXTextBookmark */;
 			A9340002110D51AC0060514B /* PBXTextBookmark */ = A9340002110D51AC0060514B /* PBXTextBookmark */;
 			A9340003110D583B0060514B /* PBXTextBookmark */ = A9340003110D583B0060514B /* PBXTextBookmark */;
+			A9340006110D5A1D0060514B /* PBXTextBookmark */ = A9340006110D5A1D0060514B /* PBXTextBookmark */;
+			A9340015110D5B660060514B /* PBXTextBookmark */ = A9340015110D5B660060514B /* PBXTextBookmark */;
+			A934001E110D5BEF0060514B /* PBXTextBookmark */ = A934001E110D5BEF0060514B /* PBXTextBookmark */;
+			A934001F110D5C200060514B /* PBXTextBookmark */ = A934001F110D5C200060514B /* PBXTextBookmark */;
+			A9340028110D5D270060514B /* PBXTextBookmark */ = A9340028110D5D270060514B /* PBXTextBookmark */;
+			A9340029110D5D270060514B /* PBXTextBookmark */ = A9340029110D5D270060514B /* PBXTextBookmark */;
+			A934002A110D5D270060514B /* PBXTextBookmark */ = A934002A110D5D270060514B /* PBXTextBookmark */;
+			A934002D110D5DA10060514B /* PBXTextBookmark */ = A934002D110D5DA10060514B /* PBXTextBookmark */;
+			A9340030110D5DE60060514B /* PBXTextBookmark */ = A9340030110D5DE60060514B /* PBXTextBookmark */;
+			A9340033110D5E180060514B /* PBXTextBookmark */ = A9340033110D5E180060514B /* PBXTextBookmark */;
+			A9340034110D5E180060514B /* PBXTextBookmark */ = A9340034110D5E180060514B /* PBXTextBookmark */;
+			A9340035110D5E180060514B /* PBXTextBookmark */ = A9340035110D5E180060514B /* PBXTextBookmark */;
+			A9340038110D5E530060514B /* PBXTextBookmark */ = A9340038110D5E530060514B /* PBXTextBookmark */;
 			A934FD4D1104F6A00060514B /* PlistBookmark */ = A934FD4D1104F6A00060514B /* PlistBookmark */;
 			A934FDCE1107B09E0060514B /* PBXTextBookmark */ = A934FDCE1107B09E0060514B /* PBXTextBookmark */;
 			A934FDCF1107B09E0060514B /* XCBuildMessageTextBookmark */ = A934FDCF1107B09E0060514B /* XCBuildMessageTextBookmark */;
@@ -698,7 +711,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 125";
 		rLen = 314;
-		rLoc = 3239;
+		rLoc = 3238;
 		rType = 0;
 		vrLen = 1897;
 		vrLoc = 2805;
@@ -708,7 +721,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 188";
 		rLen = 0;
-		rLoc = 5650;
+		rLoc = 5649;
 		rType = 0;
 		vrLen = 2551;
 		vrLoc = 5330;
@@ -728,7 +741,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 172";
 		rLen = 0;
-		rLoc = 5737;
+		rLoc = 5736;
 		rType = 0;
 		vrLen = 1917;
 		vrLoc = 5132;
@@ -748,10 +761,140 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 5561;
+		rLoc = 5560;
 		rType = 0;
 		vrLen = 1982;
 		vrLoc = 5132;
+	};
+	A9340006110D5A1D0060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 171";
+		rLen = 0;
+		rLoc = 5560;
+		rType = 0;
+		vrLen = 1982;
+		vrLoc = 5132;
+	};
+	A9340015110D5B660060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 171";
+		rLen = 0;
+		rLoc = 5560;
+		rType = 0;
+		vrLen = 1939;
+		vrLoc = 5316;
+	};
+	A934001E110D5BEF0060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 190";
+		rLen = 0;
+		rLoc = 6634;
+		rType = 0;
+		vrLen = 2152;
+		vrLoc = 4769;
+	};
+	A934001F110D5C200060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 188";
+		rLen = 0;
+		rLoc = 6634;
+		rType = 0;
+		vrLen = 2115;
+		vrLoc = 4769;
+	};
+	A9340028110D5D270060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 58";
+		rLen = 0;
+		rLoc = 1271;
+		rType = 0;
+		vrLen = 1450;
+		vrLoc = 602;
+	};
+	A9340029110D5D270060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
+		name = "HostDetailController.m: 106";
+		rLen = 0;
+		rLoc = 2854;
+		rType = 0;
+		vrLen = 1401;
+		vrLoc = 2080;
+	};
+	A934002A110D5D270060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
+		name = "HostDetailController.m: 57";
+		rLen = 0;
+		rLoc = 1232;
+		rType = 0;
+		vrLen = 1506;
+		vrLoc = 620;
+	};
+	A934002D110D5DA10060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
+		name = "HostDetailController.m: 57";
+		rLen = 0;
+		rLoc = 1232;
+		rType = 0;
+		vrLen = 1473;
+		vrLoc = 703;
+	};
+	A9340030110D5DE60060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
+		name = "HostDetailController.m: 205";
+		rLen = 0;
+		rLoc = 6924;
+		rType = 0;
+		vrLen = 2122;
+		vrLoc = 6404;
+	};
+	A9340033110D5E180060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
+		name = "HostDetailController.m: 56";
+		rLen = 0;
+		rLoc = 1232;
+		rType = 0;
+		vrLen = 1497;
+		vrLoc = 747;
+	};
+	A9340034110D5E180060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9DC7D5E10A6082900535680 /* HostListController.m */;
+		name = "HostListController.m: 118";
+		rLen = 0;
+		rLoc = 2921;
+		rType = 0;
+		vrLen = 1511;
+		vrLoc = 2615;
+	};
+	A9340035110D5E180060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 59";
+		rLen = 0;
+		rLoc = 1378;
+		rType = 0;
+		vrLen = 1470;
+		vrLoc = 645;
+	};
+	A9340038110D5E530060514B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
+		name = "ServiceDetailController.m: 59";
+		rLen = 0;
+		rLoc = 1378;
+		rType = 0;
+		vrLen = 1470;
+		vrLoc = 645;
 	};
 	A934FD4D1104F6A00060514B /* PlistBookmark */ = {
 		isa = PlistBookmark;
@@ -791,7 +934,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 166";
 		rLen = 0;
-		rLoc = 5497;
+		rLoc = 5496;
 		rType = 0;
 		vrLen = 1534;
 		vrLoc = 4774;
@@ -879,7 +1022,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 208";
 		rLen = 0;
-		rLoc = 6384;
+		rLoc = 6383;
 		rType = 0;
 		vrLen = 2054;
 		vrLoc = 7489;
@@ -929,7 +1072,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 187";
 		rLen = 0;
-		rLoc = 6875;
+		rLoc = 6864;
 		rType = 0;
 		vrLen = 2235;
 		vrLoc = 4292;
@@ -1008,7 +1151,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 182";
 		rLen = 212;
-		rLoc = 6678;
+		rLoc = 6667;
 		rType = 0;
 		vrLen = 2189;
 		vrLoc = 5541;
@@ -1038,7 +1181,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5193;
+		rLoc = 5192;
 		rType = 0;
 		vrLen = 2152;
 		vrLoc = 4130;
@@ -1048,7 +1191,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5193;
+		rLoc = 5192;
 		rType = 0;
 		vrLen = 1244;
 		vrLoc = 1975;
@@ -1058,7 +1201,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 181";
 		rLen = 212;
-		rLoc = 6678;
+		rLoc = 6667;
 		rType = 0;
 		vrLen = 2126;
 		vrLoc = 5540;
@@ -1068,7 +1211,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 194";
 		rLen = 0;
-		rLoc = 7150;
+		rLoc = 7139;
 		rType = 0;
 		vrLen = 2139;
 		vrLoc = 5607;
@@ -1078,7 +1221,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 194";
 		rLen = 0;
-		rLoc = 7150;
+		rLoc = 7139;
 		rType = 0;
 		vrLen = 2139;
 		vrLoc = 5607;
@@ -1331,7 +1474,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5193;
+		rLoc = 5192;
 		rType = 0;
 		vrLen = 1951;
 		vrLoc = 2861;
@@ -1471,7 +1614,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5193;
+		rLoc = 5192;
 		rType = 0;
 		vrLen = 1951;
 		vrLoc = 2861;
@@ -1481,7 +1624,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 92";
 		rLen = 0;
-		rLoc = 2584;
+		rLoc = 2583;
 		rType = 0;
 		vrLen = 1259;
 		vrLoc = 1973;
@@ -1491,7 +1634,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 93";
 		rLen = 0;
-		rLoc = 2542;
+		rLoc = 2541;
 		rType = 0;
 		vrLen = 1250;
 		vrLoc = 1973;
@@ -1576,7 +1719,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 93";
 		rLen = 0;
-		rLoc = 2542;
+		rLoc = 2541;
 		rType = 0;
 		vrLen = 1250;
 		vrLoc = 1973;
@@ -1586,7 +1729,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 93";
 		rLen = 0;
-		rLoc = 2584;
+		rLoc = 2583;
 		rType = 0;
 		vrLen = 1264;
 		vrLoc = 1976;
@@ -1596,7 +1739,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 93";
 		rLen = 0;
-		rLoc = 2584;
+		rLoc = 2583;
 		rType = 0;
 		vrLen = 1427;
 		vrLoc = 2127;
@@ -2545,7 +2688,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 194";
 		rLen = 0;
-		rLoc = 7150;
+		rLoc = 7139;
 		rType = 0;
 		vrLen = 2139;
 		vrLoc = 5607;
@@ -2555,7 +2698,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 143";
 		rLen = 0;
-		rLoc = 4535;
+		rLoc = 4534;
 		rType = 0;
 		vrLen = 2141;
 		vrLoc = 3926;
@@ -2565,7 +2708,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 6090;
+		rLoc = 6089;
 		rType = 0;
 		vrLen = 1904;
 		vrLoc = 4630;
@@ -2605,7 +2748,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 6090;
+		rLoc = 6089;
 		rType = 0;
 		vrLen = 1842;
 		vrLoc = 4942;
@@ -2615,7 +2758,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 6086;
+		rLoc = 6085;
 		rType = 0;
 		vrLen = 1976;
 		vrLoc = 4121;
@@ -2625,7 +2768,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 6086;
+		rLoc = 6085;
 		rType = 0;
 		vrLen = 2071;
 		vrLoc = 4344;
@@ -2645,7 +2788,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 6086;
+		rLoc = 6085;
 		rType = 0;
 		vrLen = 2071;
 		vrLoc = 4344;
@@ -2655,7 +2798,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2054;
 		vrLoc = 4480;
@@ -2665,7 +2808,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2052;
 		vrLoc = 4480;
@@ -2675,7 +2818,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2077;
 		vrLoc = 4285;
@@ -2685,7 +2828,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2079;
 		vrLoc = 4459;
@@ -2695,7 +2838,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2031;
 		vrLoc = 4574;
@@ -2735,7 +2878,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 174";
 		rLen = 0;
-		rLoc = 6394;
+		rLoc = 6393;
 		rType = 0;
 		vrLen = 2031;
 		vrLoc = 4574;
@@ -2745,7 +2888,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 173";
 		rLen = 0;
-		rLoc = 6282;
+		rLoc = 6281;
 		rType = 0;
 		vrLen = 2031;
 		vrLoc = 4574;
@@ -2795,7 +2938,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 169";
 		rLen = 0;
-		rLoc = 5959;
+		rLoc = 5958;
 		rType = 0;
 		vrLen = 2031;
 		vrLoc = 4574;
@@ -2805,7 +2948,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 173";
 		rLen = 0;
-		rLoc = 6347;
+		rLoc = 6346;
 		rType = 0;
 		vrLen = 2159;
 		vrLoc = 4634;
@@ -2815,7 +2958,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 173";
 		rLen = 0;
-		rLoc = 6348;
+		rLoc = 6347;
 		rType = 0;
 		vrLen = 1989;
 		vrLoc = 4939;
@@ -2825,7 +2968,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 143";
 		rLen = 0;
-		rLoc = 4407;
+		rLoc = 4406;
 		rType = 0;
 		vrLen = 2145;
 		vrLoc = 4236;
@@ -2903,7 +3046,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 180";
 		rLen = 0;
-		rLoc = 6407;
+		rLoc = 6406;
 		rType = 0;
 		vrLen = 1476;
 		vrLoc = 5321;
@@ -2953,7 +3096,7 @@
 		fRef = A9DC7D6310A6084500535680 /* HostDetailController.m */;
 		name = "HostDetailController.m: 106";
 		rLen = 0;
-		rLoc = 2855;
+		rLoc = 2854;
 		rType = 0;
 		vrLen = 1401;
 		vrLoc = 2080;
@@ -3003,7 +3146,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 171";
 		rLen = 0;
-		rLoc = 5865;
+		rLoc = 5864;
 		rType = 0;
 		vrLen = 2185;
 		vrLoc = 4415;
@@ -3013,7 +3156,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 159";
 		rLen = 0;
-		rLoc = 5139;
+		rLoc = 5138;
 		rType = 0;
 		vrLen = 2218;
 		vrLoc = 4157;
@@ -3023,7 +3166,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 159";
 		rLen = 0;
-		rLoc = 5139;
+		rLoc = 5138;
 		rType = 0;
 		vrLen = 2217;
 		vrLoc = 4157;
@@ -3033,7 +3176,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4215;
+		rLoc = 4214;
 		rType = 0;
 		vrLen = 1873;
 		vrLoc = 3860;
@@ -3043,7 +3186,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4222;
+		rLoc = 4221;
 		rType = 0;
 		vrLen = 2000;
 		vrLoc = 3926;
@@ -3053,7 +3196,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4215;
+		rLoc = 4214;
 		rType = 0;
 		vrLen = 2091;
 		vrLoc = 4012;
@@ -3063,7 +3206,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4222;
+		rLoc = 4221;
 		rType = 0;
 		vrLen = 2088;
 		vrLoc = 4012;
@@ -3073,7 +3216,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4222;
+		rLoc = 4221;
 		rType = 0;
 		vrLen = 2156;
 		vrLoc = 4069;
@@ -3083,7 +3226,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 139";
 		rLen = 0;
-		rLoc = 4224;
+		rLoc = 4223;
 		rType = 0;
 		vrLen = 2226;
 		vrLoc = 4123;
@@ -3093,7 +3236,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5310;
+		rLoc = 5309;
 		rType = 0;
 		vrLen = 2109;
 		vrLoc = 4271;
@@ -3103,7 +3246,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 163";
 		rLen = 0;
-		rLoc = 5320;
+		rLoc = 5319;
 		rType = 0;
 		vrLen = 2166;
 		vrLoc = 4323;
@@ -3113,7 +3256,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 159";
 		rLen = 0;
-		rLoc = 5161;
+		rLoc = 5160;
 		rType = 0;
 		vrLen = 2182;
 		vrLoc = 4410;
@@ -3183,7 +3326,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 176";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2122;
 		vrLoc = 4543;
@@ -3193,7 +3336,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 176";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2197;
 		vrLoc = 4465;
@@ -3243,7 +3386,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 176";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2194;
 		vrLoc = 4468;
@@ -3253,7 +3396,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5310;
+		rLoc = 5309;
 		rType = 0;
 		vrLen = 2124;
 		vrLoc = 4543;
@@ -3263,7 +3406,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5306;
+		rLoc = 5305;
 		rType = 0;
 		vrLen = 2060;
 		vrLoc = 4654;
@@ -3273,7 +3416,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5306;
+		rLoc = 5305;
 		rType = 0;
 		vrLen = 2084;
 		vrLoc = 4769;
@@ -3283,7 +3426,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 177";
 		rLen = 0;
-		rLoc = 6029;
+		rLoc = 6028;
 		rType = 0;
 		vrLen = 2118;
 		vrLoc = 4827;
@@ -3293,7 +3436,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5306;
+		rLoc = 5305;
 		rType = 0;
 		vrLen = 2120;
 		vrLoc = 4823;
@@ -3303,7 +3446,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 168";
 		rLen = 0;
-		rLoc = 5558;
+		rLoc = 5557;
 		rType = 0;
 		vrLen = 2297;
 		vrLoc = 4413;
@@ -3333,7 +3476,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 168";
 		rLen = 0;
-		rLoc = 5558;
+		rLoc = 5557;
 		rType = 0;
 		vrLen = 2297;
 		vrLoc = 4413;
@@ -3343,7 +3486,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 178";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2292;
 		vrLoc = 4468;
@@ -3353,7 +3496,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 178";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2235;
 		vrLoc = 4543;
@@ -3379,7 +3522,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 178";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2235;
 		vrLoc = 4543;
@@ -3389,7 +3532,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 178";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2106;
 		vrLoc = 4675;
@@ -3399,7 +3542,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 177";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2106;
 		vrLoc = 4675;
@@ -3459,7 +3602,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 247";
 		rLen = 0;
-		rLoc = 9050;
+		rLoc = 9039;
 		rType = 0;
 		vrLen = 1451;
 		vrLoc = 4413;
@@ -3508,7 +3651,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 177";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2180;
 		vrLoc = 4654;
@@ -3518,7 +3661,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 168";
 		rLen = 0;
-		rLoc = 5558;
+		rLoc = 5557;
 		rType = 0;
 		vrLen = 2060;
 		vrLoc = 4769;
@@ -3528,7 +3671,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 177";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2062;
 		vrLoc = 4769;
@@ -3538,7 +3681,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 177";
 		rLen = 0;
-		rLoc = 6026;
+		rLoc = 6025;
 		rType = 0;
 		vrLen = 2121;
 		vrLoc = 4827;
@@ -3548,7 +3691,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 161";
 		rLen = 0;
-		rLoc = 5231;
+		rLoc = 5230;
 		rType = 0;
 		vrLen = 2140;
 		vrLoc = 4827;
@@ -3558,7 +3701,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 172";
 		rLen = 0;
-		rLoc = 5734;
+		rLoc = 5733;
 		rType = 0;
 		vrLen = 2030;
 		vrLoc = 4830;
@@ -3568,7 +3711,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 172";
 		rLen = 0;
-		rLoc = 5737;
+		rLoc = 5736;
 		rType = 0;
 		vrLen = 1929;
 		vrLoc = 5088;
@@ -3588,7 +3731,7 @@
 		fRef = A9693A591002E8A800FA59F5 /* ServiceDetailController.m */;
 		name = "ServiceDetailController.m: 172";
 		rLen = 0;
-		rLoc = 5737;
+		rLoc = 5736;
 		rType = 0;
 		vrLen = 1917;
 		vrLoc = 5132;
@@ -3867,9 +4010,9 @@
 	};
 	A9693A591002E8A800FA59F5 /* ServiceDetailController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1104, 3094}}";
-			sepNavSelRange = "{5561, 0}";
-			sepNavVisRange = "{5132, 1982}";
+			sepNavIntBoundsRect = "{{0, 0}, {894, 3549}}";
+			sepNavSelRange = "{1378, 0}";
+			sepNavVisRange = "{645, 1470}";
 		};
 	};
 	A9693A801003A03F00FA59F5 /* PBXTextBookmark */ = {
@@ -4729,7 +4872,7 @@
 	};
 	A9DC7D5E10A6082900535680 /* HostListController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {894, 2041}}";
+			sepNavIntBoundsRect = "{{0, 0}, {894, 2080}}";
 			sepNavSelRange = "{2921, 0}";
 			sepNavVisRange = "{2615, 1511}";
 		};
@@ -4743,9 +4886,9 @@
 	};
 	A9DC7D6310A6084500535680 /* HostDetailController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {894, 3562}}";
-			sepNavSelRange = "{2855, 0}";
-			sepNavVisRange = "{2080, 1401}";
+			sepNavIntBoundsRect = "{{0, 0}, {894, 3575}}";
+			sepNavSelRange = "{1232, 0}";
+			sepNavVisRange = "{747, 1497}";
 		};
 	};
 	A9DC7D8410A6116E00535680 /* PBXTextBookmark */ = {
