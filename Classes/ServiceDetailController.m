@@ -55,7 +55,7 @@
 	[main_section addObject:[KeyValuePair pairWithKey:@"Name"			andValue:[service objectForKey:@"name"]]];
 	[sections addObject:main_section];
 	
-	for(NSMutableDictionary *poc in [service objectForKey:@"pocs"]) {	
+	for(NSMutableDictionary *poc in [service objectForKey:@"pocs"]) {
 		[headers addObject:@"Point of Contact"];
 		NSMutableArray *poc_section = [NSMutableArray array];
 		[poc_section addObject:[KeyValuePair pairWithKey:@"Name"		andValue:[poc objectForKey:@"name"]]];
@@ -186,7 +186,7 @@
 		cell.descLabel.text = desc;
 		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
         cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-            
+		
 		return cell; 
 		
 	}
