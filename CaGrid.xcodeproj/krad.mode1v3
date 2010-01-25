@@ -278,14 +278,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>22</integer>
-									<integer>11</integer>
+									<integer>46</integer>
+									<integer>24</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 0}, {308, 653}}</string>
+							<string>{{0, 240}, {308, 653}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -324,7 +324,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ServiceDetailCell.h</string>
+								<string>ServiceDetailController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -332,11 +332,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ServiceDetailCell.h</string>
+										<string>ServiceDetailController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A934FFA1110D493A0060514B</string>
+										<string>A9340003110D583B0060514B</string>
 										<key>history</key>
 										<array>
 											<string>A9693A801003A03F00FA59F5</string>
@@ -434,22 +434,23 @@
 											<string>A934FF21110D205F0060514B</string>
 											<string>A934FF2D110D2B540060514B</string>
 											<string>A934FF2E110D2B540060514B</string>
-											<string>A934FF51110D30360060514B</string>
-											<string>A934FF53110D30360060514B</string>
 											<string>A934FF5A110D30F40060514B</string>
 											<string>A934FF5B110D30F40060514B</string>
 											<string>A934FF5D110D30F40060514B</string>
-											<string>A934FF6A110D320E0060514B</string>
-											<string>A934FF7D110D3B6D0060514B</string>
 											<string>A934FF7F110D3B6D0060514B</string>
 											<string>A934FF80110D3B6D0060514B</string>
 											<string>A934FF81110D3B6D0060514B</string>
 											<string>A934FF82110D3B6D0060514B</string>
 											<string>A934FF83110D3B6D0060514B</string>
 											<string>A934FF84110D3B6D0060514B</string>
-											<string>A934FF9F110D493A0060514B</string>
-											<string>A934FFA0110D493A0060514B</string>
-											<string>A934FF7E110D3B6D0060514B</string>
+											<string>A934FFA9110D4AAC0060514B</string>
+											<string>A934FFAB110D4AAC0060514B</string>
+											<string>A934FFB2110D4D370060514B</string>
+											<string>A934FFB3110D4D370060514B</string>
+											<string>A934FFCB110D4EA30060514B</string>
+											<string>A934FFD4110D4ECF0060514B</string>
+											<string>A934FFEC110D50190060514B</string>
+											<string>A934FFED110D50190060514B</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -670,14 +671,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ServiceDetailController.m</string>
+								<string>Util.m</string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -694,6 +693,8 @@
 							<string>459pt</string>
 						</dict>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
