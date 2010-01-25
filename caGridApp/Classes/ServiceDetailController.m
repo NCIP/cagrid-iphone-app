@@ -158,7 +158,8 @@
 		
 		//NSLog(@"desc frame: %@",cell.descLabel);
 		// frame = (12 50; 268 21)
-		CGRect descFrame = CGRectMake(12, 50, 268, 21);
+		// +14 to write into the UITextView right margin
+		CGRect descFrame = CGRectMake(12, 50, 268+14, 21);
 		
 		//NSLog(@"cell frame: %@",cell.contentView);
 		// frame = (0 0; 300 80)
@@ -166,12 +167,18 @@
 		
 		// Calculate new heights
 		CGFloat labelHeight = [Util heightForLabel:desc constrainedToWidth:descFrame.size.width];
+
+		// We let it scroll because the heightForLabel does not calculate correctly if it has to break on a character instead of a word
+		if (labelHeight > 150) labelHeight = 150;
+		
 		cellFrame.size.height = cellFrame.size.height - descFrame.size.height + labelHeight;
 		descFrame.size.height = labelHeight;
 		
 		// Resize and populate cell
 		cell.descLabel.frame = descFrame;
 		cell.bounds = cellFrame;
+		
+		[cell.descLabel setContentInset:UIEdgeInsetsMake(-9,-6,0,0)];
 		
 		cell.titleLabel.text = [service valueForKey:@"display_name"];
 		cell.typeLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];

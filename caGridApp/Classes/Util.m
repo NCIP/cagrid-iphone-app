@@ -266,7 +266,7 @@ static BOOL alerted = NO;
 
 + (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width {
 	CGSize withinSize = CGSizeMake(width, MAXFLOAT); 
-	CGSize size = [value sizeWithFont: [UIFont systemFontOfSize: [UIFont systemFontSize]] constrainedToSize:withinSize lineBreakMode:UILineBreakModeCharacterWrap]; 
+	CGSize size = [value sizeWithFont: [UIFont systemFontOfSize: [UIFont systemFontSize]] constrainedToSize:withinSize lineBreakMode:UILineBreakModeWordWrap]; 
 	return size.height; 
 }
 
