@@ -141,10 +141,10 @@
 		
 		// Get a cell
 		static NSString *cellIdentifier = @"HostDetailCell"; 
-		GridServicePropCell *cell = (GridServicePropCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+		ServiceDetailCell *cell = (ServiceDetailCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 		if (cell == nil) {
 			NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-			cell = (GridServicePropCell *)[nib objectAtIndex:0];
+			cell = (ServiceDetailCell *)[nib objectAtIndex:0];
 		}
 		
 		// TODO: Get the frames dynamically somehow. Calling cell.descLabel.frame throws an exception, and cell.contentView.frame is null, 

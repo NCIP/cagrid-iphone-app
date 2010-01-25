@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Label2.h"
-#import "GridServicePropCell.h"
+#import "ServiceDetailCell.h"
 #import "Util.h"
 
 @interface HostDetailController : UITableViewController {

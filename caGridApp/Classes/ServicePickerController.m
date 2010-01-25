@@ -10,7 +10,7 @@
 #import "ServiceMetadata.h"
 #import "ServiceDetailController.h"
 #import "UserPreferences.h"
-#import "GridServiceCell.h"
+#import "FavorableCell.h"
 
 @implementation ServicePickerController
 @synthesize navController;
@@ -64,31 +64,10 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-    NSMutableArray *services = [sm getServicesOfType:dataType];
-    
-	// Get a cell
-    
-	static NSString *cellIdentifier = @"GridServiceCell";
-	GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-	if (cell == nil) {
-		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-		cell = [nib objectAtIndex:0];
-	}
-	
-	// Get service metadata
-	
-	NSUInteger row = [indexPath row];
-	NSMutableDictionary *service = [services objectAtIndex:row];
-	NSString *class = [service objectForKey:@"class"];
-	
-	// Populate the cell
-	
-	cell.titleLabel.text = [service objectForKey:@"display_name"];
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
-    cell.tickIcon.hidden = ![[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]];
-    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-    
+    NSMutableArray *services = [[ServiceMetadata sharedSingleton] getServicesOfType:dataType];
+	NSMutableDictionary *service = [services objectAtIndex:indexPath.row];
+	FavorableCell *cell = [Util getServiceCell:service fromTableView:tableView];
+	cell.tickIcon.hidden = ![[UserPreferences sharedSingleton] isSelectedForSearch:[service objectForKey:@"id"]];
 	return cell;
 }
 

@@ -136,15 +136,20 @@
 	
 	if (indexPath.section == 0) {
 		
-		NSString *desc = [service valueForKey:@"description"];
+		NSString *desc = [NSString stringWithFormat:@"Software: %@ %@\n%@\n%@",
+							  [service valueForKey:@"name"],
+							  [service valueForKey:@"version"],							  
+							  [service valueForKey:@"url"],
+							  [service valueForKey:@"description"]];
+		
 		NSString *class = [service valueForKey:@"class"];
 		
 		// Get a cell
-		static NSString *cellIdentifier = @"GridServicePropCell"; 
-		GridServicePropCell *cell = (GridServicePropCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+		static NSString *cellIdentifier = @"ServiceDetailCell"; 
+		ServiceDetailCell *cell = (ServiceDetailCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 		if (cell == nil) {
 			NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-			cell = (GridServicePropCell *)[nib objectAtIndex:0];
+			cell = (ServiceDetailCell *)[nib objectAtIndex:0];
 		}
 		
 		// TODO: Get the frames dynamically somehow. Calling cell.descLabel.frame throws an exception, and cell.contentView.frame is null, 
@@ -152,12 +157,12 @@
 		// hardcoded them here for now. Terrible.
 		
 		//NSLog(@"desc frame: %@",cell.descLabel);
-		// frame = (12 80; 268 21)	
-		CGRect descFrame = CGRectMake(12, 80, 268, 21);
+		// frame = (12 50; 268 21)
+		CGRect descFrame = CGRectMake(12, 50, 268, 21);
 		
 		//NSLog(@"cell frame: %@",cell.contentView);
-		// frame = (0 0; 300 110)
-		CGRect cellFrame = CGRectMake(0, 0, 300, 110);
+		// frame = (0 0; 300 80)
+		CGRect cellFrame = CGRectMake(0, 0, 300, 80);
 		
 		// Calculate new heights
 		CGFloat labelHeight = [Util heightForLabel:desc constrainedToWidth:descFrame.size.width];
@@ -170,7 +175,7 @@
 		
 		cell.titleLabel.text = [service valueForKey:@"display_name"];
 		cell.typeLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];
-		cell.statusLabel.text = @"Serving data since 1/2/2009";
+		cell.statusLabel.text = [NSString stringWithFormat:@"Serving data since %@",[Util getDateStringFromDate:[service valueForKey:@"publish_date_obj"]]];
 		cell.descLabel.text = desc;
 		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
         cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];

@@ -8,7 +8,7 @@
 
 #import "FavoritesController.h"
 #import "UserPreferences.h"
-#import "GridServiceCell.h"
+#import "FavorableCell.h"
 #import "ServiceDetailController.h"
 #import "HostDetailController.h"
 #import "ServiceMetadata.h"
@@ -65,7 +65,7 @@
             // but we need to put something in the slot, so that the indexes in the table match the favorites array.
             // The user can delete the offending record themselves, or maybe it will get restored later.
             service = [NSMutableDictionary dictionary];
-            [service setObject:@"Unknown" forKey:@"display_name"];
+            [service setObject:@"Unknown" forKey:@"simple_name"];
             [service setObject:serviceId forKey:@"id"];                
         }
         [serviceList addObject:service];
@@ -145,36 +145,15 @@
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (indexPath.section == 0) {
-    
-        // Get a cell
-        
-        static NSString *cellIdentifier = @"GridServiceCell";
-        GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-        if (cell == nil) {
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-            cell = [nib objectAtIndex:0];
-        }
-        
-        // Get service metadata
-        
-        NSMutableDictionary *service = [serviceList objectAtIndex:indexPath.row];
-        NSString *class = [service objectForKey:@"class"];
-        
-        // Populate the cell
-        
-        cell.titleLabel.text = [service objectForKey:@"display_name"];
-        cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
-        cell.tickIcon.hidden = YES;
-        cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-		
-        return cell;
-    }
+		NSMutableDictionary *service = [serviceList objectAtIndex:indexPath.row];
+		return [Util getServiceCell:service fromTableView:tableView];
+	}
     else {
         
         // Get a cell
         
-        static NSString *hostCellIdentifier = @"HostCell";
-        GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:hostCellIdentifier];
+        static NSString *hostCellIdentifier = @"FavorableDescCell";
+        FavorableCell *cell = (FavorableCell *)[tableView dequeueReusableCellWithIdentifier:hostCellIdentifier];
         if (cell == nil) {
             NSArray *nib = [[NSBundle mainBundle] loadNibNamed:hostCellIdentifier owner:self options:nil];
             cell = [nib objectAtIndex:0];

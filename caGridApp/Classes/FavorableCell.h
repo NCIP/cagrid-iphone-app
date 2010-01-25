@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "TwoValueCell.h"
 
-@interface GridServiceCell : TwoValueCell {
+@interface FavorableCell : TwoValueCell {
 	IBOutlet UIImageView *icon;
 	IBOutlet UIImageView *tickIcon;
 	IBOutlet UIImageView *favIcon;

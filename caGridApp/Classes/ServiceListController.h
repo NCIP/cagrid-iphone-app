@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ServiceMetadata.h"
-#import "GridServiceCell.h"
+#import "FavorableCell.h"
 
 @class ServiceDetailController;
 

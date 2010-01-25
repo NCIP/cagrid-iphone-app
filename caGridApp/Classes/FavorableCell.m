@@ -5,9 +5,9 @@
 //  Created by Konrad Rokicki on 7/6/09.
 //
 
-#import "GridServiceCell.h"
+#import "FavorableCell.h"
 
-@implementation GridServiceCell
+@implementation FavorableCell
 
 @synthesize icon;
 @synthesize tickIcon;
