@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface GridServicePropCell : UITableViewCell {
+@interface ServiceDetailCell : UITableViewCell {
 	IBOutlet UILabel *titleLabel;
 	IBOutlet UILabel *descLabel;
 	IBOutlet UILabel *typeLabel;

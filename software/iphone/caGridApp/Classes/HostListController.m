@@ -115,8 +115,8 @@
     
 	// Get a cell
     
-	static NSString *cellIdentifier = @"HostCell";
-	GridServiceCell *cell = (GridServiceCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+	static NSString *cellIdentifier = @"FavorableDescCell";
+	FavorableCell *cell = (FavorableCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
 		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
 		cell = [nib objectAtIndex:0];
