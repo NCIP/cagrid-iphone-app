@@ -32,7 +32,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    self.title = @"Search";//[NSString stringWithFormat:@"%@",[Util getLabelForDataType:dataType]];
+    self.title = @"Search";
     self.dataTypeLabel.text = [Util getLabelForDataType:self.dataType];
     
 	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
@@ -49,6 +49,8 @@
     }
     locationsLabel.text = locations;
     
+	[self.searchBox becomeFirstResponder];
+	
     [super viewWillAppear:animated];
 }
 
@@ -81,12 +83,14 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-	[self.searchBox resignFirstResponder];
-    return YES;
+	[self clickSearchButton:textField];
+	// Do not close the keyboard
+    return NO;
 }
 
 - (IBAction) clickBackground:(id)sender {
-	[self.searchBox resignFirstResponder];
+	// Always display keyboard, so this is not needed 
+	//[self.searchBox resignFirstResponder];
 }
 
 
