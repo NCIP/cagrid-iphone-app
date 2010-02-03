@@ -54,6 +54,7 @@
 		A97A87AD106C6BCD00C09566 /* QueryRequestCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A87A9106C6BCD00C09566 /* QueryRequestCell.m */; };
 		A97A87AE106C6BCD00C09566 /* TwoValueCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A87AC106C6BCD00C09566 /* TwoValueCell.m */; };
 		A97A8816106C6DA800C09566 /* QueryServicesController.m in Sources */ = {isa = PBXBuildFile; fileRef = A97A8815106C6DA800C09566 /* QueryServicesController.m */; };
+		A993C0551119184300FE0A11 /* UITableViewCellContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = A993C0541119184300FE0A11 /* UITableViewCellContentView.m */; };
 		A99EB87C1072BD6400BB2A95 /* FullAttributeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */; };
 		A99EB87D1072BD6400BB2A95 /* QueryRequestCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */; };
 		A99EB87E1072BD6400BB2A95 /* QueryResultCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */; };
@@ -158,6 +159,8 @@
 		A97A87AC106C6BCD00C09566 /* TwoValueCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwoValueCell.m; sourceTree = "<group>"; };
 		A97A8814106C6DA800C09566 /* QueryServicesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryServicesController.h; sourceTree = "<group>"; };
 		A97A8815106C6DA800C09566 /* QueryServicesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryServicesController.m; sourceTree = "<group>"; };
+		A993C0531119184300FE0A11 /* UITableViewCellContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITableViewCellContentView.h; sourceTree = "<group>"; };
+		A993C0541119184300FE0A11 /* UITableViewCellContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewCellContentView.m; sourceTree = "<group>"; };
 		A99EB8791072BD6400BB2A95 /* FullAttributeView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FullAttributeView.xib; sourceTree = "<group>"; };
 		A99EB87A1072BD6400BB2A95 /* QueryRequestCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryRequestCell.xib; sourceTree = "<group>"; };
 		A99EB87B1072BD6400BB2A95 /* QueryResultCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QueryResultCell.xib; sourceTree = "<group>"; };
@@ -346,6 +349,8 @@
 				A9DC7E2910A7901B00535680 /* KeyValuePair.m */,
 				A954F18F10AE041A005CD568 /* DownloadManager.h */,
 				A954F19010AE041A005CD568 /* DownloadManager.m */,
+				A993C0531119184300FE0A11 /* UITableViewCellContentView.h */,
+				A993C0541119184300FE0A11 /* UITableViewCellContentView.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -530,6 +535,7 @@
 				A9DC7D6510A6084500535680 /* HostDetailController.m in Sources */,
 				A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */,
 				A954F19110AE041A005CD568 /* DownloadManager.m in Sources */,
+				A993C0551119184300FE0A11 /* UITableViewCellContentView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
