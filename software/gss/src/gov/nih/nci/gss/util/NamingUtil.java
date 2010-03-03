@@ -2,9 +2,11 @@ package gov.nih.nci.gss.util;
 
 import gov.nih.nci.gss.support.SimpleName;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -23,6 +25,7 @@ public class NamingUtil {
     
     private Map<String,String> simpleServiceNameMap = new LinkedHashMap<String,String>();
     private Map<String,String> simpleHostNameMap = new LinkedHashMap<String,String>();
+    private Set<String> hideSet = new HashSet<String>();
     
 	public NamingUtil(SessionFactory sessionFactory) {
 
@@ -51,6 +54,11 @@ public class NamingUtil {
                         log.info("Unknown SimpleName type: "+
                             type+" (id="+simpleName.getId()+")");
                     }
+                    
+                    if (simpleName.getHide()) {
+                        hideSet.add(simpleName.getPattern());
+                    }
+                    
                 }
                 catch (PatternSyntaxException e) {
                     log.warn("Invalid SimpleName pattern: "+pattern+" " +
@@ -96,6 +104,25 @@ public class NamingUtil {
         return getSimpleName(originalName, simpleHostNameMap);
     }
 
+    /**
+     * Should this service be hidden?
+     * @param originalName
+     * @return true if the service should be hidden by default
+     */
+    public boolean isHidden(String originalName) {
+
+        if (originalName == null) return false;
+        
+        String simpleName = originalName.trim();
+        for (String pattern : hideSet) {
+            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(simpleName);
+            if (m.matches()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Test harness for regular expressions.
      * @param args
