@@ -24,6 +24,17 @@ CREATE TABLE `DOMAIN_MODEL` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
+DROP TABLE IF EXISTS `SEARCH_EXEMPLAR`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `SEARCH_EXEMPLAR` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SEARCH_STRING` varchar(512) NOT NULL,
+  `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
+  PRIMARY KEY  (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
 DROP TABLE IF EXISTS `DATA_SERVICE_GROUP`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
@@ -51,6 +62,7 @@ CREATE TABLE `GRID_SERVICE` (
   `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,
   `VERSION` varchar(255) default NULL,
+  `HIDDEN_DEFAULT` tinyint(1) default '0' NOT NULL,
   `SEARCH_DEFAULT` tinyint(1) default '0' NOT NULL,
   `HOSTING_CENTER_ID` bigint(20) NULL,
   `DOMAIN_MODEL_ID` bigint(20) default NULL,
@@ -126,8 +138,9 @@ SET character_set_client = utf8;
 CREATE TABLE `SIMPLE_NAME` (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `PATTERN` varchar(512) NOT NULL UNIQUE,
-  `SIMPLE_NAME` varchar(512) NOT NULL,
+  `SIMPLE_NAME` varchar(512) NOT NULL DEFAULT '',
   `TYPE` varchar(512) NOT NULL,
+  `HIDE` tinyint(1) default '0' NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;

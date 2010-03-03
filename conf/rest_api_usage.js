@@ -6,13 +6,26 @@
             "description":"Prints usage information"
         },
         {
+            "path":"/summary",
+            "method":"GET",
+            "description":"Returns a summary of the searchable data types.",
+            "params":{
+            }
+        },
+        {
+            "path":"/host/{hostId}",
+            "method":"GET",
+            "description":"Returns details about a specified hosting center, or all hosting centers.",
+            "params":{
+                "hostId":"Optional path parameter to limit results to a single host"
+            }
+        },
+        {
             "path":"/service/{serviceId}",
             "method":"GET",
-            "description":"Returns a details about a specified grid service, or all grid services.",
+            "description":"Returns details about a specified grid service, or all grid services.",
             "params":{
-                "serviceId":"Optional path parameter to limit results to a single service",
-                "metadata":"Set to 1 to retrieve service metadata.",
-                "model":"Set to 1 to retrieve the model used by the service (if it is a data service)."
+                "serviceId":"Optional path parameter to limit results to a single service"
             }
         },
         {

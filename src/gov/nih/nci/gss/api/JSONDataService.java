@@ -7,9 +7,9 @@ import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
+import gov.nih.nci.gss.domain.SearchExemplar;
 import gov.nih.nci.gss.util.Cab2bTranslator;
 import gov.nih.nci.gss.util.Constants;
-import gov.nih.nci.gss.util.GSSUtil;
 import gov.nih.nci.gss.util.GridServiceDAO;
 import gov.nih.nci.gss.util.StringUtil;
 import gov.nih.nci.system.applicationservice.ApplicationException;
@@ -180,7 +180,11 @@ public class JSONDataService extends HttpServlet {
         	}
         }
         
-        if ("service".equals(noun)) {
+        if ("summary".equals(noun)) {
+            // Return a summary of data types
+            return getSummaryJSON();
+        }
+        else if ("service".equals(noun)) {
             // Return details about services, or a single service
             
             String id = null;
@@ -190,7 +194,7 @@ public class JSONDataService extends HttpServlet {
             
             return getServiceJSON(id);
         }
-        if ("host".equals(noun)) {
+        else if ("host".equals(noun)) {
             // Return details about hosts, or a single hosts
             
             String id = null;
@@ -341,8 +345,6 @@ public class JSONDataService extends HttpServlet {
 
         HostingCenter host = service.getHostingCenter();
         
-        
-        
         JSONObject jsonService = new JSONObject();
         jsonService.put("id", service.getIdentifier());
         jsonService.put("name", service.getName());
@@ -352,6 +354,10 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("url", service.getUrl());
         jsonService.put("publish_date", df.format(service.getPublishDate()));
 
+        if (service.getHiddenDefault()) {
+            jsonService.put("hidden_default", "true");
+        }
+        
         if (host != null) {
             jsonService.put("host_id", host.getIdentifier());
             jsonService.put("host_short_name", host.getShortName());
@@ -422,6 +428,46 @@ public class JSONDataService extends HttpServlet {
         return hostObj;
     }
     
+    
+    /**
+     * Returns a JSON string with data type summary data.
+     * @return JSON-formatted String
+     * @throws JSONException
+     * @throws ApplicationException
+     */
+    private String getSummaryJSON() throws JSONException, ApplicationException {
+
+        if (cache.containsKey(Constants.SUMMARY_CACHE_KEY)) {
+            log.info("Returning cached summary JSON");
+            return cache.get(Constants.SUMMARY_CACHE_KEY).toString();
+        }
+        
+        JSONObject json = new JSONObject();
+
+        JSONArray groupsArray = new JSONArray();
+        
+        for(DataServiceGroup group : cab2bTranslator.getServiceGroups()) {
+        
+            JSONObject groupObj = new JSONObject();
+            groupObj.put("name",group.getName());
+            groupObj.put("label",group.getCab2bName());
+            
+            JSONArray exemplarsArray = new JSONArray();
+            
+            for(SearchExemplar se : group.getExemplarCollection()) {
+                exemplarsArray.put(se.getSearchString());
+            }
+            
+            groupObj.put("exemplars",exemplarsArray);
+            groupsArray.put(groupObj);
+        }
+        json.put("groups", groupsArray);
+        
+        String jsonStr = json.toString();
+        cache.put(Constants.SUMMARY_CACHE_KEY, jsonStr);
+        return jsonStr;
+    
+    }
     
     /**
      * Returns a JSON string with all the metadata about a particular service.

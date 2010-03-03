@@ -295,6 +295,10 @@ public class GridDiscoveryServiceJob {
 
 					// Set up service simple name and linkage to correct caB2B model group
 			    	service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+			    	
+			    	// Hide some core infrastructure services
+			    	service.setHiddenDefault(namingUtil.isHidden(service.getName()));
+			    	
 			    	// Create a persistent identifier based on the URL
 					service.setIdentifier(GSSUtil.generateServiceIdentifier(service));
 
@@ -403,6 +407,10 @@ public class GridDiscoveryServiceJob {
 		// - Do not overwrite: url (unique keys), id (db primary key), publish date (should stay the original value)
 		matchingSvc.setName(service.getName());
 		matchingSvc.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+
+        // Hide some core infrastructure services
+		matchingSvc.setHiddenDefault(namingUtil.isHidden(service.getName()));
+        
 		matchingSvc.setVersion(service.getVersion());
 		matchingSvc.setDescription(service.getDescription());
 		matchingSvc.setHostingCenter(service.getHostingCenter());
