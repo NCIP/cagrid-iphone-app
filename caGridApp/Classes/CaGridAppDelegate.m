@@ -106,25 +106,32 @@
     // Attempt to load new data
     NSLog(@"Retrieving new data...");
     receivedContent = 0;
+    [sm loadGroups:@selector(completedGroups)];
     [sm loadServices:@selector(completedServices)];
     [sm loadHosts:@selector(completedHosts)];
 }
 
 - (void) doneSetup {
-    NSLog(@"Completed loading both services and hosts");
+    NSLog(@"Completed loading all data");
+	[[ServiceMetadata sharedSingleton] saveToFile]; 
     [self.dashboardController reload];
 	[loadingView removeFromSuperview];
 	self.loadingView = nil;	
 }
 
+- (void)completedGroups {
+    NSLog(@"Completed loading groups");
+    if (++receivedContent > 2) [self doneSetup];    
+}
+
 - (void)completedServices {
     NSLog(@"Completed loading services");
-    if (++receivedContent > 1) [self doneSetup];    
+    if (++receivedContent > 2) [self doneSetup];    
 }
 
 - (void)completedHosts {
     NSLog(@"Completed loading hosts");
-    if (++receivedContent > 1) [self doneSetup];
+    if (++receivedContent > 2) [self doneSetup];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
