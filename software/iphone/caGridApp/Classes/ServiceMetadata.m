@@ -17,10 +17,16 @@
 
 @implementation ServiceMetadata
 @synthesize dlmanager;
+
+@synthesize groupsCallback;
 @synthesize servicesCallback;
 @synthesize hostsCallback;
+
+@synthesize groupsUrl;
 @synthesize servicesUrl;
 @synthesize hostsUrl;
+
+@synthesize groups;
 @synthesize services;
 @synthesize servicesById;
 @synthesize servicesByUrl;
@@ -41,11 +47,14 @@
 		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 		NSString *baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
 		
+		self.groupsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/summary",baseUrl]];
         self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",baseUrl]];
         self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",baseUrl]];
         
+		self.groups = [NSMutableArray array];  
 		self.services = [NSMutableArray array];               
-		self.hosts = [NSMutableArray array];        
+		self.hosts = [NSMutableArray array];    
+		
         self.servicesById = [NSMutableDictionary dictionary];
         self.servicesByUrl = [NSMutableDictionary dictionary];
         self.servicesByGroup = [NSMutableDictionary dictionary]; 
@@ -67,8 +76,10 @@
 
 
 - (void)dealloc {
+    self.groupsUrl = nil;
     self.servicesUrl = nil;
     self.hostsUrl = nil;
+    self.groups = nil;   
     self.services = nil;           
     self.hosts = nil;
     self.servicesById = nil;
@@ -186,16 +197,19 @@
     @synchronized(self) {
         NSString *filePath = [Util getPathFor:servicesFilename];
         if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-            NSLog(@"Reading services and hosts from file");
+            NSLog(@"Reading groups, services and hosts from file");
             @try {            
                 NSDictionary *dict = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+                self.groups = [dict objectForKey:@"groups"];
                 self.services = [dict objectForKey:@"services"];
                 self.hosts = [dict objectForKey:@"hosts"];        
                 [dict release];
-                NSLog(@"... Loaded %d services and %d hosts",[self.services count],[self.hosts count]);
+                NSLog(@"... Loaded %d groups, %d services and %d hosts",
+					  [self.groups count],[self.services count],[self.hosts count]);
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
+				self.groups = [NSMutableArray array];
                 self.services = [NSMutableArray array];               
                 self.hosts = [NSMutableArray array];
             }
@@ -225,9 +239,11 @@
 
 - (void) saveToFile {
     @synchronized(self) {
-        NSLog(@"Saving %d services and %d hosts to file",[self.services count],[self.hosts count]);    
+        NSLog(@"Saving %d groups, %d services and %d hosts to file",
+			  [self.groups count],[self.services count],[self.hosts count]);    
         @try { 
             NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+            [dict setObject:self.groups forKey:@"groups"];
             [dict setObject:self.services forKey:@"services"];
             [dict setObject:self.hosts forKey:@"hosts"]; 
             [dict writeToFile:[Util getPathFor:servicesFilename] atomically:YES];
@@ -242,6 +258,10 @@
 #pragma mark -
 #pragma mark Data retrieval
 
+- (void) loadGroups:(SEL)callback {
+    self.groupsCallback = callback;
+    [dlmanager beginDownload:groupsUrl delegate:self];
+}
 
 - (void) loadServices:(SEL)callback {
     self.servicesCallback = callback;
@@ -263,7 +283,29 @@
     NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
     NSMutableDictionary *root = [content JSONValue];
     
-	if ([url isEqual:servicesUrl]) {
+	if ([url isEqual:groupsUrl]) {
+		
+		NSMutableArray *groupArray = [root objectForKey:@"groups"];
+		NSLog(@"Received %d groups",[groupArray count]);
+		
+        if (groupArray == nil) {
+            NSString *error = [root objectForKey:@"error"];
+            NSString *message = [root objectForKey:@"message"];
+            if (error == nil) error = @"Error loading data (ERR01)";
+            if (message == nil) message = @"Summary data could not be retrieved";
+            NSLog(@"loadData error: %@ - %@",error,message);
+            [Util displayCustomError:error withMessage:message];
+            [delegate performSelector:groupsCallback];
+            return;
+        }
+		
+        @synchronized(self) {   
+			[self.groups removeAllObjects];
+			[self.groups addObjectsFromArray:groupArray]; 
+			[delegate performSelector:groupsCallback];
+		}
+	}
+	else if ([url isEqual:servicesUrl]) {
     	
         NSMutableArray *serviceDict = [root objectForKey:@"services"];    
         
@@ -290,7 +332,6 @@
                                             nil]];
             
             [self updateServiceDerivedObjects];
-            [self saveToFile];
             [delegate performSelector:servicesCallback];
         }
     }
@@ -318,7 +359,6 @@
                                               nil]];
             
             [self updateHostDerivedObjects];
-            [self saveToFile];
             [delegate performSelector:hostsCallback];
         }
 
@@ -381,7 +421,7 @@
 	
     NSLog(@"Error retrieving URL %@: %@",url,error);
     if (([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) || 
-			([error domain] == NSURLErrorDomain && [error code] == NSURLErrorTimedOut)) {
+			([error domain] == NSURLErrorDomain && ([error code] == NSURLErrorTimedOut) || [error code] == NSURLErrorNotConnectedToInternet)) {
         [Util displayNetworkError];
     }
     else {
@@ -402,12 +442,28 @@
 #pragma mark -
 #pragma mark Public API
 
+- (NSMutableArray *)getGroups {
+	return groups;
+}
+
 - (NSMutableArray *)getServices {
 	return services;
 }
 
 - (NSMutableArray *)getHosts {
 	return hosts;
+}
+
+- (NSMutableDictionary *)getGroupByName:(NSString *)groupName {
+
+	for(NSMutableDictionary *group in groups) {
+		if ([groupName isEqualToString:[group objectForKey:@"name"]]) {
+			return group;
+		}
+	}
+	
+	return nil;
+	
 }
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId {
