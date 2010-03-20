@@ -49,6 +49,18 @@
     }
     locationsLabel.text = locations;
     
+	NSString *dataTypeName = [Util getNameForDataType:self.dataType];
+	NSMutableDictionary *group = [sm getGroupByName:dataTypeName];
+	if (group != nil) {
+		NSArray *exemplars = [group objectForKey:@"exemplars"];
+		if ([exemplars count] > 0) {
+			[self.searchBox setPlaceholder:[exemplars objectAtIndex:0]];
+		}
+	}
+	else {
+		NSLog(@"WARNING: No metadata for group with name %@",dataTypeName);
+	}
+	
 	[self.searchBox becomeFirstResponder];
 	
     [super viewWillAppear:animated];

@@ -14,10 +14,13 @@
 @interface ServiceMetadata : NSObject {
     
 	@private DownloadManager *dlmanager;
+	@private SEL groupsCallback;
 	@private SEL servicesCallback;
 	@private SEL hostsCallback;    
+	@private NSURL *groupsUrl; 
 	@private NSURL *servicesUrl;
-    @private NSURL *hostsUrl;
+	@private NSURL *hostsUrl;
+	@private NSMutableArray *groups;
 	@private NSMutableArray *services;
 	@private NSMutableDictionary *servicesById;	
 	@private NSMutableDictionary *servicesByUrl;
@@ -31,10 +34,13 @@
 }
 
 @property (nonatomic, retain) DownloadManager *dlmanager;
+@property (nonatomic) SEL groupsCallback;
 @property (nonatomic) SEL servicesCallback;
 @property (nonatomic) SEL hostsCallback;  
+@property (nonatomic, retain) NSURL *groupsUrl;
 @property (nonatomic, retain) NSURL *servicesUrl;
 @property (nonatomic, retain) NSURL *hostsUrl;
+@property (nonatomic, retain) NSMutableArray *groups;
 @property (nonatomic, retain) NSMutableArray *services;
 @property (nonatomic, retain) NSMutableDictionary *servicesById;
 @property (nonatomic, retain) NSMutableDictionary *servicesByUrl;
@@ -52,6 +58,8 @@
 
 - (void) saveToFile;
 
+- (void) loadGroups:(SEL)callback;
+
 - (void) loadServices:(SEL)callback;
 
 - (void) loadHosts:(SEL)callback;
@@ -59,6 +67,8 @@
 - (NSMutableArray *)getServices;
 
 - (NSMutableArray *)getHosts;
+
+- (NSMutableDictionary *)getGroupByName:(NSString *)groupName;
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
 

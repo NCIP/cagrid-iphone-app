@@ -47,19 +47,26 @@
     
 	[filtered removeAllObjects];
     
+	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+	
 	for(NSMutableDictionary *service in serviceList) {
-        ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-        NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
-        
-		if (filterString == nil || 
-            ([Util string:filterString isFoundIn:[service objectForKey:@"name"]] ||
-			 [Util string:filterString isFoundIn:[host objectForKey:@"short_name"]] ||
-             [Util string:filterString isFoundIn:[host objectForKey:@"long_name"]])) {
-            
-            if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
-				[filtered addObject:service];
-            }
-		}		
+		
+		if (![[service objectForKey:@"hidden_default"] isEqualToString:@"true"]) {		
+			NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
+			
+			if (filterString == nil || 
+				([Util string:filterString isFoundIn:[service objectForKey:@"name"]] ||
+				 [Util string:filterString isFoundIn:[host objectForKey:@"short_name"]] ||
+				 [Util string:filterString isFoundIn:[host objectForKey:@"long_name"]])) {
+				
+				if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
+					[filtered addObject:service];
+				}
+			}	
+		}
+		else {
+			NSLog(@"Hiding service: %@",[service objectForKey:@"name"]);
+		}
 	}
 }
 
