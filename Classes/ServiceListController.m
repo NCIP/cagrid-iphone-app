@@ -64,9 +64,6 @@
 				}
 			}	
 		}
-		else {
-			NSLog(@"Hiding service: %@",[service objectForKey:@"name"]);
-		}
 	}
 }
 
