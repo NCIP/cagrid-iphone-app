@@ -11,9 +11,9 @@
 			<string>Server URL</string>
 			<key>Key</key>
 			<string>base_url</string>
-			<key>DefaultValue2</key>
-			<string>http://cab2b-dev.nci.nih.gov/gss10</string>
 			<key>DefaultValue</key>
+			<string>http://ncias-d427-v.nci.nih.gov:19080/gss10</string>
+			<key>DefaultValue1</key>
 			<string>http://biowiki.dnsalias.net:8000/gss10</string>
 			<key>IsSecure</key>
 			<false/>

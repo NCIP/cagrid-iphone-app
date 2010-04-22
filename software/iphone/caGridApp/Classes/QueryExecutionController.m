@@ -19,6 +19,7 @@
 @synthesize dataTypeLabel;
 @synthesize locationsLabel;
 @synthesize searchBox;
+@synthesize savedSearches;
 @synthesize dataType;
 
 - (void)dealloc {
@@ -30,9 +31,19 @@
     [super dealloc];
 }
 
+- (void)viewDidLoad {
+	
+    self.title = @"Search";
+	
+	self.savedSearches = [NSMutableArray array];
+	for(NSString *groupName in [[ServiceMetadata sharedSingleton] getGroups]) {
+		[savedSearches addObject:@""];
+	}
+	
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     
-    self.title = @"Search";
     self.dataTypeLabel.text = [Util getLabelForDataType:self.dataType];
     
 	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
@@ -61,9 +72,14 @@
 		NSLog(@"WARNING: No metadata for group with name %@",dataTypeName);
 	}
 	
+	[self.searchBox setText:[savedSearches objectAtIndex:self.dataType]];
 	[self.searchBox becomeFirstResponder];
 	
     [super viewWillAppear:animated];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+	[savedSearches replaceObjectAtIndex:self.dataType withObject:textField.text];
 }
 
 - (IBAction) clickEditDatatypeButton:(id)sender {
