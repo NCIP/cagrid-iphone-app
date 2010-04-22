@@ -17,6 +17,7 @@
     IBOutlet UILabel *dataTypeLabel;
     IBOutlet UILabel *locationsLabel;
     IBOutlet UITextField *searchBox;
+	NSMutableArray *savedSearches;
     DataType dataType;
 }
 
@@ -25,6 +26,7 @@
 @property (nonatomic, retain) UILabel *dataTypeLabel;
 @property (nonatomic, retain) UILabel *locationsLabel;
 @property (nonatomic, retain) UITextField *searchBox;
+@property (nonatomic, retain) NSMutableArray *savedSearches;
 @property (nonatomic) DataType dataType;
 
 - (IBAction) clickEditDatatypeButton:(id)sender;

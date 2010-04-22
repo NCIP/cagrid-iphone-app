@@ -64,6 +64,8 @@
 
 - (void) loadHosts:(SEL)callback;
 
+- (NSMutableArray *)getGroups;
+	
 - (NSMutableArray *)getServices;
 
 - (NSMutableArray *)getHosts;
