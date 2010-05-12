@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<datasources> 
+
+    <local-tx-datasource> 
+        <jndi-name>gss</jndi-name>
+        <connection-url>jdbc:mysql://cbdb-d2001.nci.nih.gov:3647/gss</connection-url>
+        <driver-class>com.mysql.jdbc.Driver</driver-class>
+        <user-name>lsdadmin</user-name>
+        <password>15d#u53r</password>
+        <connection-property name="autoReconnect">true</connection-property>
+        <metadata> 
+          <type-mapping>mySQL</type-mapping> 
+        </metadata> 
+    </local-tx-datasource>
+
+</datasources> 
