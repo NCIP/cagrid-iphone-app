@@ -13,9 +13,11 @@
     	
     <property name="anthill.dependency.artifacts.dir" value=".."/>
     <property name="sdk.home.dir" value="${anthill.dependency.artifacts.dir}/cacoresdk" />
-    <property name="build.properties" value="dev.properties"/>
     <property name="project.home.dir" value="." />
     <property name="test.dir" value="${project.home.dir}/test" />
+    
+    <property name="tier" value="dev" />
+    <property name="build.properties" value="${tier}.properties"/>
 
 	<property file="${build.properties}"/>
     <property file="${project.home.dir}/conf/deploy.properties"  />
@@ -122,6 +124,9 @@
             <include name="deploy.properties"/>
             <include name="gss_ehcache.xml"/>
             <replacefilter token="@GSS_CONTENT_DIR@" value="${gss.content.dir}" />
+            <replacefilter token="@DB_CONNECTION_URL@" value="${gss.database.url}" />
+            <replacefilter token="@DB_USERNAME@" value="${gss.database.username}" />
+            <replacefilter token="@DB_PASSWORD@" value="${gss.database.password}" />
         </replace>
         
         <replace dir="${project.build.dir}/conf">
