@@ -8,6 +8,8 @@ CREATE TABLE `DOMAIN_CLASS` (
   `DESCRIPTION` varchar(2000) default NULL,
   `DOMAIN_PACKAGE` varchar(512) default NULL,
   `DOMAIN_MODEL_ID` bigint(20) NOT NULL,
+  `COUNT` bigint(20),
+  `COUNT_DATE` timestamp,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;

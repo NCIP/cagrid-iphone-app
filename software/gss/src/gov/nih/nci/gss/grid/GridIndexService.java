@@ -22,7 +22,6 @@ import gov.nih.nci.gss.util.GSSProperties;
 import gov.nih.nci.gss.util.GSSUtil;
 import gov.nih.nci.gss.util.StringUtil;
 
-import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.axis.message.addressing.AttributedURI;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.log4j.Logger;
 
@@ -86,7 +86,7 @@ public class GridIndexService {
 		
 		for (EndpointReferenceType service : services) {
 			String url = service.getAddress().toString();
-
+            
 			// TODO: parallelize this 
 			try {
 				ServiceMetadata serviceMetaData =
@@ -100,13 +100,13 @@ public class GridIndexService {
 						domainModel = MetadataUtils.getDomainModel(service);
 					} 
 					catch (InvalidResourcePropertyException e) {
-						logger.info("No domain model for: " + url);
+						logger.debug("No domain model for: " + url);
 					}
 					catch (RemoteResourcePropertyRetrievalException e) {
-						logger.info("Could not retrieve domain model for: " + url);
+						logger.warn("Could not retrieve domain model for: " + url);
 					}
 					catch (ResourcePropertyRetrievalException e) {
-						logger.info("Could not parse domain model for: " + url);
+						logger.warn("Could not parse domain model for: " + url);
 					}
 					
 					GridService gridNode = populateGridService(
@@ -293,6 +293,20 @@ public class GridIndexService {
         }
 		
 		return newCenter;
+	}
+	
+	public static void main(String args[]) throws Exception {
+	    
+	    String url = "https://206.81.165.52:47210/wsrf/services/cagrid/CaTissueSuite";
+	    EndpointReferenceType service = new EndpointReferenceType();
+	    service.setAddress(new AttributedURI(url));
+	    
+        logger.info("Getting metadata for: " + url);
+
+        ServiceMetadata serviceMetaData =
+            MetadataUtils.getServiceMetadata(service);
+                
+                
 	}
 
 }

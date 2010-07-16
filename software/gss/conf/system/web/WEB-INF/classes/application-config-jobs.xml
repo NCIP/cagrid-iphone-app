@@ -22,8 +22,8 @@
          <property name="jobDetail" ref="jobDetail"/>
          <!-- wait 5 seconds for the server to complete startup -->
          <property name="startDelay" value="5000"/>
-         <!-- repeat every 30 minutes -->
-         <property name="repeatInterval" value="3600000"/>
+         <!-- repeat every 6 hours -->
+         <property name="repeatInterval" value="21600000"/>
     </bean>
 
     <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

@@ -13,6 +13,13 @@
             }
         },
         {
+            "path":"/counts",
+            "method":"GET",
+            "description":"Returns counts for all domain class summed across services.",
+            "params":{
+            }
+        },
+        {
             "path":"/host/{hostId}",
             "method":"GET",
             "description":"Returns details about a specified hosting center, or all hosting centers.",
@@ -45,6 +52,7 @@
             "method":"GET",
             "description":"Returns the status of a running query or the query results of a completed query.",
             "params":{
+            	"clientId":"Unique identifier of the client.",
                 "jobId":"The job identifier returned by /runQuery.",
                 "async":"Asynchronous (polling) mode. Returns immediately regardless of whether or not the query is still running."
             }

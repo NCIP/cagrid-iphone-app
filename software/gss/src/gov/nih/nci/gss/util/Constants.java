@@ -9,6 +9,8 @@ public class Constants {
 
       public static final String SUMMARY_CACHE_KEY = "summary";
       
+      public static final String COUNTS_CACHE_KEY = "counts";
+      
 	  public static final String SERVICE_CACHE_KEY = "service";
 	  
 	  public static final String HOST_CACHE_KEY = "host";

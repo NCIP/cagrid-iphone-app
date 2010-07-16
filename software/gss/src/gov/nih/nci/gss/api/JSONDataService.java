@@ -184,6 +184,10 @@ public class JSONDataService extends HttpServlet {
             // Return a summary of data types
             return getSummaryJSON();
         }
+        else if ("counts".equals(noun)) {
+            // Return a summary of data types
+            return getCountsJSON();
+        }
         else if ("service".equals(noun)) {
             // Return details about services, or a single service
             
@@ -465,6 +469,44 @@ public class JSONDataService extends HttpServlet {
         
         String jsonStr = json.toString();
         cache.put(Constants.SUMMARY_CACHE_KEY, jsonStr);
+        return jsonStr;
+    
+    }
+
+    /**
+     * Returns a JSON string with class count data.
+     * @return JSON-formatted String
+     * @throws JSONException
+     * @throws ApplicationException
+     */
+    private String getCountsJSON() throws JSONException, ApplicationException {
+
+        if (cache.containsKey(Constants.COUNTS_CACHE_KEY)) {
+            log.info("Returning cached counts JSON");
+            return cache.get(Constants.COUNTS_CACHE_KEY).toString();
+        }
+
+        Session s = sessionFactory.openSession();
+        
+        JSONObject json = new JSONObject();
+        JSONObject classesObj = new JSONObject();
+
+        try {
+            Map<String,Long> counts = GridServiceDAO.getAggregateClassCounts(s);
+            for(String fullClass : counts.keySet()) {
+                Long count = counts.get(fullClass);
+                if (count != null) {
+                    classesObj.put(fullClass,count.toString());
+                }
+            }
+            json.put("counts", classesObj);
+        }
+        finally {
+            s.close();
+        }
+        
+        String jsonStr = json.toString();
+        cache.put(Constants.COUNTS_CACHE_KEY, jsonStr);
         return jsonStr;
     
     }
