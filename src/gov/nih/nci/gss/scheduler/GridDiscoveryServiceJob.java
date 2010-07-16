@@ -8,6 +8,7 @@ import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
+import gov.nih.nci.gss.grid.DataServiceObjectCounter;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
 import gov.nih.nci.gss.util.Cab2bAPI;
@@ -20,12 +21,17 @@ import gov.nih.nci.system.applicationservice.ApplicationException;
 
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -47,6 +53,8 @@ public class GridDiscoveryServiceJob {
     
 	private static Logger logger = Logger.getLogger(GridDiscoveryServiceJob.class);
 
+	private static final int NUM_QUERY_THREADS = 5;
+	
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
     
@@ -82,6 +90,8 @@ public class GridDiscoveryServiceJob {
         
         try {
         	Map<String,GridService> services = populateRemoteServices();
+        	// Update counts
+        	updateCounts(services);
             // Update services as necessary or add new ones
             updateGssServices(services);
             // Clear the JSON cache
@@ -127,6 +137,35 @@ public class GridDiscoveryServiceJob {
 		return serviceMap;
 	}
 
+    private void updateCounts(Map<String,GridService> gridNodes)  {
+
+        ExecutorService parallelExecutor = Executors.newFixedThreadPool(NUM_QUERY_THREADS);
+        
+        List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+                
+        logger.info("Updating counts...");
+        for (GridService service : gridNodes.values()) {
+            if (service instanceof DataService) {
+                DataService dataService = (DataService)service;
+                DomainModel model = dataService.getDomainModel();
+                if (model == null) continue;
+                DataServiceObjectCounter counter = 
+                    new DataServiceObjectCounter(dataService);
+                futures.add(parallelExecutor.submit(counter));
+            }
+        }
+        
+        try {
+            parallelExecutor.shutdown();
+            logger.info("Awaiting completion of object counting...");
+            parallelExecutor.awaitTermination(60*30, TimeUnit.SECONDS);
+            logger.info("Object counting completed.");
+        }
+        catch (InterruptedException e) {
+            logger.error("Could not update object counts",e);
+        }
+        
+    }
 	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
 		try {
@@ -160,9 +199,9 @@ public class GridDiscoveryServiceJob {
     				model.setId((Long)hibernateSession.save(model));
     				
                     // 4) Domain Classes 
-                    // TODO: implement domain class saving
                     logger.info("Saving "+model.getClasses().size()+" Domain Classes");
                     for(DomainClass domainClass : model.getClasses()) {
+                        logger.info("saving "+domainClass.getClassName());
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                     }
 			    }
@@ -267,7 +306,7 @@ public class GridDiscoveryServiceJob {
 					
 					// Update any new data about this service
 					matchingSvc = updateServiceData(matchingSvc, service);
-							
+
 					// Check to see if this service is active once again
 					Collection<StatusChange> changes = matchingSvc.getStatusHistory();
 					StatusChange mostRecentChange = changes.iterator().next();
@@ -389,9 +428,15 @@ public class GridDiscoveryServiceJob {
             dataService.setGroup(group);
             dataService.setSearchDefault(cab2bService.isSearchDefault());
             
-            logger.info("Found service in caB2B under group "+
-                group.getName()+" with searchDefault="+
-                cab2bService.isSearchDefault());
+            if (group == null) {
+                logger.info("Found service in caB2B but could not " +
+                		"translate group "+cab2bService.getModelGroupName());
+            }
+            else {
+                logger.info("Found service in caB2B under group "+
+                    group.getName()+" with searchDefault="+
+                    cab2bService.isSearchDefault());
+            }
         }
         else {
             dataService.setSearchDefault(false);
@@ -415,13 +460,57 @@ public class GridDiscoveryServiceJob {
 		matchingSvc.setDescription(service.getDescription());
 		matchingSvc.setHostingCenter(service.getHostingCenter());
 		
-		// We are consciously overwriting things here that likely will not change,
-		// since they are based on the URL, which is guaranteed to be the same if we
-		// call this function.  However, on the off chance that the DB lookup tables or
-		// caB2B content has changed, we need to overwrite here to be sure.
 		if (matchingSvc instanceof DataService && service instanceof DataService) {
-		    DataService dataService = (DataService)matchingSvc;
-		    dataService = updateCab2bData(dataService);
+            DataService dataService = (DataService)service;
+		    DataService matchingDataSvc = (DataService)matchingSvc;
+
+	        // We are consciously overwriting things here that likely will not change,
+	        // since they are based on the URL, which is guaranteed to be the same if we
+	        // call this function.  However, on the off chance that the DB lookup tables or
+	        // caB2B content has changed, we need to overwrite here to be sure.
+		    updateCab2bData(matchingDataSvc);
+
+		    // Update domain model
+		    DomainModel model = dataService.getDomainModel();
+            DomainModel matchingModel = matchingDataSvc.getDomainModel();
+            
+            if (matchingModel == null) {
+                logger.warn("Existing data service has no model: "+service.getUrl());
+                matchingDataSvc.setDomainModel(model);
+                return matchingSvc;
+            }
+            
+            if (model == null) {
+                logger.warn("Data service has no model: "+service.getUrl());
+                return matchingSvc;
+            }
+            
+            matchingModel.setDescription(model.getDescription());
+            matchingModel.setLongName(model.getLongName());
+            matchingModel.setVersion(model.getVersion());
+
+            Map<String,DomainClass> existingClasses = new HashMap<String,DomainClass>();
+            for(DomainClass domainClass : matchingModel.getClasses()) {
+                String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
+                existingClasses.put(fullClass,domainClass);
+                logger.debug("  Existing class: "+fullClass);
+            }
+            
+		    for(DomainClass domainClass : model.getClasses()) {
+                String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
+		        if (existingClasses.containsKey(fullClass)) {
+		            DomainClass matchingClass = existingClasses.get(fullClass);
+		            matchingClass.setCount(domainClass.getCount());
+		            matchingClass.setCountDate(domainClass.getCountDate());
+                    matchingClass.setDescription(domainClass.getDescription());
+		        }
+		        else {
+	                logger.debug("  New class: "+fullClass);
+                    matchingModel.getClasses().add(domainClass);
+		        }
+		    }
+		    
+		    // TODO: handle domain class deletions
 		}
 		
 		return matchingSvc;
