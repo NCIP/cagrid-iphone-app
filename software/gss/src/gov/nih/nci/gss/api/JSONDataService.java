@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -186,7 +187,8 @@ public class JSONDataService extends HttpServlet {
         }
         else if ("counts".equals(noun)) {
             // Return a summary of data types
-            return getCountsJSON();
+            boolean aggregate = "1".equals(request.getParameter("aggregate"));
+            return getCountsJSON(aggregate);
         }
         else if ("service".equals(noun)) {
             // Return details about services, or a single service
@@ -479,35 +481,75 @@ public class JSONDataService extends HttpServlet {
      * @throws JSONException
      * @throws ApplicationException
      */
-    private String getCountsJSON() throws JSONException, ApplicationException {
+    private String getCountsJSON(boolean aggregate) throws JSONException, ApplicationException {
 
-        if (cache.containsKey(Constants.COUNTS_CACHE_KEY)) {
-            log.info("Returning cached counts JSON");
-            return cache.get(Constants.COUNTS_CACHE_KEY).toString();
+        if (aggregate) {
+            if (cache.containsKey(Constants.COUNTS_AGGR_CACHE_KEY)) {
+                log.info("Returning cached aggregate counts JSON");
+                return cache.get(Constants.COUNTS_AGGR_CACHE_KEY).toString();
+            }
+    
+            Session s = sessionFactory.openSession();
+            
+            JSONObject json = new JSONObject();
+            JSONObject classesObj = new JSONObject();
+    
+            try {
+                Map<String,Long> counts = GridServiceDAO.getAggregateClassCounts(s);
+                for(String fullClass : counts.keySet()) {
+                    Long count = counts.get(fullClass);
+                    if ((count != null) && (count>0)) {
+                        classesObj.put(fullClass,count.toString());
+                    }
+                }
+                json.put("counts", classesObj);
+            }
+            finally {
+                s.close();
+            }
+            
+            String jsonStr = json.toString();
+            cache.put(Constants.COUNTS_AGGR_CACHE_KEY, jsonStr);
+            return jsonStr;
         }
-
-        Session s = sessionFactory.openSession();
-        
-        JSONObject json = new JSONObject();
-        JSONObject classesObj = new JSONObject();
-
-        try {
-            Map<String,Long> counts = GridServiceDAO.getAggregateClassCounts(s);
-            for(String fullClass : counts.keySet()) {
-                Long count = counts.get(fullClass);
-                if (count != null) {
-                    classesObj.put(fullClass,count.toString());
+        else {
+            if (cache.containsKey(Constants.COUNTS_CACHE_KEY)) {
+                log.info("Returning cached counts JSON");
+                return cache.get(Constants.COUNTS_CACHE_KEY).toString();
+            }
+    
+            Session s = sessionFactory.openSession();
+            
+            JSONObject json = new JSONObject();
+            JSONObject classesObj = new JSONObject();
+    
+            try {
+                Map<String,Map<String,Long>> counts = GridServiceDAO.getClassCounts(s);
+                for(String fullClass : counts.keySet()) {
+                    JSONObject servicesObj = new JSONObject();
+                    Map<String,Long> classCounts = counts.get(fullClass);
+                    for(String serviceUrl : classCounts.keySet()) {
+                        Long count = classCounts.get(serviceUrl);
+                        if ((count != null) && (count>0)) {
+                            servicesObj.put(serviceUrl,count.toString());
+                        }
+                    }
+                    if (servicesObj.length() > 0) {
+                        classesObj.put(fullClass, servicesObj);
+                    }
+                }
+                if (classesObj.length() > 0) {
+                    json.put("counts", classesObj);
                 }
             }
-            json.put("counts", classesObj);
+            finally {
+                s.close();
+            }
+            
+            String jsonStr = json.toString();
+            cache.put(Constants.COUNTS_CACHE_KEY, jsonStr);
+            return jsonStr;
         }
-        finally {
-            s.close();
-        }
-        
-        String jsonStr = json.toString();
-        cache.put(Constants.COUNTS_CACHE_KEY, jsonStr);
-        return jsonStr;
     
     }
     

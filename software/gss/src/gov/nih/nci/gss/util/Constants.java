@@ -11,6 +11,8 @@ public class Constants {
       
       public static final String COUNTS_CACHE_KEY = "counts";
       
+      public static final String COUNTS_AGGR_CACHE_KEY = "counts_aggr";
+      
 	  public static final String SERVICE_CACHE_KEY = "service";
 	  
 	  public static final String HOST_CACHE_KEY = "host";
