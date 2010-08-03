@@ -69,6 +69,7 @@
                 $("#services_ul").empty();
                 if (!("services" in json)) return;
                 services = json.services;
+                groupCounts['All'] = services.length;
                 
                 // generate some additional derived properties
                 for(i in services) {
@@ -91,7 +92,6 @@
                     }
                 }
                 
-                $('#count_All').html(services.length);
                 for(g in groupCounts) {
                     $('#count_'+g).html(groupCounts[g]);
                 }
@@ -105,6 +105,9 @@
                 $("#services_ul").empty();
                 for(i in services) {
                     var service = services[i];
+                    if (service.hidden_default == 'true') {
+                        continue;
+                    }
                     var html = '';
                     html += '<li class="arrow"><a href="#service_details" onclick="currServiceId=\''+service.id+'\'">';
                     html += service.img+'<div class="trunc">'+service.title+'</div></a></li>';
