@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Order;
 
 /**
  * Translates between caB2B representations and their GSS equivalents, and 
@@ -37,7 +38,8 @@ public class Cab2bTranslator {
         Session s = sessionFactory.openSession();
         try {
         	log.info("Configuring data service groups:");
-            List<DataServiceGroup> groups = s.createCriteria(DataServiceGroup.class).list();
+            List<DataServiceGroup> groups = s.createCriteria(
+                DataServiceGroup.class).addOrder(Order.asc("id")).list();
             
             for(DataServiceGroup group : groups) {
 

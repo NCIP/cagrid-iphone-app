@@ -63,13 +63,15 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                     " in service "+dataService.getUrl(),e);
                 if (++failures > 1) {
                     // Failed more than once
-                    logger.warn("Giving up couting for service: "+dataService.getUrl());
+                    logger.warn("Giving up counting for service: "+dataService.getUrl());
+                    dataService.setAccessible(false);
                     return false;
                 }
             }
         }
 
         logger.debug("Done counting "+successes+" classes for service: "+dataService.getUrl());
+        dataService.setAccessible(true);
         return true;
     }
     
@@ -117,7 +119,6 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
         catch (Exception e) {
             throw new GridQueryException(e);
         }
-        
     }
     
     /**

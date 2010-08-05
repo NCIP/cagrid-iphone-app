@@ -94,10 +94,7 @@ public class NamingUtil {
     } 
 
     public String getSimpleServiceName(String originalName) {
-        String simpleName = originalName.
-            replaceAll("(Grid|Data|Analytical)?(Service|Svc)$", "").
-            replaceAll("^Ca", "ca");
-        return getSimpleName(simpleName, simpleServiceNameMap);
+        return getSimpleName(originalName, simpleServiceNameMap);
     }
     
     public String getSimpleHostName(String originalName) {
@@ -105,7 +102,7 @@ public class NamingUtil {
     }
 
     /**
-     * Should this service be hidden?
+     * Should this service or host be hidden?
      * @param originalName
      * @return true if the service should be hidden by default
      */
@@ -116,7 +113,7 @@ public class NamingUtil {
         String simpleName = originalName.trim();
         for (String pattern : hideSet) {
             Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(simpleName);
-            if (m.matches()) {
+            if (m.find()) {
                 return true;
             }
         }
@@ -129,14 +126,13 @@ public class NamingUtil {
      */
     public static final void main(String[] args) {
 
-        String originalName = "camod ";
-        String pattern = "^camod$";
+        String originalName = "Washington University at St. Louis";
+        String pattern = "^Washington University( at St\\.\\s?Louis)?$";
 
         Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(originalName);
-        if (m.matches()) {
-            String finalName = m.replaceAll("caMOD");
-            System.out.println("Simplify: "+originalName+" -> "+finalName);
-        }
+
+        String finalName = m.replaceAll("Washington University in St. Louis");
+        System.out.println("Simplify: "+originalName+" -> "+finalName);
         
     }
    
