@@ -182,7 +182,8 @@
 		
 		cell.titleLabel.text = [service valueForKey:@"display_name"];
 		cell.typeLabel.text = [NSString stringWithFormat:@"%@ %@",[service valueForKey:@"name"],[service valueForKey:@"version"]];
-		cell.statusLabel.text = [NSString stringWithFormat:@"Serving data since %@",[Util getDateStringFromDate:[service valueForKey:@"publish_date_obj"]]];
+		//cell.statusLabel.text = [NSString stringWithFormat:@"First seen %@",[Util getDateStringFromDate:[service valueForKey:@"publish_date_obj"]]];
+		cell.statusLabel.text = @"";
 		cell.descLabel.text = desc;
 		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
         cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];

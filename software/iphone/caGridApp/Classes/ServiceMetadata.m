@@ -19,14 +19,17 @@
 @synthesize dlmanager;
 
 @synthesize groupsCallback;
+@synthesize countsCallback;
 @synthesize servicesCallback;
 @synthesize hostsCallback;
 
 @synthesize groupsUrl;
+@synthesize countsUrl;
 @synthesize servicesUrl;
 @synthesize hostsUrl;
 
 @synthesize groups;
+@synthesize counts;
 @synthesize services;
 @synthesize servicesById;
 @synthesize servicesByUrl;
@@ -48,10 +51,12 @@
 		NSString *baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
 		
 		self.groupsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/summary",baseUrl]];
-        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service?metadata=1",baseUrl]];
+		self.countsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/counts",baseUrl]];
+        self.servicesUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/service",baseUrl]];
         self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",baseUrl]];
         
 		self.groups = [NSMutableArray array];  
+		self.counts = [NSMutableArray array];  
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];    
 		
@@ -77,9 +82,11 @@
 
 - (void)dealloc {
     self.groupsUrl = nil;
+    self.countsUrl = nil;
     self.servicesUrl = nil;
-    self.hostsUrl = nil;
-    self.groups = nil;   
+    self.hostsUrl = nil; 
+    self.groups = nil;  
+    self.counts = nil;  
     self.services = nil;           
     self.hosts = nil;
     self.servicesById = nil;
@@ -197,19 +204,21 @@
     @synchronized(self) {
         NSString *filePath = [Util getPathFor:servicesFilename];
         if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-            NSLog(@"Reading groups, services and hosts from file");
+            NSLog(@"Reading groups, counts, services and hosts from file");
             @try {            
                 NSDictionary *dict = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
                 self.groups = [dict objectForKey:@"groups"];
+                self.counts = [dict objectForKey:@"counts"];				
                 self.services = [dict objectForKey:@"services"];
                 self.hosts = [dict objectForKey:@"hosts"];        
                 [dict release];
-                NSLog(@"... Loaded %d groups, %d services and %d hosts",
-					  [self.groups count],[self.services count],[self.hosts count]);
+                NSLog(@"... Loaded %d groups, %d counts %d services and %d hosts",
+					  [self.groups count],[self.counts count],[self.services count],[self.hosts count]);
             }
             @catch (NSException *exception) {
                 NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
 				self.groups = [NSMutableArray array];
+				self.counts = [NSMutableArray array];
                 self.services = [NSMutableArray array];               
                 self.hosts = [NSMutableArray array];
             }
@@ -239,11 +248,12 @@
 
 - (void) saveToFile {
     @synchronized(self) {
-        NSLog(@"Saving %d groups, %d services and %d hosts to file",
-			  [self.groups count],[self.services count],[self.hosts count]);    
+        NSLog(@"Saving %d groups, %d counts, %d services and %d hosts to file",
+			  [self.groups count],[self.counts count],[self.services count],[self.hosts count]);    
         @try { 
             NSMutableDictionary *dict = [NSMutableDictionary dictionary];
             [dict setObject:self.groups forKey:@"groups"];
+            [dict setObject:self.counts forKey:@"counts"];
             [dict setObject:self.services forKey:@"services"];
             [dict setObject:self.hosts forKey:@"hosts"]; 
             [dict writeToFile:[Util getPathFor:servicesFilename] atomically:YES];
@@ -261,6 +271,11 @@
 - (void) loadGroups:(SEL)callback {
     self.groupsCallback = callback;
     [dlmanager beginDownload:groupsUrl delegate:self];
+}
+
+- (void) loadCounts:(SEL)callback {
+    self.countsCallback = callback;
+    [dlmanager beginDownload:countsUrl delegate:self];
 }
 
 - (void) loadServices:(SEL)callback {
@@ -281,14 +296,14 @@
     [Util clearNetworkErrorState];
     
     NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
+	NSLog(content);
     NSMutableDictionary *root = [content JSONValue];
     
 	if ([url isEqual:groupsUrl]) {
 		
 		NSMutableArray *groupArray = [root objectForKey:@"groups"];
-		NSLog(@"Received %d groups",[groupArray count]);
 		
-        if (groupArray == nil) {
+        if (groupArray == nil || [groupArray count] == 0) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
             if (error == nil) error = @"Error loading data (ERR01)";
@@ -300,16 +315,39 @@
         }
 		
         @synchronized(self) {   
+			NSLog(@"Received %d groups",[groupArray count]);
 			[self.groups removeAllObjects];
 			[self.groups addObjectsFromArray:groupArray]; 
 			[delegate performSelector:groupsCallback];
+		}
+	}
+	else if ([url isEqual:countsUrl]) {
+		
+		NSMutableArray *countArray = [root objectForKey:@"counts"];
+		
+        if (countArray == nil || [countArray count] == 0) {
+            NSString *error = [root objectForKey:@"error"];
+            NSString *message = [root objectForKey:@"message"];
+            if (error == nil) error = @"Error loading data (ERR01)";
+            if (message == nil) message = @"Count data could not be retrieved";
+            NSLog(@"loadData error: %@ - %@",error,message);
+            [Util displayCustomError:error withMessage:message];
+            [delegate performSelector:countsCallback];
+            return;
+        }
+		
+        @synchronized(self) {   
+			NSLog(@"Received %d counts",[countArray count]);
+			[self.counts removeAllObjects];
+			[self.counts addObjectsFromArray:countArray]; 
+			[delegate performSelector:countsCallback];
 		}
 	}
 	else if ([url isEqual:servicesUrl]) {
     	
         NSMutableArray *serviceDict = [root objectForKey:@"services"];    
         
-        if (serviceDict == nil) {
+        if (serviceDict == nil || [serviceDict count] == 0) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
             if (error == nil) error = @"Error loading data (ERR02)";
@@ -325,10 +363,10 @@
             NSLog(@"Received %d services",[services count]);
             
             [services sortUsingDescriptors:[NSArray arrayWithObjects:
-                                            [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES] autorelease],
-                                            [[[NSSortDescriptor alloc] initWithKey:@"class" ascending:YES] autorelease],
+                                            [[[NSSortDescriptor alloc] initWithKey:@"simple_name" ascending:YES selector:@selector(caseInsensitiveCompare:)] autorelease],
+                                            [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES selector:@selector(caseInsensitiveCompare:)] autorelease],
+											[[[NSSortDescriptor alloc] initWithKey:@"class" ascending:YES] autorelease],
                                             [[[NSSortDescriptor alloc] initWithKey:@"version" ascending:YES] autorelease],
-                                            [[[NSSortDescriptor alloc] initWithKey:@"host_short_name" ascending:YES] autorelease],
                                             nil]];
             
             [self updateServiceDerivedObjects];
@@ -339,7 +377,7 @@
                 
         NSMutableArray *hostDict = [root objectForKey:@"hosts"];    
         
-        if (hostDict == nil) {
+        if (hostDict == nil || [hostDict count] == 0) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
             if (error == nil) error = @"Error loading data (ERR03)";
@@ -355,7 +393,10 @@
             NSLog(@"Received %d hosts",[hosts count]);
             
             [self.hosts sortUsingDescriptors:[NSArray arrayWithObjects:
-                                              [[[NSSortDescriptor alloc] initWithKey:@"long_name" ascending:YES] autorelease],
+                                              [[[NSSortDescriptor alloc] 
+												initWithKey:@"long_name" 
+												ascending:YES 
+												selector:@selector(caseInsensitiveCompare:)] autorelease],
                                               nil]];
             
             [self updateHostDerivedObjects];
@@ -443,6 +484,10 @@
 #pragma mark Public API
 
 - (NSMutableArray *)getGroups {
+	return groups;
+}
+
+- (NSMutableArray *)getCounts {
 	return groups;
 }
 

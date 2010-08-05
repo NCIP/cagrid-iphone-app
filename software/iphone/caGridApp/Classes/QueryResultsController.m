@@ -9,13 +9,16 @@
 #import "QueryResultsController.h"
 #import "QueryResultDetailController.h"
 #import "TwoValueCell.h"
+#import "ServiceMetadata.h"
 
 @implementation QueryResultsController
 @synthesize navController;
 @synthesize detailController;
+@synthesize dataTypeName;
 @synthesize results;
 
-- (void)displayResults:(NSMutableArray *)resultArray {
+- (void)displayResults:(NSMutableArray *)resultArray  forDatatype:(NSString *)dataTypeName {
+	self.dataTypeName = dataTypeName;
 	self.results = resultArray;
 	[self.tableView reloadData];
 }
@@ -56,28 +59,29 @@
     
     NSString *title = nil;
     NSString *desc = nil;
-    
-    // TODO: get this from 
-    if ([result objectForKey:@"Experiment Title"] != nil) {
-		title = [result objectForKey:@"Experiment Title"];
-    }
-    else if ([result objectForKey:@"Barcode"] != nil) {
-		title = [result objectForKey:@"Barcode"];
-    }
-    else if ([result objectForKey:@"Image Study Instance UID"] != nil) {
-		title = [result objectForKey:@"Image Study Instance UID"];
-    }
 	
-    // subtitle
-    
-    NSString *hcrc = [result objectForKey:@"Hosting Cancer Research Center"];
-    if (hcrc != nil) {
-    	desc = hcrc;
-    }
-    else {
-        desc = [result objectForKey:@"Hosting Institution"];
-    }
-    
+	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+    NSMutableDictionary *group = [sm getGroupByName:dataTypeName];
+	if (group != nil) {
+		
+		title = [result objectForKey:[group objectForKey:@"titleAttr"]];
+		if (title == nil) {
+			title = [result objectForKey:[group objectForKey:@"primaryKeyAttr"]];
+		}
+		
+        desc = [result objectForKey:[group objectForKey:@"descriptionAttr"]];
+		if (desc == nil) {
+			desc = [result objectForKey:[group objectForKey:@"hostAttr"]];
+		}
+		
+	}
+	else {
+		for(NSString* value in [result allValues]){ 
+			title = [title stringByAppendingString:value];
+			title = [title stringByAppendingString:@", "];			
+		}
+	}
+	
     cell.titleLabel.text = title;
     cell.descLabel.text = desc;
 	return cell;

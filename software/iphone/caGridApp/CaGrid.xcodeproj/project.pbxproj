@@ -85,6 +85,7 @@
 		A9DC7E0A10A616F800535680 /* FavorableDescCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E0910A616F800535680 /* FavorableDescCell.xib */; };
 		A9DC7E1810A6188400535680 /* HostDetailCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9DC7E1710A6188400535680 /* HostDetailCell.xib */; };
 		A9DC7E2A10A7901B00535680 /* KeyValuePair.m in Sources */ = {isa = PBXBuildFile; fileRef = A9DC7E2910A7901B00535680 /* KeyValuePair.m */; };
+		A9FFDCE9120B1B8C00A402BE /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = A9FFDCE8120B1B8C00A402BE /* Entitlements.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -197,6 +198,7 @@
 		A9DC7E1710A6188400535680 /* HostDetailCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HostDetailCell.xib; sourceTree = "<group>"; };
 		A9DC7E2810A7901B00535680 /* KeyValuePair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyValuePair.h; sourceTree = "<group>"; };
 		A9DC7E2910A7901B00535680 /* KeyValuePair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyValuePair.m; sourceTree = "<group>"; };
+		A9FFDCE8120B1B8C00A402BE /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,6 +251,7 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				A93FB89910D6D904007A9FDF /* Settings.bundle */,
+				A9FFDCE8120B1B8C00A402BE /* Entitlements.plist */,
 			);
 			name = CaGrid;
 			sourceTree = "<group>";
@@ -497,6 +500,7 @@
 				A926ED5C10B0ECA200AA0BFC /* Default.png in Resources */,
 				A93FB89A10D6D904007A9FDF /* Settings.bundle in Resources */,
 				A934FD7711051C480060514B /* Icon.png in Resources */,
+				A9FFDCE9120B1B8C00A402BE /* Entitlements.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -576,7 +580,8 @@
 			buildSettings = {
 				ADDITIONAL_SDKS = "$HOME/Library/SDKs/JSON/$(PLATFORM_NAME).sdk";
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Konrad Rokicki (59397BMTR6)";
+				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Konrad Rokicki";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -585,8 +590,8 @@
 					"-ObjC",
 				);
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7FC0C381-7C80-4D1E-B47A-BB7C0D1D7CB0";
-				SDKROOT = iphoneos2.2.1;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "D3A09036-A342-49B4-8D32-9AFF26409AC9";
+				SDKROOT = iphoneos3.1.3;
 			};
 			name = Distribution;
 		};
@@ -607,7 +612,7 @@
 			buildSettings = {
 				ADDITIONAL_SDKS = "$HOME/Library/SDKs/JSON/$(PLATFORM_NAME).sdk";
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Konrad Rokicki (59397BMTR6)";
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				"GCC_VERSION[arch=*]" = "";
@@ -619,8 +624,7 @@
 					"-ljson",
 				);
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				SDKROOT = iphonesimulator3.0;
+				SDKROOT = iphonesimulator3.1.3;
 			};
 			name = Debug;
 		};
@@ -633,7 +637,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos2.2.1;
+				SDKROOT = iphoneos3.1.3;
 			};
 			name = Release;
 		};
