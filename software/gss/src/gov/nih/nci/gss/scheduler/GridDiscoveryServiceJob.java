@@ -164,10 +164,14 @@ public class GridDiscoveryServiceJob {
         catch (InterruptedException e) {
             logger.error("Could not update object counts",e);
         }
-        
     }
 	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
+	    // Update lastStatus
+	    if (sc != null) {
+	        service.setLastStatus(sc.getNewStatus());
+	    }
+	    
 		try {
 			// Domain classes are saved in reverse referencing order 
 
@@ -282,6 +286,9 @@ public class GridDiscoveryServiceJob {
                     
                     // Create persistent identifier based on the long name
                     thisHC.setIdentifier(GSSUtil.generateHostIdentifier(thisHC));
+                    
+                    // Hide this host?
+                    thisHC.setHiddenDefault(namingUtil.isHidden(thisHC.getLongName()));
                 }
                 
                 // Check to see if the hosting center already exists.
@@ -406,6 +413,7 @@ public class GridDiscoveryServiceJob {
 
 		// Copy over data from the new host data
 		// - Do not overwrite: long name (unique key), id (db primary key)
+        matchingHost.setHiddenDefault(host.getHiddenDefault());
 		matchingHost.setCountryCode(host.getCountryCode());
 		matchingHost.setLocality(host.getLocality());
 		matchingHost.setPostalCode(host.getPostalCode());
@@ -453,7 +461,7 @@ public class GridDiscoveryServiceJob {
 		matchingSvc.setName(service.getName());
 		matchingSvc.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
 
-        // Hide some core infrastructure services
+        // Hide this service?
 		matchingSvc.setHiddenDefault(namingUtil.isHidden(service.getName()));
         
 		matchingSvc.setVersion(service.getVersion());

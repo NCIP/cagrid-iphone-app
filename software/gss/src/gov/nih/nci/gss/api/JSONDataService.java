@@ -376,6 +376,9 @@ public class JSONDataService extends HttpServlet {
             if (dataService.getSearchDefault()) {
                 jsonService.put("search_default", "true");
             }
+            if (dataService.getAccessible() != null) {
+                jsonService.put("accessible", dataService.getAccessible().toString());
+            }
         }
         
         return jsonService;
@@ -403,6 +406,10 @@ public class JSONDataService extends HttpServlet {
         hostObj.put("postal_code", host.getPostalCode());
         hostObj.put("street", host.getStreet());
 
+        if (host.getHiddenDefault()) {
+            hostObj.put("hidden_default", "true");
+        }
+        
         // check if the host has a custom image
         
         String imageName = ImageService.getHostImageName(host);
@@ -457,6 +464,10 @@ public class JSONDataService extends HttpServlet {
             JSONObject groupObj = new JSONObject();
             groupObj.put("name",group.getName());
             groupObj.put("label",group.getCab2bName());
+            groupObj.put("primaryKeyAttr",group.getDataPrimaryKey());
+            groupObj.put("hostAttr",group.getHostPrimaryKey());
+            groupObj.put("titleAttr",group.getDataTitle());
+            groupObj.put("descriptionAttr",group.getDataDescription());
             
             JSONArray exemplarsArray = new JSONArray();
             
@@ -584,9 +595,9 @@ public class JSONDataService extends HttpServlet {
                 JSONObject jsonService = getJSONObjectForService(service);
                 jsonArray.put(jsonService);
                 
-                    
                 // Add service details
                 jsonService.put("description", service.getDescription());
+                jsonService.put("status", service.getLastStatus());
                 
                 // Add service pocs
                 JSONArray jsonPocs = new JSONArray();
@@ -605,7 +616,7 @@ public class JSONDataService extends HttpServlet {
                 	
                     if (service instanceof DataService) {
                         DomainModel model = ((DataService)service).getDomainModel();
-
+                        
                         // Add domain model
                         JSONObject modelObj = new JSONObject();
                         jsonService.put("domain_model", modelObj);
