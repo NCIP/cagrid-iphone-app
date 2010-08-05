@@ -107,6 +107,7 @@
     NSLog(@"Retrieving new data...");
     receivedContent = 0;
     [sm loadGroups:@selector(completedGroups)];
+    [sm loadCounts:@selector(completedCounts)];	
     [sm loadServices:@selector(completedServices)];
     [sm loadHosts:@selector(completedHosts)];
 }
@@ -121,17 +122,22 @@
 
 - (void)completedGroups {
     NSLog(@"Completed loading groups");
-    if (++receivedContent > 2) [self doneSetup];    
+    if (++receivedContent > 3) [self doneSetup];    
+}
+
+- (void)completedCounts {
+    NSLog(@"Completed loading counts");
+    if (++receivedContent > 3) [self doneSetup];    
 }
 
 - (void)completedServices {
     NSLog(@"Completed loading services");
-    if (++receivedContent > 2) [self doneSetup];    
+    if (++receivedContent > 3) [self doneSetup];    
 }
 
 - (void)completedHosts {
     NSLog(@"Completed loading hosts");
-    if (++receivedContent > 2) [self doneSetup];
+    if (++receivedContent > 3) [self doneSetup];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
