@@ -150,7 +150,7 @@
         self.resultsController = [[QueryResultsController alloc] init];
 		resultsController.navController = navController;
     }
-    [resultsController displayResults:results];
+    [resultsController displayResults:results forDatatype:[self.request objectForKey:@"dataTypeName"]];
 	[navController pushViewController:resultsController animated:YES];	
 }
 

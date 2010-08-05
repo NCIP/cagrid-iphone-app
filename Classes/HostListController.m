@@ -42,12 +42,14 @@
     
 	[filtered removeAllObjects];
 
-	for(NSMutableDictionary *service in hostList) {
-		if (filterString == nil || 
-            ([Util string:filterString isFoundIn:[service objectForKey:@"short_name"]] ||
-			 [Util string:filterString isFoundIn:[service objectForKey:@"long_name"]])) {
-			[filtered addObject:service];
-		}		
+	for(NSMutableDictionary *host in hostList) {
+		if (![[host objectForKey:@"hidden_default"] isEqualToString:@"true"]) {	
+			if (filterString == nil || 
+				([Util string:filterString isFoundIn:[host objectForKey:@"short_name"]] ||
+				 [Util string:filterString isFoundIn:[host objectForKey:@"long_name"]])) {
+				[filtered addObject:host];
+			}		
+		}
 	}
 }
 
