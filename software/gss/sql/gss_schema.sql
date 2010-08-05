@@ -45,7 +45,9 @@ CREATE TABLE `DATA_SERVICE_GROUP` (
   `NAME` varchar(512) NOT NULL UNIQUE,
   `CAB2B_NAME` varchar(512) NOT NULL,
   `DATA_PRIMARY_KEY` varchar(512),
-  `HOST_PRIMARY_KEY` varchar(512),  
+  `HOST_PRIMARY_KEY` varchar(512),
+  `DATA_TITLE` varchar(512),
+  `DATA_DESCRIPTION` varchar(512),
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -66,6 +68,8 @@ CREATE TABLE `GRID_SERVICE` (
   `VERSION` varchar(255) default NULL,
   `HIDDEN_DEFAULT` tinyint(1) default '0' NOT NULL,
   `SEARCH_DEFAULT` tinyint(1) default '0' NOT NULL,
+  `IS_ACCESSIBLE` tinyint(1) default '0' NOT NULL,
+  `LAST_STATUS` varchar(255) default NULL,
   `HOSTING_CENTER_ID` bigint(20) NULL,
   `DOMAIN_MODEL_ID` bigint(20) default NULL,
   PRIMARY KEY  (`ID`)
@@ -95,6 +99,7 @@ CREATE TABLE `HOSTING_CENTER` (
   `SHORT_NAME` varchar(255) NOT NULL,
   `STATE_PROVINCE` varchar(255) default NULL,
   `STREET` varchar(255) default NULL,
+  `HIDDEN_DEFAULT` tinyint(1) default '0' NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
