@@ -163,6 +163,7 @@ static BOOL alerted = NO;
     }
 }
 
+
 + (NSString *)getLabelForDataTypeName:(NSString *)dataTypeName {
     if ([dataTypeName isEqualToString:@"microarray"]) {
         return @"Microarray";
@@ -198,6 +199,24 @@ static BOOL alerted = NO;
         return -1;
     }
 }
+
+
++ (NSString *)getMainClassForDataType:(DataType)dataType {
+    
+    switch (dataType) {
+        case DataTypeMicroarray:
+            return @"gov.nih.nci.caarray.domain.project.Experiment";
+        case DataTypeImaging:
+            return @"gov.nih.nci.ncia.domain.Series";
+        case DataTypeBiospecimen:
+            return @"edu.wustl.catissuecore.domain.Specimen";
+        case DataTypeNanoparticle:
+            return @"gov.nih.nci.cananolab.domain.particle.Sample";
+        default:
+            return nil;
+    }
+}
+
 
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message {
 	NSMutableDictionary *errorDict = [NSMutableDictionary dictionary];

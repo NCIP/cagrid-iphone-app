@@ -9,12 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "TwoValueCell.h"
 
-#define DASHBOARD_CELL_HEIGHT 67
+#define DASHBOARD_CELL_HEIGHT 80
 
 @interface DashboardCell : TwoValueCell {
 	IBOutlet UIImageView *icon;
+	IBOutlet UILabel *objectCount;
 }
 
 @property (nonatomic, retain) UIImageView *icon;
+@property (nonatomic, retain) UILabel *objectCount;
 
 @end
