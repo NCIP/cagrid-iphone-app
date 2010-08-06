@@ -61,6 +61,8 @@ typedef enum {
 
 + (NSString *)getMainClassForDataType:(DataType)dataType;
 
++ (NSString *)getMainClassPluralForDataType:(DataType)dataType forCount:(NSUInteger)count;
+
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
 
 + (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView;

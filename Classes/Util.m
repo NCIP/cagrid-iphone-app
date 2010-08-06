@@ -217,6 +217,21 @@ static BOOL alerted = NO;
     }
 }
 
++ (NSString *)getMainClassPluralForDataType:(DataType)dataType forCount:(NSUInteger)count {
+    
+    switch (dataType) {
+        case DataTypeMicroarray:
+            return count>1 ? @"experiments" : @"experiment";
+        case DataTypeImaging:
+            return count>1 ? @"image series" : @"image series";
+        case DataTypeBiospecimen:
+            return count>1 ? @"specimens" : @"specimen";
+        case DataTypeNanoparticle:
+            return count>1 ? @"nanoparticles" : @"nanoparticle";
+        default:
+            return nil;
+    }
+}
 
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message {
 	NSMutableDictionary *errorDict = [NSMutableDictionary dictionary];
