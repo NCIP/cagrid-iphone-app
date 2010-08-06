@@ -17,8 +17,8 @@
 @synthesize dataTypeName;
 @synthesize results;
 
-- (void)displayResults:(NSMutableArray *)resultArray  forDatatype:(NSString *)dataTypeName {
-	self.dataTypeName = dataTypeName;
+- (void)displayResults:(NSMutableArray *)resultArray  forDatatype:(NSString *)dataType {
+	self.dataTypeName = dataType;
 	self.results = resultArray;
 	[self.tableView reloadData];
 }

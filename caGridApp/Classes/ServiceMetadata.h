@@ -74,7 +74,7 @@
 
 - (NSMutableArray *)getGroups;
 
-- (NSMutableArray *)getCounts;
+- (NSMutableDictionary *)getCounts;
 
 - (NSMutableArray *)getServices;
 
