@@ -10,9 +10,11 @@
 
 @implementation DashboardCell
 @synthesize icon;
+@synthesize objectCount;
 
 - (void)dealloc {
     self.icon = nil;
+	self.objectCount = nil;
     [super dealloc];
 }
 

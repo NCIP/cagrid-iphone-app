@@ -59,6 +59,8 @@ typedef enum {
 
 + (DataType)getDataTypeForDataTypeName:(NSString *)dataTypeName;
 
++ (NSString *)getMainClassForDataType:(DataType)dataType;
+
 + (NSMutableDictionary *)getError:(NSString *)errorType withMessage:(NSString *)message;
 
 + (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView;

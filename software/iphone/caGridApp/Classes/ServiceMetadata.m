@@ -56,7 +56,7 @@
         self.hostsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/host",baseUrl]];
         
 		self.groups = [NSMutableArray array];  
-		self.counts = [NSMutableArray array];  
+		self.counts = [NSMutableDictionary dictionary];  
 		self.services = [NSMutableArray array];               
 		self.hosts = [NSMutableArray array];    
 		
@@ -182,6 +182,37 @@
         }
     }
     
+	for(NSString *group in [servicesByGroup allKeys]) {
+		NSMutableArray *array = [servicesByGroup objectForKey:group];
+		BOOL found = NO;
+		NSMutableDictionary *defaultService = nil;
+        for(NSMutableDictionary *service in array) {
+            if ([[service objectForKey:@"search_default"] isEqualToString:@"true"]) {
+				found = YES;
+				break;
+			}
+			if (defaultService == nil) {
+				NSString *hostName = [service objectForKey:@"host_short_name"];
+				if ([hostName isEqualToString:@"NCICB"] || [hostName isEqualToString:@"CBIIT"]) {
+					defaultService = service;
+				}
+			}
+		}
+		if (!found) {
+			NSLog(@"No default service found for %@",group);
+			// there is no default, let's try to make one
+			if (defaultService == nil && [array count] > 0) {
+				defaultService = [array objectAtIndex:0];
+			}
+			if (defaultService != nil) {
+				NSLog(@"setting default for %@ to %@",group,[defaultService objectForKey:@"display_name"]);
+				[defaultService setValue:@"true" forKey:@"search_default"];
+			}
+		}
+				
+		
+	}
+	
     [[UserPreferences sharedSingleton] updateFromDefaults:self.services];
 }
 
@@ -218,7 +249,7 @@
             @catch (NSException *exception) {
                 NSLog(@"Caught exception: %@, %@",exception.name, exception.reason);
 				self.groups = [NSMutableArray array];
-				self.counts = [NSMutableArray array];
+				self.counts = [NSMutableDictionary dictionary];
                 self.services = [NSMutableArray array];               
                 self.hosts = [NSMutableArray array];
             }
@@ -296,7 +327,6 @@
     [Util clearNetworkErrorState];
     
     NSString *content = [[NSString alloc] initWithBytes:[data mutableBytes] length:[data length] encoding:NSUTF8StringEncoding];
-	NSLog(content);
     NSMutableDictionary *root = [content JSONValue];
     
 	if ([url isEqual:groupsUrl]) {
@@ -323,9 +353,9 @@
 	}
 	else if ([url isEqual:countsUrl]) {
 		
-		NSMutableArray *countArray = [root objectForKey:@"counts"];
+		NSMutableDictionary *countDict = [root objectForKey:@"counts"];
 		
-        if (countArray == nil || [countArray count] == 0) {
+        if (countDict == nil || [countDict count] == 0) {
             NSString *error = [root objectForKey:@"error"];
             NSString *message = [root objectForKey:@"message"];
             if (error == nil) error = @"Error loading data (ERR01)";
@@ -337,9 +367,9 @@
         }
 		
         @synchronized(self) {   
-			NSLog(@"Received %d counts",[countArray count]);
+			NSLog(@"Received %d counts",[countDict count]);
 			[self.counts removeAllObjects];
-			[self.counts addObjectsFromArray:countArray]; 
+			[self.counts addEntriesFromDictionary:countDict];
 			[delegate performSelector:countsCallback];
 		}
 	}
@@ -487,8 +517,8 @@
 	return groups;
 }
 
-- (NSMutableArray *)getCounts {
-	return groups;
+- (NSMutableDictionary *)getCounts {
+	return counts;
 }
 
 - (NSMutableArray *)getServices {

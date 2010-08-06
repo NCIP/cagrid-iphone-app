@@ -122,7 +122,8 @@
     for(NSMutableDictionary *request in rc.queryRequests) {
         if (([request objectForKey:@"results"] == nil) && ([request objectForKey:@"error"] == nil)) {
             // query never came back so restart monitoring
-            [rc monitorQuery:request];
+			NSLog(@"Restarting query for %@",[request objectForKey:@"searchString"]);
+			[rc monitorQuery:request];
         }
     }
 }
@@ -135,12 +136,20 @@
 	NSString *baseUrl = [defaults objectForKey:@"base_url"];
 	NSNumber *maxRequests = [defaults objectForKey:@"max_queries"];
 	
-    while ([queryRequests count] >= [maxRequests intValue]) {
-        [queryRequests removeLastObject];
+	if ([queryRequests containsObject:request]) {
+		// this is a retry, simply move it to the front of the list
+		[queryRequests removeObject:request];
+		[queryRequests insertObject:request atIndex:0];
+	}
+	else {
+		// expire old requests
+		while ([queryRequests count] >= [maxRequests intValue]) {
+			[queryRequests removeLastObject];
+		}
+		// add the new request
+		[queryRequests insertObject:request atIndex:0];
     }
-    
-    [queryRequests insertObject:request atIndex:0];
-    
+	
     NSString *searchString = [request objectForKey:@"searchString"];
     NSMutableArray *selectedServicesIds = [request objectForKey:@"selectedServicesIds"];
     
@@ -171,6 +180,11 @@
         
     NSString *jobId = [request objectForKey:@"jobId"];
     
+	if (jobId == nil) {
+        [self notifyDelegateOfErrorDelayed:@"No such job" message:@"Query could not be started." forRequest:request];
+		return;
+	}
+	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *baseUrl = [defaults objectForKey:@"base_url"];
 	NSString *queryStr = [NSString stringWithFormat:@"%@/json/query?collapse=1&clientId=%@&jobId=%@",baseUrl,deviceId,jobId];
@@ -183,7 +197,7 @@
     
     NSURL *url = [NSURL URLWithString:escapedQueryStr];
     [self.urlRequestMap setObject:request forKey:url];
-	[dlmanager beginDownload:url delegate:self];   
+	[dlmanager beginDownload:url delegate:self];
     
 }
 }
@@ -216,7 +230,7 @@
                 
         NSString *status = [root objectForKey:@"status"];
         jobId = [root objectForKey:@"job_id"];
-        
+        	
         if (jobId == nil || [jobId isEqualToString:@""]) {
             NSLog(@"Server did not return job identifier. Status was %@.",status);
             NSString *errorType = @"Server Error";
@@ -301,9 +315,11 @@
     [urlRequestMap removeObjectForKey:url];
     
     if ([error domain] == NSURLErrorDomain && [error code] == NSURLErrorTimedOut) {
-        NSLog(@"Connection dropped, retrying");
-        [self monitorQuery:request];
-        return;
+		if ([request objectForKey:@"jobId"] != nil) {
+			NSLog(@"Connection dropped, retrying");
+			[self monitorQuery:request];
+			return;
+		}
     }
     
 	NSString *message = [NSString stringWithFormat:@"Could not retrieve query results: %@",[error localizedDescription]];
