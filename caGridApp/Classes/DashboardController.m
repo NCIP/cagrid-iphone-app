@@ -140,6 +140,10 @@
 	//self.view.superview.userInteractionEnabled = YES;
 }
 
+- (NSString *)getLabelForCount:(NSUInteger)count {
+	return count > 1 ? @"services" : @"service";	
+}
+
 #pragma mark -
 #pragma mark Table View Data Source Methods
 
@@ -171,27 +175,29 @@
 	ServiceMetadata* sm = [ServiceMetadata sharedSingleton];
     NSUInteger serviceCount = [[sm getServicesOfType:dataType] count];
 	NSUInteger objectCount = [self getSumForClass:[Util getMainClassForDataType:dataType]];
+	NSString *servicePlural = [self getLabelForCount:serviceCount];
+	NSString *plural = [Util getMainClassPluralForDataType:dataType forCount:objectCount];
 	
     static NSString *none = @"";
     
     if (row == DataTypeMicroarray) {
-        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caArray services",serviceCount] : none;
-		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d microarray experiments",objectCount] : none;
+        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caArray %@",serviceCount,servicePlural] : none;
+		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;
         cell.icon.image = [UIImage imageNamed:@"db_microarray.png"];
     }
     else if (row == DataTypeImaging) {
-        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d NBIA services",serviceCount] : none;
-		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d images series",objectCount] : none;	
+        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d NBIA %@",serviceCount,servicePlural] : none;
+		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;	
         cell.icon.image = [UIImage imageNamed:@"db_imaging.png"];
     }
     else if (row == DataTypeBiospecimen) {
-        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caTissue services",serviceCount] : none;
-		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d tissue specimens",objectCount] : none;	
+        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caTissue %@",serviceCount,servicePlural] : none;
+		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;	
         cell.icon.image = [UIImage imageNamed:@"db_biospecimen.png"];
     }
     else if (row == DataTypeNanoparticle) {
-        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caNanoLab services",serviceCount] : none;
-		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d nanoparticle samples",objectCount] : none;
+        cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caNanoLab %@",serviceCount,servicePlural] : none;
+		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;
         cell.icon.image = [UIImage imageNamed:@"db_nanoparticles.png"];
     }
 
@@ -201,6 +207,7 @@
     
 	return cell;
 }
+
 
 - (void)selectDataType:(DataType)dataType {
 	if (queryExecutionController == nil) {
