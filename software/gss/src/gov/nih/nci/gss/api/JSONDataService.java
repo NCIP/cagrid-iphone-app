@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -471,7 +472,17 @@ public class JSONDataService extends HttpServlet {
             
             JSONArray exemplarsArray = new JSONArray();
             
-            for(SearchExemplar se : group.getExemplarCollection()) {
+            List<SearchExemplar> exemplars = new ArrayList(
+                group.getExemplarCollection());
+            
+            // order exemplars by id so that they can be prioritized in the database
+            Collections.sort(exemplars, new Comparator<SearchExemplar>() {
+                public int compare(SearchExemplar o1, SearchExemplar o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            });
+            
+            for(SearchExemplar se : exemplars) {
                 exemplarsArray.put(se.getSearchString());
             }
             
