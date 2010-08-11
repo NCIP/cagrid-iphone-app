@@ -13,9 +13,6 @@
 #import "Util.h"
 #import "ServiceMetadata.h"
 
-// Uncomment this line to create the splash screen used for Default.png
-//#define DEFAULT_PNG_SCREENSHOT 
-
 @implementation DashboardController
 @synthesize navController;
 @synthesize queryExecutionController;
@@ -203,6 +200,7 @@
 
     #ifdef DEFAULT_PNG_SCREENSHOT
         cell.descLabel.text = @"";
+		cell.objectCount.text =  @"";
     #endif
     
 	return cell;

@@ -9,6 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "Util.h";
 
+// To create the splash screen used for Default.png uncomment the following define,
+// and then edit MainWindow.xib to hide the activity indicator and "Downloading" label,
+// and instead show the "Loading" label.
+
+//#define DEFAULT_PNG_SCREENSHOT 
+
 @class QueryExecutionController;
 
 @interface DashboardController : UIViewController <UITableViewDelegate, UITableViewDataSource> {

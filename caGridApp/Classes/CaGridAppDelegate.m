@@ -116,7 +116,9 @@
     NSLog(@"Completed loading all data");
 	[[ServiceMetadata sharedSingleton] saveToFile]; 
     [self.dashboardController reload];
+#ifndef DEFAULT_PNG_SCREENSHOT
 	[loadingView removeFromSuperview];
+#endif
 	self.loadingView = nil;	
 }
 
