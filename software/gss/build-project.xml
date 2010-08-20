@@ -177,6 +177,8 @@
                 <include name="gss.properties" />
                 <include name="gss_ehcache.xml" />
                 <include name="rest_api_usage.js" />
+                <include name="cagrid.properties" />
+                <include name="production/*" />
             </fileset>
         </copy>
         
