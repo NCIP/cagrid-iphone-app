@@ -9,6 +9,7 @@ import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.grid.DataServiceObjectCounter;
+import gov.nih.nci.gss.grid.GSSCredentials;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
 import gov.nih.nci.gss.util.Cab2bAPI;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -89,6 +89,8 @@ public class GridDiscoveryServiceJob {
         this.cab2bServices = cab2bAPI.getServices();
         
         try {
+            logger.info("Logged into Globus: "+GSSCredentials.getCredential());
+            // Get services
         	Map<String,GridService> services = populateRemoteServices();
         	// Update counts
         	updateCounts(services);
@@ -158,7 +160,13 @@ public class GridDiscoveryServiceJob {
         try {
             parallelExecutor.shutdown();
             logger.info("Awaiting completion of object counting...");
-            parallelExecutor.awaitTermination(60*30, TimeUnit.SECONDS);
+            if (!parallelExecutor.awaitTermination(60*30, TimeUnit.SECONDS)) {
+                logger.info("Timed out waiting for counts to finish, canceling counting tasks...");
+                // timed out, cancel the tasks
+                for(Future<Boolean> future : futures) {
+                    future.cancel(true);
+                }
+            }
             logger.info("Object counting completed.");
         }
         catch (InterruptedException e) {
@@ -177,19 +185,19 @@ public class GridDiscoveryServiceJob {
 
 			// 1) All POCs
 			for (PointOfContact POC : service.getPointOfContacts()) {
-                logger.info("Saving Service POC "+POC.getName());
+                logger.debug("Saving Service POC "+POC.getName());
                 POC.setId((Long)hibernateSession.save(POC));
 			}
 			HostingCenter hc = service.getHostingCenter();
 			if (hc != null) {
 				for (PointOfContact POC : hc.getPointOfContacts()) {
-	                logger.info("Saving Host POC "+POC.getName());
+	                logger.debug("Saving Host POC "+POC.getName());
 	                POC.setId((Long)hibernateSession.save(POC));
 				}
 
                 // 2) Hosting Center
 				if (hc.getId() == null) {
-				    logger.info("Saving Host: "+hc.getLongName());
+				    logger.debug("Saving Host: "+hc.getLongName());
 				    // Hosting center has not been saved yet
 				    hc.setId((Long)hibernateSession.save(hc));
 				}
@@ -199,27 +207,27 @@ public class GridDiscoveryServiceJob {
 			if (service instanceof DataService) {
 			    DomainModel model = ((DataService)service).getDomainModel();
 			    if (model != null) {
-    	            logger.info("Saving Domain Model: "+model.getLongName());
+    	            logger.debug("Saving Domain Model: "+model.getLongName());
     				model.setId((Long)hibernateSession.save(model));
     				
                     // 4) Domain Classes 
-                    logger.info("Saving "+model.getClasses().size()+" Domain Classes");
+                    logger.debug("Saving "+model.getClasses().size()+" Domain Classes");
                     for(DomainClass domainClass : model.getClasses()) {
-                        logger.info("saving "+domainClass.getClassName());
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                     }
 			    }
 			}
 			
 			// 5) Grid Service
-            logger.info("Saving Service: "+service.getName());
+            logger.debug("Saving Service: "+service.getName());
             service.setId((Long)hibernateSession.save(service));
             
 			// 6) Status Changes
-			if (sc != null) {
-	            logger.info("Saving Status Change ");
-				sc.setId((Long)hibernateSession.save(sc));
-			}
+            // TODO: reenable status change saving
+//			if (sc != null) {
+//	            logger.info("Saving Status Change ");
+//				sc.setId((Long)hibernateSession.save(sc));
+//			}
 			
 		} 
 		catch (ConstraintViolationException e) {
@@ -315,12 +323,15 @@ public class GridDiscoveryServiceJob {
 					matchingSvc = updateServiceData(matchingSvc, service);
 
 					// Check to see if this service is active once again
-					Collection<StatusChange> changes = matchingSvc.getStatusHistory();
-					StatusChange mostRecentChange = changes.iterator().next();
-					if (STATUS_CHANGE_INACTIVE.equals(mostRecentChange.getNewStatus())) {
+					//Collection<StatusChange> changes = matchingSvc.getStatusHistory();
+					//StatusChange mostRecentChange = changes.iterator().next();
+					if (STATUS_CHANGE_INACTIVE.equals(matchingSvc.getLastStatus())) {
 						// Service was marked as inactive, need to make it active now
 						StatusChange newSC = createStatusChange(matchingSvc, true);
-						matchingSvc.getStatusHistory().add(newSC);
+
+			            // TODO: reenable status change saving
+						//matchingSvc.getStatusHistory().add(newSC);
+						
 						saveService(matchingSvc,newSC,hibernateSession);
 					} 
 					else {
@@ -335,9 +346,11 @@ public class GridDiscoveryServiceJob {
 					// TODO: Is there a better "publish date" in the service metadata?
 					service.setPublishDate(new Date());
 					StatusChange newSC = createStatusChange(service, true);
-					Collection<StatusChange> scList = new HashSet<StatusChange>();
-					scList.add(newSC);
-					service.setStatusHistory(scList);
+					//Collection<StatusChange> scList = new HashSet<StatusChange>();
+                    
+					// TODO: reenable status change saving
+					//scList.add(newSC);
+					//service.setStatusHistory(scList);
 
 					// Set up service simple name and linkage to correct caB2B model group
 			    	service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
@@ -350,6 +363,7 @@ public class GridDiscoveryServiceJob {
 
 					if (service instanceof DataService) {
 					    DataService dataService = (DataService)service;
+					    dataService.setAccessible(true);
 					    dataService = updateCab2bData(dataService);
 					}
 					
@@ -366,13 +380,16 @@ public class GridDiscoveryServiceJob {
 	                logger.info("URL: "+service.getUrl());
                     logger.info("Not found in index service metadata.");
 					// Is the service currently marked active? 
-					Collection<StatusChange> changes = service.getStatusHistory();
-					StatusChange mostRecentChange = changes.iterator().next();
-					if (STATUS_CHANGE_ACTIVE.equals(mostRecentChange.getNewStatus())) {
+					//Collection<StatusChange> changes = service.getStatusHistory();
+					//StatusChange mostRecentChange = changes.iterator().next();
+					if (STATUS_CHANGE_ACTIVE.equals(service.getLastStatus())) {
 	                    logger.info("Marking service inactive.");
 						// Service was marked as active, need to make it inactive now
 						StatusChange newSC = createStatusChange(service, false);
-						service.getStatusHistory().add(newSC);
+						
+	                    // TODO: reenable status change saving
+						//service.getStatusHistory().add(newSC);
+						
 						saveService(service,newSC,hibernateSession);
 					}
 				}
@@ -472,6 +489,9 @@ public class GridDiscoveryServiceJob {
             DataService dataService = (DataService)service;
 		    DataService matchingDataSvc = (DataService)matchingSvc;
 
+		    // Make sure accessible is never null
+            dataService.setAccessible(matchingDataSvc.getAccessible());
+            
 	        // We are consciously overwriting things here that likely will not change,
 	        // since they are based on the URL, which is guaranteed to be the same if we
 	        // call this function.  However, on the off chance that the DB lookup tables or
