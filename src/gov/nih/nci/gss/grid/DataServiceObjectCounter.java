@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.log4j.Logger;
+import org.globus.gsi.GlobusCredential;
 
 /**
  * Utility class for counting instances in a data service.
@@ -40,7 +41,8 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
         if (model == null) return false;
        
         logger.debug("Start counting for service: "+dataService.getUrl());
-        
+
+        int queryExceptions = 0;
         int failures = 0;
         int successes = 0;
         
@@ -57,14 +59,29 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                 }
             }
             catch (GridQueryException e) {
+                if (e.getCause() instanceof QueryProcessingExceptionType) {
+                    queryExceptions++;
+                }
+                else {
+                    failures++;
+                }
+                
                 logger.warn("Could not get count for class "+className+
-                    " in service "+dataService.getUrl());
-                logger.debug("Could not get count for class "+className+
-                    " in service "+dataService.getUrl(),e);
-                if (++failures > 1) {
+                    " in service "+dataService.getUrl()+": "+e.getMessage());
+                logger.debug("Error counting "+className+" in service "+
+                    dataService.getUrl(),e);
+                
+                if (failures > 1) {
                     // Failed more than once
                     logger.warn("Giving up counting for service: "+dataService.getUrl());
                     dataService.setAccessible(false);
+                    return false;
+                }
+                
+                if (queryExceptions > 10) {
+                    // More than 10 query exceptions
+                    logger.warn("Giving up counting for service: "+dataService.getUrl());
+                    // Do not change accessible flag. Service may just be denying count queries, for example.
                     return false;
                 }
             }
@@ -78,8 +95,11 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
     public static Long getCount(String dataServiceUrl, String className) throws GridQueryException {
         
         try {
-            DataServiceClient client = new DataServiceClient(dataServiceUrl);
-                        
+            //GlobusCredential cred = AuthenticationUtility.getGlobusCredential(Authenticator.getSerializedDCR();
+            GlobusCredential cred = GSSCredentials.getCredential();
+            
+            DataServiceClient client = new DataServiceClient(dataServiceUrl, cred);
+
             CQLQuery query = new CQLQuery();
             
             gov.nih.nci.cagrid.cqlquery.Object target = 
@@ -91,11 +111,9 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                 new gov.nih.nci.cagrid.cqlquery.QueryModifier();
             mod.setCountOnly(true);
             query.setQueryModifier(mod);
-            
+           
 //            StringWriter writer = new StringWriter();
-//            // serialize
 //            Utils.serializeObject(query, DataServiceConstants.CQL_QUERY_QNAME, writer);
-//            // print XML to the console
 //            System.out.println(writer.getBuffer().toString());
 
             CQLQueryResults result = client.query(query);
@@ -126,8 +144,13 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
      */
     public static void main(String[] args) throws Exception {
 
-        String url = "https://tissueinventory.cabig.upmc.edu:8443/wsrf/services/cagrid/CaTissueSuite";
-        String className = "edu.wustl.catissuecore.domain.shippingtracking.ShipmentRequest";
+        System.out.println("Credential: "+GSSCredentials.getCredential());
+        
+//        17:45:55,241 WARN  [DataServiceObjectCounter] Query processing exception for class edu.wustl.catissuecore.domain.Race in service http://catissue.uabgrid.uab.edu:18080/wsrf/services/cagrid/CaTissueSuite: null
+//        17:45:55,538 WARN  [DataServiceObjectCounter] Query processing exception for class gov.nih.nci.cabio.domain.ExpressionArrayReporter in service http://cclp09.ucsf.edu:18080/wsrf/services/cagrid/CaArraySvc: null
+
+        String url = "https://192.198.54.89:47210/wsrf/services/cagrid/CaTissueCore";
+        String className = "edu.wustl.catissuecore.domain.ContainerType";
         Long count = DataServiceObjectCounter.getCount(url, className);
         System.out.println("url="+url);
         System.out.println("className="+className);
