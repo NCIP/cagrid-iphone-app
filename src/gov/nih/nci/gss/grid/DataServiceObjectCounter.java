@@ -26,12 +26,18 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
 
     private static Logger logger = Logger.getLogger(DataServiceObjectCounter.class);
     
+    private boolean defunct = false;
+    
     private DataService dataService;
     
     public DataServiceObjectCounter(DataService dataService) {
         this.dataService = dataService;
     }
 
+    public void disregard() {
+        this.defunct = true;
+    }
+    
     /**
      * Callable callback method called when this update is actually run.
      */
@@ -52,6 +58,13 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
 
             try {
                 Long count = DataServiceObjectCounter.getCount(dataService.getUrl(), className);
+                
+                if (defunct == true) {
+                    logger.warn("Count query for service "+dataService.getUrl()+
+                        " returned but is no longer needed");
+                    return false;
+                }
+                
                 if (count != null) {
                     domainClass.setCount(count);
                     domainClass.setCountDate(new Date());
@@ -59,6 +72,13 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                 }
             }
             catch (GridQueryException e) {
+
+                if (defunct == true) {
+                    logger.warn("Count query for service "+dataService.getUrl()+
+                        " threw exception but is no longer needed");
+                    return false;
+                }
+                
                 if (e.getCause() instanceof QueryProcessingExceptionType) {
                     queryExceptions++;
                 }
@@ -87,7 +107,7 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
             }
         }
 
-        logger.debug("Done counting "+successes+" classes for service: "+dataService.getUrl());
+        logger.info("Done counting "+successes+" classes for service: "+dataService.getUrl());
         dataService.setAccessible(true);
         return true;
     }

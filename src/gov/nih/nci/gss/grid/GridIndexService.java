@@ -201,6 +201,7 @@ public class GridIndexService {
 			// Deferred to caller, not available in metadata
 		    dataService.setGroup(null);
 		    dataService.setSearchDefault(false);
+		    dataService.setAccessible(true);
 		}
 		
     	return newService;
