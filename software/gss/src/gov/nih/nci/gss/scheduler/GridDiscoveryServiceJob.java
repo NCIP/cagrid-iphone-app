@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -53,7 +52,7 @@ public class GridDiscoveryServiceJob {
     
 	private static Logger logger = Logger.getLogger(GridDiscoveryServiceJob.class);
 
-	private static final int NUM_QUERY_THREADS = 5;
+	private static final int NUM_QUERY_THREADS = 20;
 	
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
@@ -143,7 +142,7 @@ public class GridDiscoveryServiceJob {
 
         ExecutorService parallelExecutor = Executors.newFixedThreadPool(NUM_QUERY_THREADS);
         
-        List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+        List<DataServiceObjectCounter> counters = new ArrayList<DataServiceObjectCounter>();
                 
         logger.info("Updating counts...");
         for (GridService service : gridNodes.values()) {
@@ -153,18 +152,19 @@ public class GridDiscoveryServiceJob {
                 if (model == null) continue;
                 DataServiceObjectCounter counter = 
                     new DataServiceObjectCounter(dataService);
-                futures.add(parallelExecutor.submit(counter));
+                counters.add(counter);
+                parallelExecutor.submit(counter);
             }
         }
         
         try {
             parallelExecutor.shutdown();
             logger.info("Awaiting completion of object counting...");
-            if (!parallelExecutor.awaitTermination(60*30, TimeUnit.SECONDS)) {
-                logger.info("Timed out waiting for counts to finish, canceling counting tasks...");
+            if (!parallelExecutor.awaitTermination(60*60, TimeUnit.SECONDS)) {
+                logger.info("Timed out waiting for counts to finish, disregarding remaining counts.");
                 // timed out, cancel the tasks
-                for(Future<Boolean> future : futures) {
-                    future.cancel(true);
+                for(DataServiceObjectCounter counter : counters) {
+                    counter.disregard();
                 }
             }
             logger.info("Object counting completed.");
@@ -219,7 +219,7 @@ public class GridDiscoveryServiceJob {
 			}
 			
 			// 5) Grid Service
-            logger.debug("Saving Service: "+service.getName());
+            logger.info("Saving Service: "+service.getName());
             service.setId((Long)hibernateSession.save(service));
             
 			// 6) Status Changes
@@ -363,8 +363,10 @@ public class GridDiscoveryServiceJob {
 
 					if (service instanceof DataService) {
 					    DataService dataService = (DataService)service;
-					    dataService.setAccessible(true);
-					    dataService = updateCab2bData(dataService);
+		                dataService = updateCab2bData(dataService);
+	                    if (dataService.getAccessible() == null) { 
+	                        dataService.setAccessible(true);
+	                    }
 					}
 					
 					saveService(service,newSC,hibernateSession);
@@ -489,15 +491,14 @@ public class GridDiscoveryServiceJob {
             DataService dataService = (DataService)service;
 		    DataService matchingDataSvc = (DataService)matchingSvc;
 
-		    // Make sure accessible is never null
-            dataService.setAccessible(matchingDataSvc.getAccessible());
-            
 	        // We are consciously overwriting things here that likely will not change,
 	        // since they are based on the URL, which is guaranteed to be the same if we
 	        // call this function.  However, on the off chance that the DB lookup tables or
 	        // caB2B content has changed, we need to overwrite here to be sure.
 		    updateCab2bData(matchingDataSvc);
 
+		    matchingDataSvc.setAccessible(dataService.getAccessible());
+		    
 		    // Update domain model
 		    DomainModel model = dataService.getDomainModel();
             DomainModel matchingModel = matchingDataSvc.getDomainModel();
