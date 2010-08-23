@@ -242,12 +242,32 @@ static BOOL alerted = NO;
 
 + (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView {
 	
-	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *subtitle = [defaults stringForKey:@"service_subtitle"];
+	NSString *subtitleType = [defaults stringForKey:@"service_subtitle"];
+	NSString *subtitle = @"";
+	
+	if ([subtitleType isEqualToString:@"software"]) {
+		subtitle = [NSString stringWithFormat:@"%@ %@",[service objectForKey:@"name"],[service objectForKey:@"version"]];
+	}
+	else if ([subtitleType isEqualToString:@"url"]) {
+		subtitle = [service objectForKey:@"url"];
+	}	
+	else if ([subtitleType isEqualToString:@"host"]) {
+		NSString *hostId = [service valueForKey:@"host_id"];
+		if (hostId != nil) {
+			ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+			NSMutableDictionary *host = [sm.hostsById valueForKey:hostId];
+			subtitle = [host valueForKey:@"long_name"];
+		}
+	}
+	
+	return [self getServiceCell:service withSubtitle:subtitle fromTableView:tableView];
+}
+	
+
++ (FavorableCell *)getServiceCell:(NSMutableDictionary *)service withSubtitle:(NSString *)subtitle fromTableView:(UITableView *)tableView {	
 	
 	// Get a cell
-
 	NSString *cellIdentifier = [subtitle isEqualToString:@"none"] ? @"FavorableCell" : @"FavorableDescCell";
 	FavorableCell *cell = (FavorableCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil) {
@@ -261,26 +281,16 @@ static BOOL alerted = NO;
 	
 	// Populate the cell
 	cell.titleLabel.text = name;
+	cell.descLabel.text = subtitle;
 	
-	if ([subtitle isEqualToString:@"software"]) {
-		cell.descLabel.text = [NSString stringWithFormat:@"%@ %@",[service objectForKey:@"name"],[service objectForKey:@"version"]];
-	}
-	else if ([subtitle isEqualToString:@"url"]) {
-		cell.descLabel.text = [service objectForKey:@"url"];
-	}	
-	else if ([subtitle isEqualToString:@"host"]) {
-		NSString *hostId = [service valueForKey:@"host_id"];
-		if (hostId != nil) {
-			ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-			NSMutableDictionary *host = [sm.hostsById valueForKey:hostId];
-			cell.descLabel.text = [host valueForKey:@"long_name"];
-		}
-		else {		
-			cell.descLabel.text = @"";
-		}
+	// Grey out the text if the service is not accessible
+	if ([[service objectForKey:@"accessible"] isEqualToString:@"false"]) {
+		cell.titleLabel.textColor = [UIColor grayColor];
+		cell.descLabel.textColor = [UIColor grayColor];
 	}
 	else {
-		cell.descLabel.text = @"";
+		cell.titleLabel.textColor = [UIColor blackColor];
+		cell.descLabel.textColor = [UIColor blackColor];
 	}
 	
 	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];

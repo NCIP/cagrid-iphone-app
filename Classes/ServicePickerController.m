@@ -52,39 +52,13 @@
 
 - (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView {
 	
-	// Get a cell
-	
-	NSString *cellIdentifier = @"FavorableDescCell";
-	FavorableCell *cell = (FavorableCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-	if (cell == nil) {
-		NSArray *nib = [[NSBundle mainBundle] loadNibNamed:cellIdentifier owner:self options:nil];
-		cell = [nib objectAtIndex:0];
-	}
-	
-	// Get service metadata
-	NSString *class = [service objectForKey:@"class"];
-	NSString *name = [service objectForKey:@"display_name"];
-	
-	// Populate the cell
-	cell.titleLabel.text = name;
-	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
-    cell.tickIcon.hidden = YES;
-    cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
-    
-	if (service == nil || [name isEqualToString:@"Unknown"]) {
-		cell.accessoryType = UITableViewCellAccessoryNone;
-	} 
-	else {
-        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton; 
-	}
-	
 	// Populate subtitle with object count
 	NSDictionary *objectCounts = [[ServiceMetadata sharedSingleton] getCounts];
 	NSDictionary *dict = [objectCounts valueForKey:[Util getMainClassForDataType:dataType]];
 	NSUInteger count = [[dict objectForKey:[service objectForKey:@"id"]] intValue];
-	cell.descLabel.text = (count > 0) ? [NSString stringWithFormat:@"%d %@",count,[Util getMainClassPluralForDataType:dataType forCount:count]] : @"";
+	NSString *subtitle = (count > 0) ? [NSString stringWithFormat:@"%d %@",count,[Util getMainClassPluralForDataType:dataType forCount:count]] : @"";
 	
-	return cell;
+	return [Util getServiceCell:service withSubtitle:subtitle fromTableView:tableView];
 }
 
 #pragma mark -
