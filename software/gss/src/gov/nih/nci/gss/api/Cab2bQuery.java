@@ -62,7 +62,7 @@ public class Cab2bQuery implements Runnable, Serializable {
             }
         }
         catch (Exception e) {
-        	log.info("Caught exception",e);
+        	log.error("Error in caB2B",e);
             synchronized (this) {
                 this.exception = e;
                 this.isDone = true;
