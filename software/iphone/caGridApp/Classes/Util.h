@@ -67,6 +67,8 @@ typedef enum {
 
 + (FavorableCell *)getServiceCell:(NSMutableDictionary *)service fromTableView:(UITableView *)tableView;
 
++ (FavorableCell *)getServiceCell:(NSMutableDictionary *)service withSubtitle:(NSString *)subtitle fromTableView:(UITableView *)tableView;
+	
 + (CGFloat)heightForLabel:(NSString *)value constrainedToWidth:(CGFloat)width;
 
 + (UITableViewCell *)getKeyValueCell:(KeyValuePair *)pair fromTableView:(UITableView *)tableView;
