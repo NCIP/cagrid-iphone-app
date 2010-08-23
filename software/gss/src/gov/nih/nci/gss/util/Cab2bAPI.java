@@ -130,6 +130,7 @@ public class Cab2bAPI {
     public String search(String searchString, String serviceGroup, List<String> serviceUrls) throws Exception {
 
     	DefaultHttpClient httpclient = new DefaultHttpClient();
+        useTrustingTrustManager(httpclient);
     	
         try {
             String url = GSSProperties.getCab2b2QueryURL()+"/search/";
