@@ -722,7 +722,6 @@ public class JSONDataService extends HttpServlet {
             
         Exception e = query.getException();
         if (e != null) {
-            log.error("Error in caB2B",e);
             return getJSONError(e.getClass().getName(), e.getMessage());
         }
 
