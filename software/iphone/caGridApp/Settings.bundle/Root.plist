@@ -11,12 +11,14 @@
 			<string>Server URL</string>
 			<key>Key</key>
 			<string>base_url</string>
-			<key>DefaultValue</key>
-			<string>http://gss-qa.nci.nih.gov/gss10</string>
 			<key>DefaultValue1</key>
+			<string>http://165.112.133.126:8080/gss10</string>
+			<key>DefaultValue2</key>
 			<string>http://gss-dev.nci.nih.gov/gss10</string>
 			<key>DefaultValue3</key>
-			<string>http://165.112.133.126:8080/gss10</string>
+			<string>http://gss-qa.nci.nih.gov/gss10</string>
+			<key>DefaultValue</key>
+			<string>http://gss-stage.nci.nih.gov/gss10</string>
 			<key>IsSecure</key>
 			<false/>
 			<key>KeyboardType</key>

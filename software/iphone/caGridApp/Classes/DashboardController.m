@@ -47,6 +47,11 @@
     [infoButtonType release];
     [infoButton release];
 
+	self.navigationItem.backBarButtonItem = 
+		[[UIBarButtonItem alloc] initWithTitle:@"Search" 
+									style:UIBarButtonItemStyleBordered 
+									target:nil action:nil];
+	
     [super viewDidLoad];
 }
 
@@ -214,7 +219,8 @@
 	}
     
     queryExecutionController.dataType = dataType;
-    [navController pushViewController:queryExecutionController animated:YES];
+	
+	[navController pushViewController:queryExecutionController animated:YES];
 }
 
 - (void)tableView:(UITableView *)tableView

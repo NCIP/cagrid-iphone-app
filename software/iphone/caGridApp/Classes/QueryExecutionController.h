@@ -16,6 +16,7 @@
 	ServicePickerController *servicePickerController;
     IBOutlet UILabel *dataTypeLabel;
     IBOutlet UILabel *locationsLabel;
+	IBOutlet UIButton *searchButton;
     IBOutlet UITextField *searchBox;
 	NSMutableArray *savedSearches;
     DataType dataType;
@@ -25,9 +26,12 @@
 @property (nonatomic, retain) ServicePickerController *servicePickerController;
 @property (nonatomic, retain) UILabel *dataTypeLabel;
 @property (nonatomic, retain) UILabel *locationsLabel;
+@property (nonatomic, retain) UIButton *searchButton;
 @property (nonatomic, retain) UITextField *searchBox;
 @property (nonatomic, retain) NSMutableArray *savedSearches;
 @property (nonatomic) DataType dataType;
+
+- (IBAction) textFieldDidChange:(UITextField *)textField;
 
 - (IBAction) clickEditDatatypeButton:(id)sender;
 
