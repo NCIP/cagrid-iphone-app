@@ -87,6 +87,13 @@
     ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     NSMutableArray *services = [sm getServicesOfType:dataType];
     
+	// Deselect all first
+	// TODO: this is a temporary measure to limit strain on caB2B
+	
+//    for(NSMutableDictionary *service in services) {
+//    	[[UserPreferences sharedSingleton] deselectForSearch:[service objectForKey:@"id"]];
+//    }
+	
 	// Get service metadata
 	
 	NSUInteger row = [indexPath row];
