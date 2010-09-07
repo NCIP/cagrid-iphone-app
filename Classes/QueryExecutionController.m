@@ -18,6 +18,7 @@
 @synthesize servicePickerController;
 @synthesize dataTypeLabel;
 @synthesize locationsLabel;
+@synthesize searchButton;
 @synthesize searchBox;
 @synthesize savedSearches;
 @synthesize dataType;
@@ -33,8 +34,6 @@
 
 - (void)viewDidLoad {
 	
-    self.title = @"Search";
-	
 	self.savedSearches = [NSMutableArray array];
 	for(NSString *groupName in [[ServiceMetadata sharedSingleton] getGroups]) {
 		[savedSearches addObject:@""];
@@ -45,7 +44,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     
     self.dataTypeLabel.text = [Util getLabelForDataType:self.dataType];
-    
+    self.title = [NSString stringWithFormat:@"%@ Search",self.dataTypeLabel.text];
+	
 	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
     NSMutableArray *services = [sm getServicesOfType:dataType];
     NSString *locations = @"";
@@ -65,7 +65,7 @@
 	if (group != nil) {
 		NSArray *exemplars = [group objectForKey:@"exemplars"];
 		if ([exemplars count] > 0) {
-			[self.searchBox setPlaceholder:[exemplars objectAtIndex:0]];
+			[self.searchBox setPlaceholder:[NSString stringWithFormat:@"(e.g. %@)",[exemplars objectAtIndex:0]]];
 		}
 	}
 	else {
@@ -73,13 +73,25 @@
 	}
 	
 	[self.searchBox setText:[savedSearches objectAtIndex:self.dataType]];
-	[self.searchBox becomeFirstResponder];
+	
+	// Start keyboard open
+	//[self.searchBox becomeFirstResponder];
+
+	[self.searchButton setEnabled:([searchBox.text length] > 0)];
 	
     [super viewWillAppear:animated];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+	[self.searchBox resignFirstResponder];	
+}
+
 - (void)textFieldDidEndEditing:(UITextField *)textField {
 	[savedSearches replaceObjectAtIndex:self.dataType withObject:textField.text];
+}
+
+- (void)textFieldDidChange:(UITextField *)textField {
+	[self.searchButton setEnabled:([searchBox.text length] > 0)];
 }
 
 - (IBAction) clickEditDatatypeButton:(id)sender {
@@ -112,13 +124,12 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	[self clickSearchButton:textField];
-	// Do not close the keyboard
-    return NO;
+	// Close the keyboard
+    return YES;
 }
 
 - (IBAction) clickBackground:(id)sender {
-	// Always display keyboard, so this is not needed 
-	//[self.searchBox resignFirstResponder];
+	[self.searchBox resignFirstResponder];
 }
 
 
