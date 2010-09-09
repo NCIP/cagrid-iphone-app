@@ -70,6 +70,7 @@
 		A99EBA391076D65C00BB2A95 /* db_nanoparticles.png in Resources */ = {isa = PBXBuildFile; fileRef = A99EBA351076D65C00BB2A95 /* db_nanoparticles.png */; };
 		A99EBA501076D72E00BB2A95 /* DashboardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A99EBA4F1076D72E00BB2A95 /* DashboardCell.m */; };
 		A99EBAA01076EC4F00BB2A95 /* DashboardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A99EBA9F1076EC4F00BB2A95 /* DashboardView.xib */; };
+		A99F9C84122FFA17007E1927 /* cab2b_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = A99F9C83122FFA17007E1927 /* cab2b_logo.png */; };
 		A9D898EB1014E66300301DA0 /* icon_large_as_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */; };
 		A9D898EC1014E66300301DA0 /* icon_ds_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E41014E66300301DA0 /* icon_ds_active.png */; };
 		A9D898ED1014E66300301DA0 /* icon_as_active.png in Resources */ = {isa = PBXBuildFile; fileRef = A9D898E51014E66300301DA0 /* icon_as_active.png */; };
@@ -180,6 +181,7 @@
 		A99EBA4E1076D72E00BB2A95 /* DashboardCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DashboardCell.h; sourceTree = "<group>"; };
 		A99EBA4F1076D72E00BB2A95 /* DashboardCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DashboardCell.m; sourceTree = "<group>"; };
 		A99EBA9F1076EC4F00BB2A95 /* DashboardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DashboardView.xib; sourceTree = "<group>"; };
+		A99F9C83122FFA17007E1927 /* cab2b_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cab2b_logo.png; sourceTree = "<group>"; };
 		A9D898E31014E66300301DA0 /* icon_large_as_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_large_as_inactive.png; sourceTree = "<group>"; };
 		A9D898E41014E66300301DA0 /* icon_ds_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ds_active.png; sourceTree = "<group>"; };
 		A9D898E51014E66300301DA0 /* icon_as_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_as_active.png; sourceTree = "<group>"; };
@@ -361,6 +363,7 @@
 		A9DC7E1910A6188D00535680 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				A99F9C83122FFA17007E1927 /* cab2b_logo.png */,
 				A97112A7107A85DC0076671D /* alert.png */,
 				A93543451019362C00988B88 /* folder.png */,
 				A99EB9F01076A21F00BB2A95 /* results.png */,
@@ -501,6 +504,7 @@
 				A93FB89A10D6D904007A9FDF /* Settings.bundle in Resources */,
 				A934FD7711051C480060514B /* Icon.png in Resources */,
 				A9FFDCE9120B1B8C00A402BE /* Entitlements.plist in Resources */,
+				A99F9C84122FFA17007E1927 /* cab2b_logo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
