@@ -469,6 +469,7 @@ public class JSONDataService extends HttpServlet {
             groupObj.put("hostAttr",group.getHostPrimaryKey());
             groupObj.put("titleAttr",group.getDataTitle());
             groupObj.put("descriptionAttr",group.getDataDescription());
+            groupObj.put("primaryClass",group.getPrimaryClass());
             
             JSONArray exemplarsArray = new JSONArray();
             
