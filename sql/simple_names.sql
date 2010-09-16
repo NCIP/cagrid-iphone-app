@@ -8,6 +8,18 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
 "^(AuthenticationService)$","$1",1);
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
+"^(GridGrouper)$","$1",1);
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
+"^(GlobalModelExchange)$","$1",1);
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
+"^(CoreServices)$","$1",1);
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
+"^(FederatedQueryProcessor)$","$1",1);
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
 "^(CredentialDelegationService)$","$1",1);
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("ServiceName",
@@ -25,6 +37,8 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("HostName",
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("HostName",
 "^(QA)$","$1",1);
 
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME,HIDE) VALUES ("HostName",
+"^(a)$","$1",1);
 
 
 -- %% RULES FOR SERVICE NAMES %%
@@ -80,7 +94,7 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 -- caNanoLab-GTEM
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
-"^(.*?)-GTEM$","GTEM");
+"^(.*?)-GTEM$","Georgia Tech - Emory");
 
 -- caNanoLab-NCICBIIT
 -- CBIIT
@@ -100,6 +114,17 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 "^National Cancer Institute Center for (Bioinformatics|Biomedical Informatics and Information Technology)$","NCI Center for Biomedical Informatics and Information Technology");
+
+-- National Cancer Institute
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
+"^National Cancer Institute$","NCI Center for Biomedical Informatics and Information Technology");
+
+-- ProtExpress 
+-- NIAMS
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
+"^(ProtExpress|NIAMS)$","NCI Center for Biomedical Informatics and Information Technology");
 
 -- The Broad Institute of MIT and Harvard
 
