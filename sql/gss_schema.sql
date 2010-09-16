@@ -48,6 +48,7 @@ CREATE TABLE `DATA_SERVICE_GROUP` (
   `HOST_PRIMARY_KEY` varchar(512),
   `DATA_TITLE` varchar(512),
   `DATA_DESCRIPTION` varchar(512),
+  `PRIMARY_CLASS` varchar(512),
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
