@@ -147,6 +147,11 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 "^University of Virginia Public Health Sciences Admin$","University of Virginia Public Health Sciences");
 
+-- UVA Medical School - Public Health Sciences
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
+"^UVA Medical School.*?$","University of Virginia Public Health Sciences");
+
 -- Washington University
 -- Washington University at St. Louis
 
