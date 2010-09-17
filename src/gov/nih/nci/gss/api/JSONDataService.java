@@ -361,7 +361,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("url", service.getUrl());
         jsonService.put("publish_date", df.format(service.getPublishDate()));
 
-        if (service.getHiddenDefault()) {
+        if (service.getHiddenDefault() || service.getHostingCenter().getHiddenDefault()) {
             jsonService.put("hidden_default", "true");
         }
         
@@ -409,6 +409,16 @@ public class JSONDataService extends HttpServlet {
 
         if (host.getHiddenDefault()) {
             hostObj.put("hidden_default", "true");
+        }
+        else {
+            // If all its services are hidden, hide the host too
+            boolean allHidden = true;
+            for(GridService service : host.getGridServices()) {
+                if (!service.getHiddenDefault()) allHidden = false;
+            }
+            if (allHidden) {
+                hostObj.put("hidden_default", "true");
+            }
         }
         
         // check if the host has a custom image
