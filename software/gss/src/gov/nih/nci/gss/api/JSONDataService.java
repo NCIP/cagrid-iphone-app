@@ -361,7 +361,7 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("url", service.getUrl());
         jsonService.put("publish_date", df.format(service.getPublishDate()));
 
-        if (service.getHiddenDefault() || service.getHostingCenter().getHiddenDefault()) {
+        if (service.getHiddenDefault() || (host != null && host.getHiddenDefault())) {
             jsonService.put("hidden_default", "true");
         }
         
