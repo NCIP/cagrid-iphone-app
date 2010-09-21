@@ -96,6 +96,11 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
 "^(.*?)-GTEM$","Georgia Tech - Emory");
 
+-- MD Anderson Cancer Cneter (misspelling)
+
+INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("HostName",
+"^MD Anderson.*?$","MD Anderson Cancer Center");
+
 -- caNanoLab-NCICBIIT
 -- CBIIT
 -- NCI CBIIT
