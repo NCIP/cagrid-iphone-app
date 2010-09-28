@@ -42,8 +42,11 @@
     
 	[filtered removeAllObjects];
 
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
 	for(NSMutableDictionary *host in hostList) {
-		if (![[host objectForKey:@"hidden_default"] isEqualToString:@"true"]) {	
+		
+		if (![[host objectForKey:@"hidden_default"] isEqualToString:@"true"] || [defaults boolForKey:@"show_hidden_hosts"]) {	
 			if (filterString == nil || 
 				([Util string:filterString isFoundIn:[host objectForKey:@"short_name"]] ||
 				 [Util string:filterString isFoundIn:[host objectForKey:@"long_name"]])) {
@@ -142,6 +145,15 @@
     cell.tickIcon.hidden = YES;
     cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteHost:[host objectForKey:@"id"]];
     
+	if ([[host objectForKey:@"hidden_default"] isEqualToString:@"true"]) {	
+		cell.titleLabel.textColor = [UIColor orangeColor];
+		cell.descLabel.textColor = [UIColor orangeColor];
+	}
+	else {
+		cell.titleLabel.textColor = [UIColor blackColor];
+		cell.descLabel.textColor = [UIColor blackColor];
+	}
+	
 	return cell;
 }
 

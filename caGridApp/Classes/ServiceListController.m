@@ -47,11 +47,13 @@
     
 	[filtered removeAllObjects];
     
-	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	
 	for(NSMutableDictionary *service in serviceList) {
 		
-		if (![[service objectForKey:@"hidden_default"] isEqualToString:@"true"]) {		
+		if (![[service objectForKey:@"hidden_default"] isEqualToString:@"true"] ||
+				[defaults boolForKey:@"show_hidden_services"]) {		
 			NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
 			
 			if (filterString == nil || 
@@ -62,7 +64,7 @@
 				if (filterClass == nil || [[service objectForKey:@"class"] isEqualToString:filterClass]) {
 					[filtered addObject:service];
 				}
-			}	
+			}
 		}
 	}
 }
@@ -143,7 +145,14 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView
 		 cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	NSMutableDictionary *service = [filtered objectAtIndex:indexPath.row];
-	return [Util getServiceCell:service fromTableView:tableView];
+	FavorableCell *cell = [Util getServiceCell:service fromTableView:tableView];
+	
+	if ([[service objectForKey:@"hidden_default"] isEqualToString:@"true"]) {	
+		cell.titleLabel.textColor = [UIColor orangeColor];
+		cell.descLabel.textColor = [UIColor orangeColor];
+	}
+	
+	return cell;
 }
 
 

@@ -151,7 +151,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView 
  		numberOfRowsInSection:(NSInteger)section {
-	return 4;
+	return [[[ServiceMetadata sharedSingleton] getGroups] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -169,12 +169,14 @@
 	}
 	
 	// Get service metadata
-	
-    DataType dataType = (DataType)row;
     
+	ServiceMetadata* sm = [ServiceMetadata sharedSingleton];
+	NSMutableDictionary *group = (NSMutableDictionary *)[[sm getGroups] objectAtIndex:row];
+	
+	DataType dataType = [Util getDataTypeForDataTypeName:[group objectForKey:@"name"]];
+	
     cell.titleLabel.text = [Util getLabelForDataType:dataType];
 	
-	ServiceMetadata* sm = [ServiceMetadata sharedSingleton];
     NSUInteger serviceCount = [[sm getServicesOfType:dataType] count];
 	NSUInteger objectCount = [self getSumForClass:[Util getMainClassForDataType:dataType]];
 	NSString *servicePlural = [self getLabelForCount:serviceCount];
@@ -182,22 +184,22 @@
 	
     static NSString *none = @"";
     
-    if (row == DataTypeMicroarray) {
+    if (dataType == DataTypeMicroarray) {
         cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caArray %@",serviceCount,servicePlural] : none;
 		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;
         cell.icon.image = [UIImage imageNamed:@"db_microarray.png"];
     }
-    else if (row == DataTypeImaging) {
+    else if (dataType == DataTypeImaging) {
         cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d NBIA %@",serviceCount,servicePlural] : none;
 		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;	
         cell.icon.image = [UIImage imageNamed:@"db_imaging.png"];
     }
-    else if (row == DataTypeBiospecimen) {
+    else if (dataType == DataTypeBiospecimen) {
         cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caTissue %@",serviceCount,servicePlural] : none;
 		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;	
         cell.icon.image = [UIImage imageNamed:@"db_biospecimen.png"];
     }
-    else if (row == DataTypeNanoparticle) {
+    else if (dataType == DataTypeNanoparticle) {
         cell.descLabel.text = serviceCount > 0 ? [NSString stringWithFormat:@"%d caNanoLab %@",serviceCount,servicePlural] : none;
 		cell.objectCount.text = objectCount > 0 ? [NSString stringWithFormat:@"%d %@",objectCount,plural] : none;
         cell.icon.image = [UIImage imageNamed:@"db_nanoparticles.png"];
@@ -219,14 +221,15 @@
 	}
     
     queryExecutionController.dataType = dataType;
-	
 	[navController pushViewController:queryExecutionController animated:YES];
 }
 
 - (void)tableView:(UITableView *)tableView
 		didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	
-    [self selectDataType:indexPath.row];
+	ServiceMetadata* sm = [ServiceMetadata sharedSingleton];
+	NSMutableDictionary *group = (NSMutableDictionary *)[[sm getGroups] objectAtIndex:indexPath.row];
+	DataType dataType = [Util getDataTypeForDataTypeName:[group objectForKey:@"name"]];
+    [self selectDataType:dataType];
 }
 
 

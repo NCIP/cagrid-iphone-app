@@ -13,11 +13,11 @@
 			<string>base_url</string>
 			<key>DefaultValue1</key>
 			<string>http://165.112.133.126:8080/gss10</string>
-			<key>DefaultValue2</key>
+			<key>DefaultValue</key>
 			<string>http://gss-dev.nci.nih.gov/gss10</string>
 			<key>DefaultValue3</key>
 			<string>http://gss-qa.nci.nih.gov/gss10</string>
-			<key>DefaultValue</key>
+			<key>DefaultValue4</key>
 			<string>http://gss-stage.nci.nih.gov/gss10</string>
 			<key>IsSecure</key>
 			<false/>
@@ -77,6 +77,34 @@
 				<string>Software Name</string>
 				<string>Hosting Center Name</string>
 			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>TrueValue</key>
+			<true/>
+			<key>FalseValue</key>
+			<false/>
+			<key>Key</key>
+			<string>show_hidden_services</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show hidden services</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>TrueValue</key>
+			<true/>
+			<key>FalseValue</key>
+			<false/>
+			<key>Key</key>
+			<string>show_hidden_hosts</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Show hidden hosts</string>
 		</dict>
 	</array>
 </dict>
