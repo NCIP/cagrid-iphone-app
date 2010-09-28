@@ -538,13 +538,29 @@
 	}
 	
 	return nil;
-	
 }
+
+- (int)getIndexForGroup:(DataType)dataType {
+	int i=0;
+	for(NSMutableDictionary *group in groups) {
+		if ([[group objectForKey:@"name"] isEqualToString:[Util getNameForDataType:dataType]]) {
+			return i;
+		}
+		i++;
+	}
+	NSLog("Warning: data type not found in groups: %@",dataType);
+	return -1;
+}
+
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId {
 	return [servicesById objectForKey:serviceId];
 }
 
+- (NSMutableArray *)getServicesByHostId:(NSString *)hostId {
+	return [servicesByHostId objectForKey:hostId];
+}
+	
 - (NSMutableDictionary *)getHostById:(NSString *)hostId {
 	return [hostsById objectForKey:hostId];
 }

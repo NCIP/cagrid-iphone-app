@@ -72,7 +72,7 @@
 		NSLog(@"WARNING: No metadata for group with name %@",dataTypeName);
 	}
 	
-	[self.searchBox setText:[savedSearches objectAtIndex:self.dataType]];
+	[self.searchBox setText:[savedSearches objectAtIndex:[sm getIndexForGroup:self.dataType]]];
 	
 	// Start keyboard open
 	//[self.searchBox becomeFirstResponder];
@@ -87,7 +87,8 @@
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-	[savedSearches replaceObjectAtIndex:self.dataType withObject:textField.text];
+	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+	[savedSearches replaceObjectAtIndex:[sm getIndexForGroup:self.dataType] withObject:textField.text];
 }
 
 - (void)textFieldDidChange:(UITextField *)textField {

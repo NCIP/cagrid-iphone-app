@@ -203,18 +203,9 @@ static BOOL alerted = NO;
 
 + (NSString *)getMainClassForDataType:(DataType)dataType {
     
-    switch (dataType) {
-        case DataTypeMicroarray:
-            return @"gov.nih.nci.caarray.domain.project.Experiment";
-        case DataTypeImaging:
-            return @"gov.nih.nci.ncia.domain.Series";
-        case DataTypeBiospecimen:
-            return @"edu.wustl.catissuecore.domain.Specimen";
-        case DataTypeNanoparticle:
-            return @"gov.nih.nci.cananolab.domain.particle.Sample";
-        default:
-            return nil;
-    }
+	ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+	NSMutableDictionary *group = [sm getGroupByName:[self getNameForDataType:dataType]];
+	return [group objectForKey:@"primaryClass"];
 }
 
 + (NSString *)getMainClassPluralForDataType:(DataType)dataType forCount:(NSUInteger)count {
@@ -293,6 +284,18 @@ static BOOL alerted = NO;
 		cell.descLabel.textColor = [UIColor blackColor];
 	}
 	
+	// show host icons for services
+//    ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
+//    NSMutableDictionary *host = [sm getHostById:[service objectForKey:@"host_id"]];
+//    NSString *imageName = [host objectForKey:@"image_name"];
+//    UIImage *hostImage = [sm.hostImagesByName objectForKey:imageName];
+//	if (hostImage == nil) {
+//		cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
+//	}
+//	else {
+//		cell.icon.image = hostImage;
+//	}
+    	
 	cell.icon.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[Util getIconNameForServiceOfType:class]]];
     cell.tickIcon.hidden = YES;
     cell.favIcon.hidden = ![[UserPreferences sharedSingleton] isFavoriteService:[service objectForKey:@"id"]];
