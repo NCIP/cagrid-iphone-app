@@ -84,6 +84,10 @@
 
 - (NSMutableDictionary *)getServiceById:(NSString *)serviceId;
 
+- (int)getIndexForGroup:(DataType)dataType;
+	
+- (NSMutableArray *)getServicesByHostId:(NSString *)hostId;
+
 - (NSMutableDictionary *)getHostById:(NSString *)hostId;
 
 - (NSMutableDictionary *)getServiceByUrl:(NSString *)serviceUrl;

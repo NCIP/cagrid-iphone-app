@@ -169,7 +169,7 @@
 		cell.bounds = cellFrame;
 		
         ServiceMetadata *sm = [ServiceMetadata sharedSingleton];
-        NSMutableArray *services = [sm.servicesByHostId objectForKey:[host valueForKey:@"id"]];
+        NSMutableArray *services = [sm getServicesByHostId:[host valueForKey:@"id"]];
         
         NSString *imageName = [host objectForKey:@"image_name"];
         UIImage *hostImage = [[ServiceMetadata sharedSingleton].hostImagesByName objectForKey:imageName];
