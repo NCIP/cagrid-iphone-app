@@ -190,10 +190,9 @@ public class JSONDataService extends HttpServlet {
         }
         else if ("counts".equals(noun)) {
             // Return the counts for objects
-            boolean invert = "1".equals(request.getParameter("invert"));
             String serviceId = request.getParameter("serviceId");
             String className = request.getParameter("className");
-            return getCountsJSON(invert,serviceId,className);
+            return getCountsJSON(serviceId,className);
         }
         else if ("service".equals(noun)) {
             // Return details about services, or a single service
@@ -519,10 +518,10 @@ public class JSONDataService extends HttpServlet {
      * @throws JSONException
      * @throws ApplicationException
      */
-    private String getCountsJSON(boolean invert, String paramServiceId, 
+    private String getCountsJSON(String paramServiceId, 
             String paramClassName) throws JSONException, ApplicationException {
 
-        final String cacheKey = Constants.COUNTS_CACHE_KEY+"~"+invert+"~"+
+        final String cacheKey = Constants.COUNTS_CACHE_KEY+"~"+
                 paramServiceId+"~"+paramClassName;
         
         if (cache.containsKey(cacheKey)) {
@@ -559,41 +558,6 @@ public class JSONDataService extends HttpServlet {
                 JSONObject servicesObj = new JSONObject();
                 servicesObj.put(paramServiceId, classesObj);
                 json.put("counts", servicesObj);
-            }
-            else if (invert) {
-                
-                JSONObject servicesObj = new JSONObject();
-        
-                Map<String,Map<String,Object>> counts = GridServiceDAO.getClassCountsByServer(s);
-                for(String serviceId : counts.keySet()) {
-                    JSONObject classesObj = new JSONObject();
-                    
-                    Map<String,Object> serviceCounts = counts.get(serviceId);
-                    for(String className : serviceCounts.keySet()) {
-                        Object count = serviceCounts.get(className);
-                        if (count != null) {
-                            if (count instanceof Long) {
-                                classesObj.put(className,count.toString());
-                            }
-                            else {
-                                classesObj.put(className,"error");
-                            }
-                        }
-                        else {
-                            classesObj.put(className,"");
-                        }
-                    }
-                    if (classesObj.length() > 0) {
-                        servicesObj.put(serviceId, classesObj);
-                    }
-                }
-                if (servicesObj.length() > 0) {
-                    json.put("counts", servicesObj);
-                }
-                
-                LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
-                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
-                
             }
             else {
                 JSONObject classesObj = new JSONObject();
