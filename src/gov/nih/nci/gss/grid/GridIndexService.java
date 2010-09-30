@@ -192,8 +192,7 @@ public class GridIndexService {
     	newService.setIdentifier(null);
     	newService.setSimpleName(null);    
     	newService.setPublishDate(null);
-		newService.setStatusHistory(null);
-		
+        
 		// Build Domain Model object for data services
 		if (newService instanceof DataService) {
 		    DataService dataService = ((DataService)newService);

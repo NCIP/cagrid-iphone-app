@@ -35,8 +35,16 @@
         return 0;
     }
     
-    function addCommas(nStr) {
-        nStr += '';
+    function sum(classHash) {
+        var c = 0;
+        for (k in classHash) {
+            c += parseInt(classHash[k])
+        }
+        return c;
+    }
+    
+    function addCommas(n) {
+        var nStr = n + '';
         x = nStr.split('.');
         x1 = x[0];
         x2 = x.length > 1 ? '.' + x[1] : '';
@@ -159,22 +167,22 @@
         });
                
         $.ajax({ type:"GET", dataType: "json",               
-                 url: GSS_JSON_URL+"/counts?aggregate=1", 
+                 url: GSS_JSON_URL+"/counts", 
                  success: function(json) {
                 
                 if (!("counts" in json)) return;
                 counts = json.counts;
                 
-                $("#count_experiments").html(addCommas(counts['gov.nih.nci.caarray.domain.project.Experiment']));
-                $("#count_samples").html(addCommas(counts['gov.nih.nci.caarray.domain.sample.Sample']));
-                $("#count_designs").html(addCommas(counts['gov.nih.nci.caarray.domain.array.ArrayDesign']));
-                $("#count_arrays").html(addCommas(counts['gov.nih.nci.caarray.domain.array.Array']));
-                $("#count_images").html(addCommas(counts['gov.nih.nci.ncia.domain.Image']));
-                $("#count_studies").html(addCommas(counts['gov.nih.nci.ncia.domain.Study']));
-                $("#count_patients").html(addCommas(counts['gov.nih.nci.ncia.domain.Patient']));
-                $("#count_na_protocols").html(addCommas(counts['gov.nih.nci.cananolab.domain.common.Protocol']));
-                $("#count_na_samples").html(addCommas(counts['gov.nih.nci.cananolab.domain.particle.Sample']));
-                $("#count_na_pubs").html(addCommas(counts['gov.nih.nci.cananolab.domain.common.Publication']));
+                $("#count_experiments").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.project.Experiment'])));
+                $("#count_samples").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.sample.Sample'])));
+                $("#count_designs").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.array.ArrayDesign'])));
+                $("#count_arrays").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.array.Array'])));
+                $("#count_images").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Image'])));
+                $("#count_studies").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Study'])));
+                $("#count_patients").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Patient'])));
+                $("#count_na_protocols").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.common.Protocol'])));
+                $("#count_na_samples").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.particle.Sample'])));
+                $("#count_na_pubs").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.common.Publication'])));
               
             },
             error: function(request, textStatus, errorThrown) {
