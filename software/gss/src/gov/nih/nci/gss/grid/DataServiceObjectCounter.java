@@ -9,6 +9,8 @@ import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.DomainModel;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.concurrent.Callable;
@@ -43,10 +45,20 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
      */
     public Boolean call() throws Exception {
 
+        final String url = dataService.getUrl();
+        
         DomainModel model = dataService.getDomainModel();
         if (model == null) return false;
-       
-        logger.debug("Start counting for service: "+dataService.getUrl());
+
+        // clear everything so that there's no stale data if we give up early
+        for(DomainClass domainClass : model.getClasses()) {
+            domainClass.setCount(null);
+            domainClass.setCountDate(null);
+            domainClass.setCountError(null);
+            domainClass.setCountStacktrace(null);
+        }
+        
+        logger.debug("Start counting for service: "+url);
 
         int queryExceptions = 0;
         int failures = 0;
@@ -57,58 +69,85 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                 domainClass.getClassName();
 
             try {
-                Long count = DataServiceObjectCounter.getCount(dataService.getUrl(), className);
+                Long count = DataServiceObjectCounter.getCount(url, className);
                 
-                if (defunct == true) {
-                    logger.warn("Count query for service "+dataService.getUrl()+
-                        " returned but is no longer needed");
-                    return false;
-                }
-                
-                if (count != null) {
-                    domainClass.setCount(count);
+                synchronized (this) {
+                    if (defunct == true) {
+                        logger.warn("Count query for service "+url+
+                            " returned but is no longer needed");
+                        return false;
+                    }
+    
                     domainClass.setCountDate(new Date());
-                    successes++;
+                    
+                    if (count != null) {
+                        domainClass.setCount(count);
+                        successes++;
+                    }
+                    else {
+                        domainClass.setCount(null);
+                        domainClass.setCountError("Result was null");
+                        domainClass.setCountStacktrace(null);
+                    }
                 }
             }
             catch (GridQueryException e) {
 
-                if (defunct == true) {
-                    logger.warn("Count query for service "+dataService.getUrl()+
-                        " threw exception but is no longer needed");
-                    return false;
-                }
-                
-                if (e.getCause() instanceof QueryProcessingExceptionType) {
-                    queryExceptions++;
-                }
-                else {
-                    failures++;
-                }
-                
-                logger.warn("Could not get count for class "+className+
-                    " in service "+dataService.getUrl()+": "+e.getMessage());
-                logger.debug("Error counting "+className+" in service "+
-                    dataService.getUrl(),e);
-                
-                if (failures > 1) {
-                    // Failed more than once
-                    logger.warn("Giving up counting for service: "+dataService.getUrl());
-                    dataService.setAccessible(false);
-                    return false;
-                }
-                
-                if (queryExceptions > 10) {
-                    // More than 10 query exceptions
-                    logger.warn("Giving up counting for service: "+dataService.getUrl());
-                    // Do not change accessible flag. Service may just be denying count queries, for example.
-                    return false;
+                synchronized (this) {
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    String stacktrace = sw.toString();
+                    
+                    domainClass.setCount(null);
+                    domainClass.setCountDate(new Date());
+                    domainClass.setCountError(e.getMessage());
+                    domainClass.setCountStacktrace(stacktrace);
+                    
+                    if (defunct == true) {
+                        logger.warn("Count query for service "+url+
+                            " threw exception but is no longer needed");
+                        return false;
+                    }
+                    
+                    if (e.getCause() instanceof QueryProcessingExceptionType) {
+                        queryExceptions++;
+                    }
+                    else {
+                        failures++;
+                    }
+                    
+                    logger.warn("Could not get count for class "+className+
+                        " in service "+url+": "+e.getMessage());
+                    logger.debug("Error counting "+className+" in service "+
+                        url,e);
+                    
+                    if (failures > 1) {
+                        // Failed more than once
+                        logger.warn("Giving up counting for service: "+url);
+                        dataService.setAccessible(false);
+                        return false;
+                    }
+                    
+                    if (queryExceptions > 10) {
+                        // More than 10 query exceptions
+                        logger.warn("Giving up counting for service: "+url);
+                        return false;
+                    }
                 }
             }
         }
 
-        logger.info("Done counting "+successes+" classes for service: "+dataService.getUrl());
-        dataService.setAccessible(true);
+        synchronized (this) {
+            if (failures + queryExceptions >= model.getClasses().size()) {
+                logger.info("Marking service inaccessible since it didn't respond to any of "
+                    +model.getClasses().size()+" count queries: "+url);
+                dataService.setAccessible(false);
+            }
+            else {
+                logger.info("Done counting "+successes+" classes for service: "+url);
+            }
+        }
+        
         return true;
     }
     
@@ -168,14 +207,13 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
         
 //        17:45:55,241 WARN  [DataServiceObjectCounter] Query processing exception for class edu.wustl.catissuecore.domain.Race in service http://catissue.uabgrid.uab.edu:18080/wsrf/services/cagrid/CaTissueSuite: null
 //        17:45:55,538 WARN  [DataServiceObjectCounter] Query processing exception for class gov.nih.nci.cabio.domain.ExpressionArrayReporter in service http://cclp09.ucsf.edu:18080/wsrf/services/cagrid/CaArraySvc: null
-
-        String url = "https://192.198.54.89:47210/wsrf/services/cagrid/CaTissueCore";
+//
+        String url = "https://cabig.fccc.edu:47210/wsrf/services/cagrid/CaTissueCore";
         String className = "edu.wustl.catissuecore.domain.ContainerType";
         Long count = DataServiceObjectCounter.getCount(url, className);
         System.out.println("url="+url);
         System.out.println("className="+className);
         System.out.println("count="+count);
-
     }
 
 }

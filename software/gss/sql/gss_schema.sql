@@ -1,4 +1,18 @@
 
+-- TODO: remove this line once this table has been dropped across all tiers
+DROP TABLE IF EXISTS `STATUS_CHANGE`;
+
+DROP TABLE IF EXISTS `LAST_REFRESH`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `LAST_REFRESH` (
+  `ID` bigint(20) NOT NULL,
+  `COMPLETION_DATE` timestamp NOT NULL,
+  `NUM_SERVICES` bigint(20) NOT NULL,
+  PRIMARY KEY  (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
 DROP TABLE IF EXISTS `DOMAIN_CLASS`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
@@ -10,6 +24,8 @@ CREATE TABLE `DOMAIN_CLASS` (
   `DOMAIN_MODEL_ID` bigint(20) NOT NULL,
   `COUNT` bigint(20),
   `COUNT_DATE` timestamp,
+  `COUNT_ERROR` varchar(5000) default NULL,
+  `COUNT_STACKTRACE` varchar(50000) default NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -124,18 +140,6 @@ CREATE TABLE `POINT_OF_CONTACT` (
   `EMAIL` varchar(512) default NULL,
   `NAME` varchar(512) default NULL,
   `ROLE` varchar(512) default NULL,
-  PRIMARY KEY  (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-SET character_set_client = @saved_cs_client;
-
-DROP TABLE IF EXISTS `STATUS_CHANGE`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `STATUS_CHANGE` (
-  `ID` bigint(20) NOT NULL,
-  `CHANGE_DATE` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `NEW_STATUS` varchar(255) default NULL,
-  `GRID_SERVICE_ID` bigint(20) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;

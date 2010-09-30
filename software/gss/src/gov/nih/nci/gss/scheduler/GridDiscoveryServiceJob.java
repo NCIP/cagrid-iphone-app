@@ -5,13 +5,14 @@ import gov.nih.nci.gss.domain.DataServiceGroup;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
+import gov.nih.nci.gss.domain.LastRefresh;
 import gov.nih.nci.gss.domain.HostingCenter;
 import gov.nih.nci.gss.domain.PointOfContact;
-import gov.nih.nci.gss.domain.StatusChange;
 import gov.nih.nci.gss.grid.DataServiceObjectCounter;
 import gov.nih.nci.gss.grid.GSSCredentials;
 import gov.nih.nci.gss.grid.GridAutoDiscoveryException;
 import gov.nih.nci.gss.grid.GridIndexService;
+import gov.nih.nci.gss.grid.GridServiceVerifier;
 import gov.nih.nci.gss.util.Cab2bAPI;
 import gov.nih.nci.gss.util.Cab2bTranslator;
 import gov.nih.nci.gss.util.GSSUtil;
@@ -54,6 +55,9 @@ public class GridDiscoveryServiceJob {
 
 	private static final int NUM_QUERY_THREADS = 20;
 	
+	private static final int MAX_COUNT_ERROR_LEN = 5000;
+    private static final int MAX_COUNT_STACKTRACE_LEN = 50000;
+	
     private static final String STATUS_CHANGE_ACTIVE   = "ACTIVE";
     private static final String STATUS_CHANGE_INACTIVE = "INACTIVE";
     
@@ -66,6 +70,8 @@ public class GridDiscoveryServiceJob {
     
     private SessionFactory sessionFactory;
 
+    private Session hibernateSession;
+    
 	public GridDiscoveryServiceJob() {
 		logger.info("Creating GridDiscoveryServiceJob");
 	}
@@ -87,27 +93,50 @@ public class GridDiscoveryServiceJob {
         Cab2bAPI cab2bAPI = new Cab2bAPI(xlateUtil);
         this.cab2bServices = cab2bAPI.getServices();
         
+        Map<String,GridService> gridNodes = null;
+        
         try {
             logger.info("Logged into Globus: "+GSSCredentials.getCredential());
-            // Get services
-        	Map<String,GridService> services = populateRemoteServices();
-        	// Update counts
-        	updateCounts(services);
-            // Update services as necessary or add new ones
-            updateGssServices(services);
-            // Clear the JSON cache
-            cache.clear();
+            // Get services from Grid Index Service
+            gridNodes = populateRemoteServices();
         }
         catch (GridAutoDiscoveryException e) {
         	Throwable root = GSSUtil.getRootException(e);
 			if (root instanceof SocketException || 
 					root instanceof SocketTimeoutException) {
 				logger.warn("Could not connect to index service.");
+				return;
 			}
 			else {
 				throw e;
 			}
         }
+        
+        try {
+            hibernateSession = sessionFactory.openSession();
+            
+            // Merge with our database to get a complete list of all services we know about
+            Map<String,GridService> allServices = mergeWithGss(gridNodes);
+            
+            if (allServices != null) {
+                // Verify accessibility
+                verifyAccessibility(allServices);
+                
+                // Update counts
+                updateCounts(allServices);
+                
+                // Update services as necessary or add new ones
+                saveServices(allServices, gridNodes.size());
+
+                // Clear the JSON cache
+                cache.clear();
+            }
+        }
+        finally {
+            hibernateSession.close();
+            hibernateSession = null;
+        }
+        
 	}
 	
 	/**
@@ -138,6 +167,157 @@ public class GridDiscoveryServiceJob {
 		return serviceMap;
 	}
 
+	/**
+	 * Merge the services reported by the Index Service with what is 
+	 * currently in the GSS database.
+	 * @param gridNodes
+	 * @return
+	 */
+    private HashMap<String,GridService> mergeWithGss(Map<String,GridService> gridNodes) {
+
+        HashMap<String,GridService> allServices = new HashMap<String,GridService>();
+        int countNew = 0;
+        int countUpdated = 0;
+        int countInactive = 0;
+        
+        logger.info("Merging service metadata...");
+        
+        Collection<GridService> currentServices = null;
+        Collection<HostingCenter> currentHosts = null;
+        HashMap<String,GridService> serviceMap = null;
+        HashMap<String,HostingCenter> hostMap = null;
+        
+        try {
+            currentServices = GridServiceDAO.getServices(null,hibernateSession);
+            // Build a hash on URL for GridServices
+            serviceMap = new HashMap<String,GridService>();
+            for (GridService service : currentServices) {
+                serviceMap.put(service.getUrl(), service);
+            }
+            
+            currentHosts = GridServiceDAO.getHosts(null,hibernateSession);
+            // Build a hash on hosting center long name for HostingCenters
+            hostMap = new HashMap<String,HostingCenter>();
+            for (HostingCenter host : currentHosts) {
+                hostMap.put(host.getLongName(), host);
+            }
+        }
+        catch (ApplicationException e) {
+            logger.error("Error getting service metadata from GSS database",e);
+            return null;
+        }
+            
+        // Walk the list of gridNodes and update the current services and hosting centers where necessary
+        for (GridService service : gridNodes.values()) {
+
+            logger.info("-------------------------------------------------");
+            logger.info("Name: "+service.getName());
+            logger.info("URL: "+service.getUrl());
+            
+            // Standardize the host long name
+            HostingCenter thisHC = service.getHostingCenter();
+            String hostLongName = null;
+            if (thisHC != null) {
+                hostLongName = namingUtil.getSimpleHostName(thisHC.getLongName());
+                
+                // The trim is important because MySQL will consider two
+                // strings equal if the only difference is trailing whitespace
+                hostLongName = hostLongName.trim();
+                
+                if (!thisHC.getLongName().equals(hostLongName)) {
+                    logger.info("Host name: "+hostLongName+" (was "+thisHC.getLongName()+")");
+                    thisHC.setLongName(hostLongName);
+                }
+                else {
+                    logger.info("Host name: "+thisHC.getLongName());
+                }
+                
+                // Create persistent identifier based on the long name
+                thisHC.setIdentifier(GSSUtil.generateHostIdentifier(thisHC));
+                
+                // Hide this host?
+                thisHC.setHiddenDefault(namingUtil.isHidden(thisHC.getLongName()));
+            }
+            
+            // Check to see if the hosting center already exists.
+            if (thisHC != null) {
+                if (hostMap.containsKey(hostLongName)) {
+                    HostingCenter matchingHost = hostMap.get(hostLongName);
+                    matchingHost = updateHostData(matchingHost, thisHC);
+                    service.setHostingCenter(matchingHost);
+                    logger.info("Using existing host with id: "+matchingHost.getId());
+                }
+                else {
+                    hostMap.put(hostLongName, thisHC);
+                }
+            }
+            
+            if (serviceMap.containsKey(service.getUrl())) {
+                logger.info("Service already exists, updating...");
+                countUpdated++;
+                
+                // This service is already in the list of current services
+                GridService matchingSvc = serviceMap.get(service.getUrl());
+                
+                // Update any new data about this service
+                matchingSvc = updateServiceData(matchingSvc, service);
+
+                // Check to see if this service is active once again
+                if (STATUS_CHANGE_INACTIVE.equals(matchingSvc.getLastStatus())) {
+                    // Service was marked as inactive, need to make it active now
+                    service.setLastStatus(createStatus(true));
+                } 
+                
+                allServices.put(matchingSvc.getUrl(),matchingSvc);
+            } 
+            else {
+                logger.info("Creating new service...");
+                countNew++;
+                
+                // Mark this service as published/discovered now.  Also, give it a default status change of "up".
+                // TODO: Is there a better "publish date" in the service metadata?
+                service.setPublishDate(new Date());
+
+                // Set up service simple name and linkage to correct caB2B model group
+                service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
+                
+                // Hide some core infrastructure services
+                service.setHiddenDefault(namingUtil.isHidden(service.getName()));
+                
+                // Create a persistent identifier based on the URL
+                service.setIdentifier(GSSUtil.generateServiceIdentifier(service));
+
+                if (service instanceof DataService) {
+                    DataService dataService = (DataService)service;
+                    dataService = updateCab2bData(dataService);
+                }
+
+                service.setLastStatus(createStatus(true));
+                allServices.put(service.getUrl(),service);
+            }
+        }
+        
+        // Mark the services we didn't see as inactive
+        for (GridService service : currentServices) {
+            if (!gridNodes.containsKey(service.getUrl())) {
+                countInactive++;
+                logger.info("-------------------------------------------------");
+                logger.info("Name: "+service.getName());
+                logger.info("URL: "+service.getUrl());
+                logger.info("Not found in index service metadata.");
+                service.setLastStatus(createStatus(false));
+                allServices.put(service.getUrl(),service);
+            }
+        }
+        
+        logger.info("Database will be updated as follows:");
+        logger.info("New services found: "+countNew);
+        logger.info("Existing services updated: "+countUpdated);
+        logger.info("Existing services marked inactive: "+countInactive);
+        
+        return allServices;
+    }
+    
     private void updateCounts(Map<String,GridService> gridNodes)  {
 
         ExecutorService parallelExecutor = Executors.newFixedThreadPool(NUM_QUERY_THREADS);
@@ -147,13 +327,30 @@ public class GridDiscoveryServiceJob {
         logger.info("Updating counts...");
         for (GridService service : gridNodes.values()) {
             if (service instanceof DataService) {
+                
                 DataService dataService = (DataService)service;
                 DomainModel model = dataService.getDomainModel();
                 if (model == null) continue;
+
+                // Avoid services which didn't respond to a WSDL query
+                if (!service.getAccessible()) {
+                    logger.info("Not attempting to count for inaccessible service: "+
+                        service.getUrl());
+                    continue;
+                }
+                
+                // Avoid caTissues because they don't support count queries
+                if (service.getSimpleName().startsWith("caTissue")) {
+                    logger.info("Not attempting to count for caTissue: "+
+                        service.getUrl());
+                    continue;
+                }
+                
                 DataServiceObjectCounter counter = 
                     new DataServiceObjectCounter(dataService);
                 counters.add(counter);
                 parallelExecutor.submit(counter);
+                
             }
         }
         
@@ -164,7 +361,9 @@ public class GridDiscoveryServiceJob {
                 logger.info("Timed out waiting for counts to finish, disregarding remaining counts.");
                 // timed out, cancel the tasks
                 for(DataServiceObjectCounter counter : counters) {
-                    counter.disregard();
+                    synchronized (counter) {
+                        counter.disregard();
+                    }
                 }
             }
             logger.info("Object counting completed.");
@@ -173,13 +372,80 @@ public class GridDiscoveryServiceJob {
             logger.error("Could not update object counts",e);
         }
     }
-	private void saveService(GridService service, StatusChange sc, Session hibernateSession) {
 
-	    // Update lastStatus
-	    if (sc != null) {
-	        service.setLastStatus(sc.getNewStatus());
-	    }
-	    
+
+    private void verifyAccessibility(Map<String,GridService> gridNodes)  {
+
+        ExecutorService parallelExecutor = Executors.newFixedThreadPool(NUM_QUERY_THREADS);
+        
+        List<GridServiceVerifier> verifiers = new ArrayList<GridServiceVerifier>();
+                
+        logger.info("Verifying accessibility...");
+        for (GridService service : gridNodes.values()) {
+            GridServiceVerifier verifier = 
+                new GridServiceVerifier(service);
+            verifiers.add(verifier);
+            parallelExecutor.submit(verifier);
+        }
+        
+        try {
+            parallelExecutor.shutdown();
+            logger.info("Awaiting completion of service verification...");
+            if (!parallelExecutor.awaitTermination(60*60, TimeUnit.SECONDS)) {
+                logger.info("Timed out waiting for counts to finish, disregarding remaining counts.");
+                // timed out, cancel the tasks
+                for(GridServiceVerifier verifier : verifiers) {
+                    synchronized (verifier) {
+                        verifier.disregard();
+                    }
+                }
+            }
+            logger.info("Service verification completed.");
+        }
+        catch (InterruptedException e) {
+            logger.error("Could not verify services",e);
+        }
+    }
+
+    /**
+     * Actually save all the changes made to the GSS object model.
+     * @param services
+     * @param numGridNodes
+     */
+    private void saveServices(Map<String,GridService> services, int numGridNodes) {
+
+        logger.info("Updating GSS database...");
+        
+        Transaction tx = null;
+
+        try {
+            tx = hibernateSession.beginTransaction();
+            
+            for(GridService service : services.values()) {
+                saveService(service);
+            }
+            
+            // Note that the update completed
+            LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(hibernateSession);
+            lastRefresh.setCompletionDate(new Date());
+            lastRefresh.setNumServices(new Long(numGridNodes));
+            hibernateSession.save(lastRefresh);
+            
+            logger.info("Commiting changes to GSS database...");
+            tx.commit();
+            logger.info("Commit complete.");
+            
+        } 
+        catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            logger.error("Error updating GSS database",e);
+        }
+    }
+    
+	private void saveService(GridService service) {
+
 		try {
 			// Domain classes are saved in reverse referencing order 
 
@@ -213,21 +479,35 @@ public class GridDiscoveryServiceJob {
                     // 4) Domain Classes 
                     logger.debug("Saving "+model.getClasses().size()+" Domain Classes");
                     for(DomainClass domainClass : model.getClasses()) {
+
+                        // truncate values that are too long to fit in the DB
+                        
+                        if (domainClass.getCountError() != null) {
+                            if (domainClass.getCountError().length() > MAX_COUNT_ERROR_LEN) {
+                                logger.warn("Truncating long count error for: "+service.getUrl());
+                                domainClass.setCountError(
+                                    domainClass.getCountError().substring(
+                                    0, MAX_COUNT_ERROR_LEN-3)+"...");
+                            }
+                        }
+
+                        if (domainClass.getCountStacktrace() != null) {
+                            if (domainClass.getCountStacktrace().length() > MAX_COUNT_STACKTRACE_LEN) {
+                                logger.warn("Truncating long count stacktrace for: "+service.getUrl());
+                                domainClass.setCountStacktrace(
+                                    domainClass.getCountStacktrace().substring(
+                                    0, MAX_COUNT_STACKTRACE_LEN-3)+"...");
+                            }
+                        }
+                        
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                     }
 			    }
 			}
 			
 			// 5) Grid Service
-            logger.info("Saving Service: "+service.getName());
+            logger.debug("Saving Service: "+service.getName());
             service.setId((Long)hibernateSession.save(service));
-            
-			// 6) Status Changes
-            // TODO: reenable status change saving
-//			if (sc != null) {
-//	            logger.info("Saving Status Change ");
-//				sc.setId((Long)hibernateSession.save(sc));
-//			}
 			
 		} 
 		catch (ConstraintViolationException e) {
@@ -238,193 +518,8 @@ public class GridDiscoveryServiceJob {
 		}
 	}
 
-	private void updateGssServices(Map<String,GridService> gridNodes) {
-
-		logger.info("Updating GSS database...");
-		
-		Transaction tx = null;
-		Session hibernateSession = sessionFactory.openSession();
-		
-		int countNew = 0;
-		int countUpdated = 0;
-		int countInactive = 0;
-		
-		try {
-            logger.info("Beginning transaction");
-			tx = hibernateSession.beginTransaction();
-			
-			Collection<GridService> currentServices = GridServiceDAO.getServices(null,hibernateSession);
-			// Build a hash on URL for GridServices
-			HashMap<String,GridService> serviceMap = new HashMap<String,GridService>();
-			for (GridService service : currentServices) {
-				serviceMap.put(service.getUrl(), service);
-			}
-			
-			Collection<HostingCenter> currentHosts = GridServiceDAO.getHosts(null,hibernateSession);
-			// Build a hash on hosting center long name for HostingCenters
-			HashMap<String,HostingCenter> hostMap = new HashMap<String,HostingCenter>();
-			for (HostingCenter host : currentHosts) {
-				hostMap.put(host.getLongName(), host);
-			}
-			
-			// Walk the list of gridNodes and update the current services and hosting centers where necessary
-			for (GridService service : gridNodes.values()) {
-
-                logger.info("-------------------------------------------------");
-                logger.info("Name: "+service.getName());
-                logger.info("URL: "+service.getUrl());
-                
-                // Standardize the host long name
-                HostingCenter thisHC = service.getHostingCenter();
-                String hostLongName = null;
-                if (thisHC != null) {
-                    hostLongName = namingUtil.getSimpleHostName(thisHC.getLongName());
-                    
-                    // The trim is important because MySQL will consider two
-                    // strings equal if the only difference is trailing whitespace
-                    hostLongName = hostLongName.trim();
-                    
-                    if (!thisHC.getLongName().equals(hostLongName)) {
-                        logger.info("Host name: "+hostLongName+" (was "+thisHC.getLongName()+")");
-                        thisHC.setLongName(hostLongName);
-                    }
-                    else {
-                        logger.info("Host name: "+thisHC.getLongName());
-                    }
-                    
-                    // Create persistent identifier based on the long name
-                    thisHC.setIdentifier(GSSUtil.generateHostIdentifier(thisHC));
-                    
-                    // Hide this host?
-                    thisHC.setHiddenDefault(namingUtil.isHidden(thisHC.getLongName()));
-                }
-                
-                // Check to see if the hosting center already exists.
-                if (thisHC != null) {
-                    if (hostMap.containsKey(hostLongName)) {
-                        HostingCenter matchingHost = hostMap.get(hostLongName);
-                        matchingHost = updateHostData(matchingHost, thisHC);
-                        service.setHostingCenter(matchingHost);
-                        logger.info("Using existing host with id: "+matchingHost.getId());
-                    }
-                    else {
-                        hostMap.put(hostLongName, thisHC);
-                    }
-                }
-                
-				if (serviceMap.containsKey(service.getUrl())) {
-				    logger.info("Service already exists, updating...");
-				    countUpdated++;
-				    
-					// This service is already in the list of current services
-					GridService matchingSvc = serviceMap.get(service.getUrl());
-					
-					// Update any new data about this service
-					matchingSvc = updateServiceData(matchingSvc, service);
-
-					// Check to see if this service is active once again
-					//Collection<StatusChange> changes = matchingSvc.getStatusHistory();
-					//StatusChange mostRecentChange = changes.iterator().next();
-					if (STATUS_CHANGE_INACTIVE.equals(matchingSvc.getLastStatus())) {
-						// Service was marked as inactive, need to make it active now
-						StatusChange newSC = createStatusChange(matchingSvc, true);
-
-			            // TODO: reenable status change saving
-						//matchingSvc.getStatusHistory().add(newSC);
-						
-						saveService(matchingSvc,newSC,hibernateSession);
-					} 
-					else {
-						saveService(matchingSvc,null,hibernateSession);
-					}
-				} 
-				else {
-                    logger.info("Creating new service...");
-                    countNew++;
-                    
-					// Mark this service as published/discovered now.  Also, give it a default status change of "up".
-					// TODO: Is there a better "publish date" in the service metadata?
-					service.setPublishDate(new Date());
-					StatusChange newSC = createStatusChange(service, true);
-					//Collection<StatusChange> scList = new HashSet<StatusChange>();
-                    
-					// TODO: reenable status change saving
-					//scList.add(newSC);
-					//service.setStatusHistory(scList);
-
-					// Set up service simple name and linkage to correct caB2B model group
-			    	service.setSimpleName(namingUtil.getSimpleServiceName(service.getName()));
-			    	
-			    	// Hide some core infrastructure services
-			    	service.setHiddenDefault(namingUtil.isHidden(service.getName()));
-			    	
-			    	// Create a persistent identifier based on the URL
-					service.setIdentifier(GSSUtil.generateServiceIdentifier(service));
-
-					if (service instanceof DataService) {
-					    DataService dataService = (DataService)service;
-		                dataService = updateCab2bData(dataService);
-	                    if (dataService.getAccessible() == null) { 
-	                        dataService.setAccessible(true);
-	                    }
-					}
-					
-					saveService(service,newSC,hibernateSession);
-				}
-			}
-			
-			// Mark the services we didn't see as inactive
-			for (GridService service : currentServices) {
-				if (!gridNodes.containsKey(service.getUrl())) {
-				    countInactive++;
-	                logger.info("-------------------------------------------------");
-	                logger.info("Name: "+service.getName());
-	                logger.info("URL: "+service.getUrl());
-                    logger.info("Not found in index service metadata.");
-					// Is the service currently marked active? 
-					//Collection<StatusChange> changes = service.getStatusHistory();
-					//StatusChange mostRecentChange = changes.iterator().next();
-					if (STATUS_CHANGE_ACTIVE.equals(service.getLastStatus())) {
-	                    logger.info("Marking service inactive.");
-						// Service was marked as active, need to make it inactive now
-						StatusChange newSC = createStatusChange(service, false);
-						
-	                    // TODO: reenable status change saving
-						//service.getStatusHistory().add(newSC);
-						
-						saveService(service,newSC,hibernateSession);
-					}
-				}
-			}
-			
-            logger.info("Commiting changes...");
-			tx.commit();
-
-            logger.info("Commit complete, database has been updated as follows:");
-            logger.info("New services added: "+countNew);
-            logger.info("Existing services updated: "+countUpdated);
-            logger.info("Existing services marked inactive: "+countInactive);
-			
-		} 
-		catch (ApplicationException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			logger.error("Error updating GSS database",e);
-		}
-		finally {
-			hibernateSession.close();
-		}
-	}
-	
-    private StatusChange createStatusChange(GridService service, Boolean isActive) {
-
-        StatusChange newSC = new StatusChange();
-        newSC.setChangeDate(new Date());
-        newSC.setGridService(service);
-        newSC.setNewStatus(isActive ? STATUS_CHANGE_ACTIVE : STATUS_CHANGE_INACTIVE);
-        
-        return newSC;
+    private String createStatus(Boolean isActive) {
+        return isActive ? STATUS_CHANGE_ACTIVE : STATUS_CHANGE_INACTIVE;
     }
 
 	private HostingCenter updateHostData(HostingCenter matchingHost,
@@ -496,8 +591,6 @@ public class GridDiscoveryServiceJob {
 	        // call this function.  However, on the off chance that the DB lookup tables or
 	        // caB2B content has changed, we need to overwrite here to be sure.
 		    updateCab2bData(matchingDataSvc);
-
-		    matchingDataSvc.setAccessible(dataService.getAccessible());
 		    
 		    // Update domain model
 		    DomainModel model = dataService.getDomainModel();

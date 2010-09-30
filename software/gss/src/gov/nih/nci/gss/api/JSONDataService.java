@@ -6,6 +6,7 @@ import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
+import gov.nih.nci.gss.domain.LastRefresh;
 import gov.nih.nci.gss.domain.PointOfContact;
 import gov.nih.nci.gss.domain.SearchExemplar;
 import gov.nih.nci.gss.util.Cab2bTranslator;
@@ -137,6 +138,7 @@ public class JSONDataService extends HttpServlet {
         PrintWriter pw = new PrintWriter(response.getOutputStream());
 		try {
 			response.setContentType("application/json");
+//            response.setContentType("text/plain");
 
 			String path = request.getPathInfo();
 			if (path == null) {
@@ -149,7 +151,7 @@ public class JSONDataService extends HttpServlet {
 			    	pw.print(getJSONUsage());
 			    }
 			    else {
-			        String noun = pathList[1];                
+			        String noun = pathList[1];
 			        pw.print(getRESTResponse(verb, noun, pathList, request));
 			    }
 			}
@@ -187,9 +189,11 @@ public class JSONDataService extends HttpServlet {
             return getSummaryJSON();
         }
         else if ("counts".equals(noun)) {
-            // Return a summary of data types
-            boolean aggregate = "1".equals(request.getParameter("aggregate"));
-            return getCountsJSON(aggregate);
+            // Return the counts for objects
+            boolean invert = "1".equals(request.getParameter("invert"));
+            String serviceId = request.getParameter("serviceId");
+            String className = request.getParameter("className");
+            return getCountsJSON(invert,serviceId,className);
         }
         else if ("service".equals(noun)) {
             // Return details about services, or a single service
@@ -361,6 +365,10 @@ public class JSONDataService extends HttpServlet {
         jsonService.put("url", service.getUrl());
         jsonService.put("publish_date", df.format(service.getPublishDate()));
 
+        if (service.getAccessible() != null) {
+            jsonService.put("accessible", service.getAccessible().toString());
+        }
+        
         if (service.getHiddenDefault() || (host != null && host.getHiddenDefault())) {
             jsonService.put("hidden_default", "true");
         }
@@ -376,9 +384,6 @@ public class JSONDataService extends HttpServlet {
             if (group != null) jsonService.put("group", group.getName());
             if (dataService.getSearchDefault()) {
                 jsonService.put("search_default", "true");
-            }
-            if (dataService.getAccessible() != null) {
-                jsonService.put("accessible", dataService.getAccessible().toString());
             }
         }
         
@@ -514,57 +519,93 @@ public class JSONDataService extends HttpServlet {
      * @throws JSONException
      * @throws ApplicationException
      */
-    private String getCountsJSON(boolean aggregate) throws JSONException, ApplicationException {
+    private String getCountsJSON(boolean invert, String paramServiceId, 
+            String paramClassName) throws JSONException, ApplicationException {
 
-        if (aggregate) {
-            if (cache.containsKey(Constants.COUNTS_AGGR_CACHE_KEY)) {
-                log.info("Returning cached aggregate counts JSON");
-                return cache.get(Constants.COUNTS_AGGR_CACHE_KEY).toString();
+        final String cacheKey = Constants.COUNTS_CACHE_KEY+"~"+invert+"~"+
+                paramServiceId+"~"+paramClassName;
+        
+        if (cache.containsKey(cacheKey)) {
+            log.info("Returning cached counts JSON for: "+cacheKey);
+            return cache.get(cacheKey).toString();
+        }
+        
+        Session s = sessionFactory.openSession();
+        JSONObject json = new JSONObject();
+        
+        try {
+            if (paramServiceId != null) {
+        
+                List<DomainClass> domainClasses = 
+                    GridServiceDAO.getDomainClasses(s,paramServiceId,paramClassName);
+    
+                JSONObject classesObj = new JSONObject();
+                
+                for(DomainClass domainClass : domainClasses) {
+                    JSONObject classObj = new JSONObject();
+                    classObj.put("count", domainClass.getCount());
+                    classObj.put("error", domainClass.getCountError());
+                    
+                    if (paramClassName != null) {
+                        classObj.put("countDate", df.format(domainClass.getCountDate()));
+                        classObj.put("stacktrace", domainClass.getCountStacktrace());
+                    }
+                    
+                    String fullClassName = domainClass.getDomainPackage()+
+                            "."+domainClass.getClassName();
+                    classesObj.put(fullClassName, classObj);
+                }
+                
+                JSONObject servicesObj = new JSONObject();
+                servicesObj.put(paramServiceId, classesObj);
+                json.put("counts", servicesObj);
             }
-    
-            Session s = sessionFactory.openSession();
-            
-            JSONObject json = new JSONObject();
-            JSONObject classesObj = new JSONObject();
-    
-            try {
-                Map<String,Long> counts = GridServiceDAO.getAggregateClassCounts(s);
-                for(String fullClass : counts.keySet()) {
-                    Long count = counts.get(fullClass);
-                    if ((count != null) && (count>0)) {
-                        classesObj.put(fullClass,count.toString());
+            else if (invert) {
+                
+                JSONObject servicesObj = new JSONObject();
+        
+                Map<String,Map<String,Object>> counts = GridServiceDAO.getClassCountsByServer(s);
+                for(String serviceId : counts.keySet()) {
+                    JSONObject classesObj = new JSONObject();
+                    
+                    Map<String,Object> serviceCounts = counts.get(serviceId);
+                    for(String className : serviceCounts.keySet()) {
+                        Object count = serviceCounts.get(className);
+                        if (count != null) {
+                            if (count instanceof Long) {
+                                classesObj.put(className,count.toString());
+                            }
+                            else {
+                                classesObj.put(className,"error");
+                            }
+                        }
+                        else {
+                            classesObj.put(className,"");
+                        }
+                    }
+                    if (classesObj.length() > 0) {
+                        servicesObj.put(serviceId, classesObj);
                     }
                 }
-                json.put("counts", classesObj);
+                if (servicesObj.length() > 0) {
+                    json.put("counts", servicesObj);
+                }
+                
+                LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
+                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+                
             }
-            finally {
-                s.close();
-            }
-            
-            String jsonStr = json.toString();
-            cache.put(Constants.COUNTS_AGGR_CACHE_KEY, jsonStr);
-            return jsonStr;
-        }
-        else {
-            if (cache.containsKey(Constants.COUNTS_CACHE_KEY)) {
-                log.info("Returning cached counts JSON");
-                return cache.get(Constants.COUNTS_CACHE_KEY).toString();
-            }
-    
-            Session s = sessionFactory.openSession();
-            
-            JSONObject json = new JSONObject();
-            JSONObject classesObj = new JSONObject();
-    
-            try {
+            else {
+                JSONObject classesObj = new JSONObject();
+        
                 Map<String,Map<String,Long>> counts = GridServiceDAO.getClassCounts(s);
                 for(String fullClass : counts.keySet()) {
                     JSONObject servicesObj = new JSONObject();
                     Map<String,Long> classCounts = counts.get(fullClass);
-                    for(String serviceUrl : classCounts.keySet()) {
-                        Long count = classCounts.get(serviceUrl);
+                    for(String serverId : classCounts.keySet()) {
+                        Long count = classCounts.get(serverId);
                         if ((count != null) && (count>0)) {
-                            servicesObj.put(serviceUrl,count.toString());
+                            servicesObj.put(serverId,count.toString());
                         }
                     }
                     if (servicesObj.length() > 0) {
@@ -574,16 +615,18 @@ public class JSONDataService extends HttpServlet {
                 if (classesObj.length() > 0) {
                     json.put("counts", classesObj);
                 }
+                
+                LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
+                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
             }
-            finally {
-                s.close();
-            }
-            
-            String jsonStr = json.toString();
-            cache.put(Constants.COUNTS_CACHE_KEY, jsonStr);
-            return jsonStr;
         }
-    
+        finally {
+            s.close();
+        }
+        
+        String jsonStr = json.toString();
+        cache.put(cacheKey, jsonStr);
+        return jsonStr;
     }
     
     /**
@@ -663,11 +706,14 @@ public class JSONDataService extends HttpServlet {
                     }
                 }
             }
-
+            
+            LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
+            json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
         }
         finally {
             s.close();
         }
+
         
         String jsonStr = json.toString();
     	if (serviceId == null) {
@@ -705,6 +751,9 @@ public class JSONDataService extends HttpServlet {
             for (HostingCenter host : hosts) {
                 jsonArray.put(getJSONObjectForHost(host, includeKey));
             }
+            
+            LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
+            json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
         }
         finally {
             s.close();

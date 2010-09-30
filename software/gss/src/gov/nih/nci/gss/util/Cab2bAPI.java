@@ -2,27 +2,17 @@ package gov.nih.nci.gss.util;
 
 import gov.nih.nci.gss.domain.DataServiceGroup;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -81,7 +71,7 @@ public class Cab2bAPI {
     	
         Map<String,Cab2bService> services = new HashMap<String,Cab2bService>();
     	DefaultHttpClient httpclient = new DefaultHttpClient();
-    	useTrustingTrustManager(httpclient);
+        GSSUtil.useTrustingTrustManager(httpclient);
     	
         try {
             String queryURL = GSSProperties.getCab2b2QueryURL()+"/services";
@@ -130,7 +120,7 @@ public class Cab2bAPI {
     public String search(String searchString, String serviceGroup, List<String> serviceUrls) throws Exception {
 
     	DefaultHttpClient httpclient = new DefaultHttpClient();
-        useTrustingTrustManager(httpclient);
+        GSSUtil.useTrustingTrustManager(httpclient);
     	
         try {
             String url = GSSProperties.getCab2b2QueryURL()+"/search/";
@@ -153,52 +143,6 @@ public class Cab2bAPI {
         finally {
         	httpclient.getConnectionManager().shutdown();
         }
-    }
-
-    /**
-     * Force the given client to stop caring about SSL certificates. This allows
-     * us to use caB2B servers with self-signed certificates.
-     * Code taken from http://forums.sun.com/thread.jspa?threadID=5285595 
-     * @param httpClient
-     * @return
-     */
-    private void useTrustingTrustManager(
-            DefaultHttpClient httpClient) throws Exception {
-    
-        X509TrustManager trustManager = new X509TrustManager() {
-            public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
-                // Don't do anything.
-            }
- 
-            public void checkServerTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException {
-                // Don't do anything.
-            }
- 
-            public X509Certificate[] getAcceptedIssuers() {
-                // Don't do anything.
-                return null;
-            }
-        };
- 
-        // Now put the trust manager into an SSLContext.
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
-        sslcontext.init(null, new TrustManager[] { trustManager }, null);
- 
-        // Use the above SSLContext to create your socket factory
-        SSLSocketFactory sf = new SSLSocketFactory(sslcontext);
-        sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
- 
-        // If you want a thread safe client, use the ThreadSafeConManager, but
-        // otherwise just grab the one from the current client, and get hold of its
-        // schema registry. THIS IS THE KEY THING.
-        ClientConnectionManager ccm = httpClient.getConnectionManager();
-        SchemeRegistry schemeRegistry = ccm.getSchemeRegistry();
- 
-        // Register our new socket factory with the typical SSL port and the
-        // correct protocol name.
-        schemeRegistry.register(new Scheme("https", sf, 443));
     }
 
     /**
