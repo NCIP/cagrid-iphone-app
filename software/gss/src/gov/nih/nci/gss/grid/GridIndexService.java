@@ -27,7 +27,10 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -215,7 +218,7 @@ public class GridIndexService {
     	newModel.setLongName(model.getProjectLongName());
     	newModel.setVersion(model.getProjectVersion());
 
-    	Collection<DomainClass> classList = new HashSet<DomainClass>();
+    	List<DomainClass> classList = new ArrayList<DomainClass>();
     	for (UMLClass umlClass : model.getExposedUMLClassCollection().getUMLClass()) {
     	  DomainClass newClass = new DomainClass();
     	  
@@ -225,7 +228,18 @@ public class GridIndexService {
     	  newClass.setModel(newModel);
     	  classList.add(newClass);
     	}
-		newModel.setClasses(classList);
+		
+    	Collections.sort(classList, new Comparator<DomainClass>() {
+            public int compare(DomainClass dc0, DomainClass dc1) {
+                int dpc = dc0.getDomainPackage().compareTo(dc1.getDomainPackage());
+                if (dpc == 0) {
+                    return dc0.getClassName().compareTo(dc1.getClassName());
+                }
+                return dpc;
+            }
+    	});
+    	
+    	newModel.setClasses(new LinkedHashSet<DomainClass>(classList));
 		
 		return newModel;
 	}

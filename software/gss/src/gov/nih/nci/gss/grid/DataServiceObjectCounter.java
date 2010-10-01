@@ -12,7 +12,11 @@ import gov.nih.nci.gss.domain.DomainModel;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.axis.types.URI.MalformedURIException;
@@ -64,7 +68,18 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
         int failures = 0;
         int successes = 0;
         
-        for(DomainClass domainClass : model.getClasses()) {
+        List<DomainClass> classList = new ArrayList<DomainClass>(model.getClasses());
+        Collections.sort(classList, new Comparator<DomainClass>() {
+            public int compare(DomainClass dc0, DomainClass dc1) {
+                int dpc = dc0.getDomainPackage().compareTo(dc1.getDomainPackage());
+                if (dpc == 0) {
+                    return dc0.getClassName().compareTo(dc1.getClassName());
+                }
+                return dpc;
+            }
+        });
+        
+        for(DomainClass domainClass : classList) {
             String className = domainClass.getDomainPackage()+"."+
                 domainClass.getClassName();
 
