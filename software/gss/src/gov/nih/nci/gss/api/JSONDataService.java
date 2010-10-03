@@ -542,11 +542,11 @@ public class JSONDataService extends HttpServlet {
                 
                 for(DomainClass domainClass : domainClasses) {
                     JSONObject classObj = new JSONObject();
+                    classObj.put("countDate", df.format(domainClass.getCountDate()));
                     classObj.put("count", domainClass.getCount());
                     classObj.put("error", domainClass.getCountError());
                     
                     if (paramClassName != null) {
-                        classObj.put("countDate", df.format(domainClass.getCountDate()));
                         classObj.put("stacktrace", domainClass.getCountStacktrace());
                     }
                     
