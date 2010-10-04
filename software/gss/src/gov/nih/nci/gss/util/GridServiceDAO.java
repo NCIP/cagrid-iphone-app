@@ -29,7 +29,7 @@ public class GridServiceDAO {
         "select d.domainPackage, d.className, s.identifier, sum(d.count) " +
         "from gov.nih.nci.gss.domain.DomainClass d " +
         "left join d.model m " +
-        "left join m.dataServices s " +
+        "left join m.dataService s " +
         "group by d.domainPackage, d.className, s.url " +
         "having sum(d.count) > 0 ";
 
@@ -37,13 +37,13 @@ public class GridServiceDAO {
         "select s.identifier, d.domainPackage, d.className, d.count, d.countError " +
         "from gov.nih.nci.gss.domain.DomainClass d " +
         "left join d.model m " +
-        "left join m.dataServices s ";
+        "left join m.dataService s ";
 
     public static final String GET_DATA_CLASS_HQL = 
         "select d " +
         "from gov.nih.nci.gss.domain.DomainClass d " +
         "left join d.model m " +
-        "left join m.dataServices s " +
+        "left join m.dataService s " +
         "where s.identifier = ? ";
 
     public static final String GET_DATA_CLASS_WHERE_HQL = 
