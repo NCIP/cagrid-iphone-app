@@ -221,11 +221,14 @@ public class GridIndexService {
     	List<DomainClass> classList = new ArrayList<DomainClass>();
     	for (UMLClass umlClass : model.getExposedUMLClassCollection().getUMLClass()) {
     	  DomainClass newClass = new DomainClass();
-    	  
     	  newClass.setClassName(umlClass.getClassName());
     	  newClass.setDescription(umlClass.getDescription());
     	  newClass.setDomainPackage(umlClass.getPackageName());
     	  newClass.setModel(newModel);
+    	  newClass.setCount(null);
+    	  newClass.setCountDate(null);
+    	  newClass.setCountError(null);
+    	  newClass.setCountStacktrace(null);
     	  classList.add(newClass);
     	}
 		

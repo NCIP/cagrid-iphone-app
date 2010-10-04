@@ -332,6 +332,14 @@ public class GridDiscoveryServiceJob {
                 DomainModel model = dataService.getDomainModel();
                 if (model == null) continue;
 
+                // clear everything so that there's no stale data if we give up early
+                for(DomainClass domainClass : model.getClasses()) {
+                    domainClass.setCount(null);
+                    domainClass.setCountDate(null);
+                    domainClass.setCountError(null);
+                    domainClass.setCountStacktrace(null);
+                }
+                
                 // Avoid services which didn't respond to a WSDL query
                 if (!service.getAccessible()) {
                     logger.info("Not attempting to count for inaccessible service: "+
@@ -622,8 +630,6 @@ public class GridDiscoveryServiceJob {
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
 		        if (existingClasses.containsKey(fullClass)) {
 		            DomainClass matchingClass = existingClasses.get(fullClass);
-		            matchingClass.setCount(domainClass.getCount());
-		            matchingClass.setCountDate(domainClass.getCountDate());
                     matchingClass.setDescription(domainClass.getDescription());
 		        }
 		        else {

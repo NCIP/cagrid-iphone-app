@@ -49,18 +49,13 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
      */
     public Boolean call() throws Exception {
 
-        final String url = dataService.getUrl();
-        
         DomainModel model = dataService.getDomainModel();
-        if (model == null) return false;
-
-        // clear everything so that there's no stale data if we give up early
-        for(DomainClass domainClass : model.getClasses()) {
-            domainClass.setCount(null);
-            domainClass.setCountDate(null);
-            domainClass.setCountError(null);
-            domainClass.setCountStacktrace(null);
+        if (model == null) {
+            // Should never happen since we check for a model before calling 
+            throw new IllegalStateException("DataServiceObjectCounter called on service with no domain model");
         }
+        
+        final String url = dataService.getUrl();
         
         logger.debug("Start counting for service: "+url);
 
