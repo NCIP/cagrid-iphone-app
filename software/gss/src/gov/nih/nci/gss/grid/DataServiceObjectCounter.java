@@ -101,7 +101,7 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                     }
                     else {
                         domainClass.setCount(null);
-                        domainClass.setCountError("Result was null");
+                        domainClass.setCountError(null);
                         domainClass.setCountStacktrace(null);
                     }
                 }
@@ -139,7 +139,6 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
                     if (failures > 1) {
                         // Failed more than once
                         logger.warn("Giving up counting for service: "+url);
-                        dataService.setAccessible(false);
                         return false;
                     }
                     
@@ -156,7 +155,6 @@ public class DataServiceObjectCounter implements Callable<Boolean> {
             if (failures + queryExceptions >= model.getClasses().size()) {
                 logger.info("Marking service inaccessible since it didn't respond to any of "
                     +model.getClasses().size()+" count queries: "+url);
-                dataService.setAccessible(false);
             }
             else {
                 logger.info("Done counting "+successes+" classes for service: "+url);
