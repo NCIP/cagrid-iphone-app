@@ -23,7 +23,7 @@ import org.hibernate.Session;
 public class GridServiceDAO {
     
     public static final String GET_LAST_REFRESH_HQL = 
-        "select refresh from gov.nih.nci.gss.domain.LastRefresh refresh"; 
+        "select refresh from gov.nih.nci.gss.support.LastRefresh refresh"; 
         
     public static final String GET_COUNTS_HQL = 
         "select d.domainPackage, d.className, s.identifier, sum(d.count) " +
