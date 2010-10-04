@@ -4,7 +4,7 @@ import gov.nih.nci.gss.api.JSONDataService;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
-import gov.nih.nci.gss.domain.LastRefresh;
+import gov.nih.nci.gss.support.LastRefresh;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 
 import java.util.HashMap;
