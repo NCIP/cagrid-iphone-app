@@ -7,7 +7,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `LAST_REFRESH` (
   `ID` bigint(20) NOT NULL,
-  `COMPLETION_DATE` timestamp NOT NULL,
+  `COMPLETION_DATE` timestamp NULL default NULL,
   `NUM_SERVICES` bigint(20) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -23,7 +23,7 @@ CREATE TABLE `DOMAIN_CLASS` (
   `DOMAIN_PACKAGE` varchar(512) default NULL,
   `DOMAIN_MODEL_ID` bigint(20) NOT NULL,
   `COUNT` bigint(20),
-  `COUNT_DATE` timestamp,
+  `COUNT_DATE` timestamp NULL default NULL,
   `COUNT_ERROR` varchar(5000) default NULL,
   `COUNT_STACKTRACE` varchar(50000) default NULL,
   PRIMARY KEY  (`ID`)
@@ -78,7 +78,7 @@ CREATE TABLE `GRID_SERVICE` (
   `DISCRIMINATOR` varchar(255) NOT NULL,
   `DESCRIPTION` varchar(2000) default NULL,
   `NAME` varchar(512) NOT NULL,
-  `PUBLISH_DATE` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `PUBLISH_DATE` timestamp NULL default NULL,
   `SIMPLE_NAME` varchar(255) default NULL,
   `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,
