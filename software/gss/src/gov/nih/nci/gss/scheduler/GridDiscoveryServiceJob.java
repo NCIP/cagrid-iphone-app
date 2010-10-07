@@ -349,11 +349,11 @@ public class GridDiscoveryServiceJob {
                 
                 // Avoid caTissues because they don't support count queries
                 // TODO: remove this in the future when caTissue supports counts
-                if (service.getSimpleName().startsWith("caTissue")) {
-                    logger.info("Not attempting to count for caTissue: "+
-                        service.getUrl());
-                    continue;
-                }
+//                if (service.getSimpleName().startsWith("caTissue")) {
+//                    logger.info("Not attempting to count for caTissue: "+
+//                        service.getUrl());
+//                    continue;
+//                }
                 
                 DataServiceObjectCounter counter = 
                     new DataServiceObjectCounter(dataService);
