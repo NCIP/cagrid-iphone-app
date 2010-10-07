@@ -172,7 +172,15 @@ jquery tools already includes jquery 1.4.2
                     for(k in classes) {
                         classNames.push(k);
                     }
-                    classNames.sort(function(a,b) { return ccmp(a,b) });
+                    classNames.sort(function(a,b) {
+                        var ca = a.substring(a.lastIndexOf('.')+1);
+                        var cb = b.substring(b.lastIndexOf('.')+1);
+                        var pa = a.substring(0,a.lastIndexOf('.'));
+                        var pb = b.substring(0,b.lastIndexOf('.'));
+                        var p = ccmp(pa,pb);
+                        if (p != 0) return p;
+                        return ccmp(ca,cb);
+                    });
                 
                     var tips = "";
                     var overlays = "";
