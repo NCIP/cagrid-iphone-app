@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <JSON/JSON.h>
+#import "JSON/JSON.h"
 #import "Util.h"
 #import "DownloadManager.h"
 
