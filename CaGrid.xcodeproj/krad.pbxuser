@@ -315,9 +315,9 @@
 	};
 	A970F214127A158B0026A4D3 /* JSON.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2070, 715}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 1847}";
+			sepNavIntBoundsRect = "{{0, 0}, {2070, 793}}";
+			sepNavSelRange = "{1518, 0}";
+			sepNavVisRange = "{0, 2534}";
 		};
 	};
 	A970F217127A158B0026A4D3 /* SBJsonBase.h */ = {
