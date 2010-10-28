@@ -16,7 +16,6 @@
 		A970F13C127A13520026A4D3 /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F133127A13520026A4D3 /* DownloadManager.m */; };
 		A970F13D127A13520026A4D3 /* KeyValuePair.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F135127A13520026A4D3 /* KeyValuePair.m */; };
 		A970F13E127A13520026A4D3 /* Label2.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F137127A13520026A4D3 /* Label2.m */; };
-		A970F13F127A13520026A4D3 /* UITableViewCellContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F139127A13520026A4D3 /* UITableViewCellContentView.m */; };
 		A970F140127A13520026A4D3 /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F13B127A13520026A4D3 /* Util.m */; };
 		A970F14D127A13A60026A4D3 /* DashboardCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F142127A13A60026A4D3 /* DashboardCell.m */; };
 		A970F14E127A13A60026A4D3 /* FavorableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A970F144127A13A60026A4D3 /* FavorableCell.m */; };
@@ -110,8 +109,6 @@
 		A970F135127A13520026A4D3 /* KeyValuePair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyValuePair.m; sourceTree = "<group>"; };
 		A970F136127A13520026A4D3 /* Label2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Label2.h; sourceTree = "<group>"; };
 		A970F137127A13520026A4D3 /* Label2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Label2.m; sourceTree = "<group>"; };
-		A970F138127A13520026A4D3 /* UITableViewCellContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITableViewCellContentView.h; sourceTree = "<group>"; };
-		A970F139127A13520026A4D3 /* UITableViewCellContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableViewCellContentView.m; sourceTree = "<group>"; };
 		A970F13A127A13520026A4D3 /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
 		A970F13B127A13520026A4D3 /* Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Util.m; sourceTree = "<group>"; };
 		A970F141127A13A60026A4D3 /* DashboardCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DashboardCell.h; sourceTree = "<group>"; };
@@ -367,8 +364,6 @@
 				A970F135127A13520026A4D3 /* KeyValuePair.m */,
 				A970F132127A13520026A4D3 /* DownloadManager.h */,
 				A970F133127A13520026A4D3 /* DownloadManager.m */,
-				A970F138127A13520026A4D3 /* UITableViewCellContentView.h */,
-				A970F139127A13520026A4D3 /* UITableViewCellContentView.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -558,7 +553,6 @@
 				A970F13C127A13520026A4D3 /* DownloadManager.m in Sources */,
 				A970F13D127A13520026A4D3 /* KeyValuePair.m in Sources */,
 				A970F13E127A13520026A4D3 /* Label2.m in Sources */,
-				A970F13F127A13520026A4D3 /* UITableViewCellContentView.m in Sources */,
 				A970F140127A13520026A4D3 /* Util.m in Sources */,
 				A970F14D127A13A60026A4D3 /* DashboardCell.m in Sources */,
 				A970F14E127A13A60026A4D3 /* FavorableCell.m in Sources */,
