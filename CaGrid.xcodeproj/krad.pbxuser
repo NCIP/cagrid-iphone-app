@@ -55,6 +55,30 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					644,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
 			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
@@ -100,6 +124,10 @@
 			A9CF0C2A127A2267006AF39F = A9CF0C2A127A2267006AF39F /* PBXTextBookmark */;
 			A9CF0C44127A233C006AF39F = A9CF0C44127A233C006AF39F /* PlistBookmark */;
 			A9CF0C4F127A23E2006AF39F /* PlistBookmark */ = A9CF0C4F127A23E2006AF39F /* PlistBookmark */;
+			A9CF0C8B127A24F7006AF39F /* PBXTextBookmark */ = A9CF0C8B127A24F7006AF39F /* PBXTextBookmark */;
+			A9CF0C8C127A24F7006AF39F /* PlistBookmark */ = A9CF0C8C127A24F7006AF39F /* PlistBookmark */;
+			A9CF0C8D127A24F7006AF39F /* PBXTextBookmark */ = A9CF0C8D127A24F7006AF39F /* PBXTextBookmark */;
+			A9CF0C8E127A24F7006AF39F /* PBXTextBookmark */ = A9CF0C8E127A24F7006AF39F /* PBXTextBookmark */;
 		};
 		sourceControlManager = A970F108127A12700026A4D3 /* Source Control */;
 		userBuildSettings = {
@@ -284,11 +312,25 @@
 		vrLen = 1203;
 		vrLoc = 0;
 	};
+	A970F214127A158B0026A4D3 /* JSON.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {2070, 715}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1847}";
+		};
+	};
 	A970F217127A158B0026A4D3 /* SBJsonBase.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {846, 1118}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 1915}";
+		};
+	};
+	A970F21A127A158B0026A4D3 /* NSObject+SBJSON.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {846, 546}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1760}";
 		};
 	};
 	A970F252127A17330026A4D3 /* PBXTextBookmark */ = {
@@ -423,5 +465,47 @@
 		name = "/Users/krad/Documents/caGridApp/CaGrid-Info.plist";
 		rLen = 0;
 		rLoc = 9223372036854775807;
+	};
+	A9CF0C8B127A24F7006AF39F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A970F21A127A158B0026A4D3 /* NSObject+SBJSON.m */;
+		name = "NSObject+SBJSON.m: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1760;
+		vrLoc = 0;
+	};
+	A9CF0C8C127A24F7006AF39F /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* CaGrid-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			CFBundleDisplayName,
+		);
+		name = "/Users/krad/Documents/caGridApp/CaGrid-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	A9CF0C8D127A24F7006AF39F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A970F214127A158B0026A4D3 /* JSON.h */;
+		name = "JSON.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1847;
+		vrLoc = 0;
+	};
+	A9CF0C8E127A24F7006AF39F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A970F214127A158B0026A4D3 /* JSON.h */;
+		name = "JSON.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1847;
+		vrLoc = 0;
 	};
 }
