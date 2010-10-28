@@ -548,7 +548,7 @@
 		}
 		i++;
 	}
-	NSLog("Warning: data type not found in groups: %@",dataType);
+	NSLog(@"Warning: data type not found in groups: %d",dataType);
 	return -1;
 }
 

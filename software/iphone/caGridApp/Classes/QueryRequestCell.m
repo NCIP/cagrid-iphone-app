@@ -43,7 +43,7 @@
     self.alertImageView.hidden = YES;
     self.highlightView.alpha = 0.0;
     self.titleLabel.text = [NSString stringWithFormat:@"%@ results for \"%@\"", 
-                            ([totalCount intValue] == 0) ? @"No" : totalCount, [queryRequest objectForKey:@"searchString"]];
+                            ([totalCount intValue] == 0) ? @"No" : [totalCount stringValue], [queryRequest objectForKey:@"searchString"]];
     self.descLabel.text = [NSString stringWithFormat:@"%@ search, %@", dataTypeLabel, dateString];
     self.locationsLabel.text = [NSString stringWithFormat:@"Locations: %@",[locations componentsJoinedByString:@", "]];
     
