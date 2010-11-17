@@ -9,6 +9,7 @@
 #import "QueryService.h"
 #import "Util.h"
 #import "ServiceMetadata.h"
+#import "CaGridAppDelegate.h"
 
 #define queriesFilename @"QueryRequestCache.plist"
 
@@ -41,14 +42,7 @@
 
 
 + (QueryService *)sharedSingleton {
-	static QueryService *sharedSingleton;
-	@synchronized(self) {
-		if (!sharedSingleton) {
-			sharedSingleton = [[QueryService alloc] init];         
-		}
-		return sharedSingleton;
-	}
-	return nil;
+	return MyAppDelegate.qs;
 }
 
 #pragma mark -

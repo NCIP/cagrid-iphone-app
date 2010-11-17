@@ -17,7 +17,8 @@
 	@private SEL groupsCallback;
 	@private SEL countsCallback;
 	@private SEL servicesCallback;
-	@private SEL hostsCallback;    
+	@private SEL hostsCallback;
+	@private NSString *baseUrl;
 	@private NSURL *groupsUrl; 
 	@private NSURL *countsUrl; 	
 	@private NSURL *servicesUrl;
@@ -41,6 +42,7 @@
 @property (nonatomic) SEL countsCallback;
 @property (nonatomic) SEL servicesCallback;
 @property (nonatomic) SEL hostsCallback;  
+@property (nonatomic, retain) NSString *baseUrl;
 @property (nonatomic, retain) NSURL *groupsUrl;
 @property (nonatomic, retain) NSURL *countsUrl;
 @property (nonatomic, retain) NSURL *servicesUrl;
