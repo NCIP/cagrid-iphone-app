@@ -10,9 +10,7 @@
 #import "Label2.h"
 #import "UserPreferences.h"
 #import "ServiceMetadata.h"
-
-// has the user been alerted that there is a network problem?
-static BOOL alerted = NO;
+#import "CaGridAppDelegate.h"
 
 @implementation Util
 
@@ -91,7 +89,7 @@ static BOOL alerted = NO;
 
 + (void) displayNetworkError {
     @synchronized(self) {    
-        if (!alerted) {
+        if (!MyAppDelegate.alerted) {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error getting latest data" 
                                                             message:@"Could not connect to the server." 
                                                            delegate:self 
@@ -99,7 +97,7 @@ static BOOL alerted = NO;
                                                   otherButtonTitles:nil];
             [alert show];
             [alert autorelease];
-            alerted = YES;
+            MyAppDelegate.alerted = YES;
         }
     }
 }
@@ -107,7 +105,7 @@ static BOOL alerted = NO;
 
 + (void) clearNetworkErrorState {
     @synchronized(self) {
- 		alerted = NO;   
+ 		MyAppDelegate.alerted = NO;   
     }
 }
 

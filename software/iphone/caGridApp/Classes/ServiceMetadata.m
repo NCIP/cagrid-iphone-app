@@ -23,6 +23,7 @@
 @synthesize servicesCallback;
 @synthesize hostsCallback;
 
+@synthesize baseUrl;
 @synthesize groupsUrl;
 @synthesize countsUrl;
 @synthesize servicesUrl;
@@ -48,7 +49,7 @@
 	if (self = [super init]) {
         
 		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-		NSString *baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
+		self.baseUrl = (NSString *)[defaults objectForKey:@"base_url"];
 		
 		self.groupsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/summary",baseUrl]];
 		self.countsUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json/counts",baseUrl]];
@@ -81,6 +82,7 @@
 
 
 - (void)dealloc {
+	self.baseUrl = nil;
     self.groupsUrl = nil;
     self.countsUrl = nil;
     self.servicesUrl = nil;
@@ -96,19 +98,14 @@
     self.hostsById = nil;
     self.hostImageNamesByUrl = nil;
     self.hostImagesByName = nil;
+	self.dlmanager = nil;
+	self.nf = nil;
     [super dealloc];
 }
 
 
 + (ServiceMetadata *)sharedSingleton {
-	static ServiceMetadata *sharedSingleton;
-	@synchronized(self) {
-		if (!sharedSingleton) {
-			sharedSingleton = [[ServiceMetadata alloc] init];
-		}
-		return sharedSingleton;
-	}
-	return nil;
+	return MyAppDelegate.sm;
 }
 
 
@@ -322,6 +319,12 @@
 
 - (void)download:(NSURL *)url completedWithData:(NSMutableData *)data {
     
+	if (![[url absoluteString] hasPrefix:baseUrl]) {
+		// Must be an old request coming back which we are no longer looking for
+		NSLog(@"Got results from unwanted URL %@",url);
+		return;
+	}	
+	
     CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
     
     [Util clearNetworkErrorState];
@@ -340,7 +343,7 @@
             if (message == nil) message = @"Summary data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
-            [delegate performSelector:groupsCallback];
+            [delegate performSelector:groupsCallback withObject:[NSNumber numberWithBool:NO]];
             return;
         }
 		
@@ -348,7 +351,7 @@
 			NSLog(@"Received %d groups",[groupArray count]);
 			[self.groups removeAllObjects];
 			[self.groups addObjectsFromArray:groupArray]; 
-			[delegate performSelector:groupsCallback];
+			[delegate performSelector:groupsCallback withObject:[NSNumber numberWithBool:YES]];
 		}
 	}
 	else if ([url isEqual:countsUrl]) {
@@ -362,7 +365,7 @@
             if (message == nil) message = @"Count data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
-            [delegate performSelector:countsCallback];
+            [delegate performSelector:countsCallback withObject:[NSNumber numberWithBool:NO]];
             return;
         }
 		
@@ -370,7 +373,7 @@
 			NSLog(@"Received %d counts",[countDict count]);
 			[self.counts removeAllObjects];
 			[self.counts addEntriesFromDictionary:countDict];
-			[delegate performSelector:countsCallback];
+			[delegate performSelector:countsCallback withObject:[NSNumber numberWithBool:YES]];
 		}
 	}
 	else if ([url isEqual:servicesUrl]) {
@@ -384,7 +387,7 @@
             if (message == nil) message = @"Service data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
-            [delegate performSelector:servicesCallback];
+            [delegate performSelector:servicesCallback withObject:[NSNumber numberWithBool:NO]];
             return;
         }
         
@@ -400,7 +403,7 @@
                                             nil]];
             
             [self updateServiceDerivedObjects];
-            [delegate performSelector:servicesCallback];
+            [delegate performSelector:servicesCallback withObject:[NSNumber numberWithBool:YES]];
         }
     }
     else if ([url isEqual:hostsUrl]) {
@@ -414,7 +417,7 @@
             if (message == nil) message = @"Host data could not be retrieved";
             NSLog(@"loadData error: %@ - %@",error,message);
             [Util displayCustomError:error withMessage:message];
-            [delegate performSelector:hostsCallback];
+            [delegate performSelector:hostsCallback withObject:[NSNumber numberWithBool:NO]];
             return;
         }
         
@@ -430,7 +433,7 @@
                                               nil]];
             
             [self updateHostDerivedObjects];
-            [delegate performSelector:hostsCallback];
+            [delegate performSelector:hostsCallback withObject:[NSNumber numberWithBool:YES]];
         }
 
         // Now load hosts images
@@ -439,8 +442,6 @@
             for(NSMutableDictionary *host in self.hosts) {
                 NSString *imageName = [host objectForKey:@"image_name"];
                 if (imageName != nil) {
-					NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-					NSString *baseUrl = [defaults objectForKey:@"base_url"];
                     NSURL *imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/image/host/%@",baseUrl,imageName]];
                     [self.hostImageNamesByUrl setObject:imageName forKey:imageURL];
                     [dlmanager beginDownload:imageURL delegate:self];
@@ -488,7 +489,17 @@
 
 - (void)download:(NSURL *)url failedWithError:(NSError *)error {
 	
-    CaGridAppDelegate *delegate = (CaGridAppDelegate *)[[UIApplication sharedApplication] delegate]; 
+	NSLog(@"[url absoluteString]: %@",[url absoluteString]);
+	NSLog(@"baseUrl: %@",baseUrl);
+	NSLog(@"hasPrefix: %d",[[url absoluteString] hasPrefix:baseUrl]);
+	
+	if (![[url absoluteString] hasPrefix:baseUrl]) {
+		// Must be an old request coming back which we are no longer looking for
+		NSLog(@"Error retrieving unwanted URL %@",url);
+		return;
+	}
+	
+    CaGridAppDelegate *delegate = MyAppDelegate; 
 	
     NSLog(@"Error retrieving URL %@: %@",url,error);
     if (([error domain] == NSCocoaErrorDomain && [error code] == NSFileReadUnknownError) || 
@@ -499,12 +510,17 @@
         [Util displayCustomError:@"Error loading data (ERR04)" withMessage:[error localizedDescription]];
     }
 	
-	if ([url isEqual:servicesUrl]) {
-		[delegate performSelector:servicesCallback];
-		
+	if ([url isEqual:groupsUrl]) {
+		[delegate performSelector:groupsCallback withObject:[NSNumber numberWithBool:NO]];
+	}
+	else if ([url isEqual:countsUrl]) {
+		[delegate performSelector:countsCallback withObject:[NSNumber numberWithBool:NO]];
+	}
+	else if ([url isEqual:servicesUrl]) {
+		[delegate performSelector:servicesCallback withObject:[NSNumber numberWithBool:NO]];
 	}
     else if ([url isEqual:hostsUrl]) {
-		[delegate performSelector:hostsCallback];
+		[delegate performSelector:hostsCallback withObject:[NSNumber numberWithBool:NO]];
 	}
 	
 }

@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface UserPreferences : NSObject {
 	@private NSMutableArray *favoriteServices;
 	@private NSMutableArray *favoriteHosts;

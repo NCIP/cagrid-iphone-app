@@ -8,6 +8,7 @@
 
 #import "UserPreferences.h"
 #import "Util.h"
+#import "CaGridAppDelegate.h"
 
 #define prefsFilename @"UserPreferences.plist"
 
@@ -32,14 +33,7 @@
 
 
 + (UserPreferences *)sharedSingleton {
-	static UserPreferences *sharedSingleton;
-	@synchronized(self) {
-		if (!sharedSingleton) {
-			sharedSingleton = [[UserPreferences alloc] init];         
-		}
-		return sharedSingleton;
-	}
-	return nil;
+	return MyAppDelegate.up;
 }
 
 #pragma mark -

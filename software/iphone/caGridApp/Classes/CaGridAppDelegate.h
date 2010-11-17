@@ -8,11 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
+#define MyAppDelegate ((CaGridAppDelegate *)[[UIApplication sharedApplication] delegate])
+
 @class DashboardController;
 @class QueryRequestController;
 @class ServiceListController;
 @class HostListController;
 @class FavoritesController;
+@class ServiceMetadata;
+@class UserPreferences;
+@class QueryService;
 
 @interface CaGridAppDelegate : NSObject <UIApplicationDelegate, UITabBarControllerDelegate> {
     IBOutlet UIWindow *window;
@@ -23,7 +28,12 @@
     IBOutlet ServiceListController *serviceListController;
     IBOutlet HostListController *hostListController;
 	IBOutlet FavoritesController *favoritesController;
+	ServiceMetadata *sm;
+	UserPreferences *up;
+	QueryService *qs;
     int receivedContent;
+    int successContent;
+	BOOL alerted;
 }
 
 @property (nonatomic, retain) UIWindow *window;
@@ -34,5 +44,9 @@
 @property (nonatomic, retain) ServiceListController *serviceListController;
 @property (nonatomic, retain) HostListController *hostListController;
 @property (nonatomic, retain) FavoritesController *favoritesController;
+@property (nonatomic, retain) ServiceMetadata *sm;
+@property (nonatomic, retain) UserPreferences *up;
+@property (nonatomic, retain) QueryService *qs;
+@property (nonatomic, assign) BOOL alerted;
 
 @end
