@@ -13,15 +13,28 @@ CREATE TABLE `LAST_REFRESH` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
+DROP TABLE IF EXISTS `DOMAIN_ATTRIBUTE`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `DOMAIN_ATTRIBUTE` (
+  `ID` bigint(20) NOT NULL,
+  `DOMAIN_CLASS_ID` bigint(20) NOT NULL,
+  `ATTRIBUTE_NAME` varchar(256) NOT NULL,
+  `DATA_TYPE_NAME` varchar(256) default NULL,
+  `CDE_PUBLIC_ID` bigint(20) default NULL,
+  PRIMARY KEY  (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
 DROP TABLE IF EXISTS `DOMAIN_CLASS`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `DOMAIN_CLASS` (
   `ID` bigint(20) NOT NULL,
-  `CLASS_NAME` varchar(512) default NULL,
-  `DESCRIPTION` varchar(2000) default NULL,
-  `DOMAIN_PACKAGE` varchar(512) default NULL,
   `DOMAIN_MODEL_ID` bigint(20) NOT NULL,
+  `CLASS_NAME` varchar(512) NOT NULL,
+  `DOMAIN_PACKAGE` varchar(512) NOT NULL,
+  `DESCRIPTION` varchar(2000) default NULL,
   `COUNT` bigint(20),
   `COUNT_DATE` timestamp NULL default NULL,
   `COUNT_ERROR` varchar(5000) default NULL,

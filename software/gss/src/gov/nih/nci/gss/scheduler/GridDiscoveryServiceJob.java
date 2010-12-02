@@ -2,6 +2,7 @@ package gov.nih.nci.gss.scheduler;
 
 import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DataServiceGroup;
+import gov.nih.nci.gss.domain.DomainAttribute;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
@@ -509,6 +510,12 @@ public class GridDiscoveryServiceJob {
                         }
                         
                         domainClass.setId((Long)hibernateSession.save(domainClass));
+                        
+                        // 5) Domain Attributes
+                        logger.debug("Saving "+domainClass.getAttributes().size()+" Domain Attributes");
+                        for(DomainAttribute domainAttr : domainClass.getAttributes()) {
+                            domainAttr.setId((Long)hibernateSession.save(domainAttr));
+                        }
                     }
 			    }
 			}
@@ -619,6 +626,7 @@ public class GridDiscoveryServiceJob {
             matchingModel.setLongName(model.getLongName());
             matchingModel.setVersion(model.getVersion());
 
+            // Add existing classes to a map
             Map<String,DomainClass> existingClasses = new HashMap<String,DomainClass>();
             for(DomainClass domainClass : matchingModel.getClasses()) {
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
@@ -626,19 +634,47 @@ public class GridDiscoveryServiceJob {
                 logger.debug("  Existing class: "+fullClass);
             }
             
+            // Go through new classes
 		    for(DomainClass domainClass : model.getClasses()) {
+
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
+                DomainClass matchingClass = existingClasses.get(fullClass);
+                
 		        if (existingClasses.containsKey(fullClass)) {
-		            DomainClass matchingClass = existingClasses.get(fullClass);
+		            // Update existing class with new metadata
                     matchingClass.setDescription(domainClass.getDescription());
+                    
+                    // Add existing attributes to a map
+                    Map<String,DomainAttribute> existingAttrs = new HashMap<String,DomainAttribute>();
+                    for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
+                        existingAttrs.put(domainAttr.getAttributeName(),domainAttr);
+                        logger.debug("    Existing attr: "+domainAttr.getAttributeName());
+                    }
+
+                    // Go through new attributes
+                    for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
+
+                        DomainAttribute matchingAttr = existingAttrs.get(domainAttr.getAttributeName());
+                        if (existingAttrs.containsKey(matchingAttr)) {
+                            // Update existing attr with new metadata
+                            matchingAttr.setCdePublicId(domainAttr.getCdePublicId());
+                            matchingAttr.setDataTypeName(domainAttr.getDataTypeName());
+                        }
+                        else {
+                            // Add new class
+                            logger.debug("    New attr: "+domainAttr.getAttributeName());
+                            matchingClass.getAttributes().add(domainAttr);
+                        }
+                    }
 		        }
 		        else {
+		            // Add new class
 	                logger.debug("  New class: "+fullClass);
                     matchingModel.getClasses().add(domainClass);
 		        }
 		    }
 		    
-		    // TODO: handle domain class deletions
+		    // TODO: handle domain class and attribute deletions
 		}
 		
 		return matchingSvc;

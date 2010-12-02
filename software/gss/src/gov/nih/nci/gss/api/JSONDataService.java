@@ -2,6 +2,7 @@ package gov.nih.nci.gss.api;
 
 import gov.nih.nci.gss.domain.DataService;
 import gov.nih.nci.gss.domain.DataServiceGroup;
+import gov.nih.nci.gss.domain.DomainAttribute;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.DomainModel;
 import gov.nih.nci.gss.domain.GridService;
@@ -672,6 +673,17 @@ public class JSONDataService extends HttpServlet {
                                 jsonClass.put("package", dc.getDomainPackage());
                                 jsonClass.put("description", dc.getDescription());
                                 jsonClasses.put(jsonClass);
+                                
+                                JSONArray jsonAttrs = new JSONArray();
+                                for (DomainAttribute da : dc.getAttributes()) {
+                                    JSONObject jsonAttr = new JSONObject();
+                                    jsonAttr.put("name", da.getAttributeName());
+                                    jsonAttr.put("dataType", da.getDataTypeName());
+                                    jsonAttr.put("cdePublicId", da.getCdePublicId());
+                                    jsonAttrs.put(jsonAttr);
+                                }
+
+                                jsonClass.put("attributes", jsonAttrs);
                             }
                             modelObj.put("classes", jsonClasses);
                         }

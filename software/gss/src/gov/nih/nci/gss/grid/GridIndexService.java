@@ -6,6 +6,7 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 import gov.nih.nci.cagrid.metadata.common.Address;
 import gov.nih.nci.cagrid.metadata.common.ResearchCenter;
 import gov.nih.nci.cagrid.metadata.common.ResearchCenterPointOfContactCollection;
+import gov.nih.nci.cagrid.metadata.common.UMLAttribute;
 import gov.nih.nci.cagrid.metadata.dataservice.DomainModel;
 import gov.nih.nci.cagrid.metadata.dataservice.UMLClass;
 import gov.nih.nci.cagrid.metadata.exceptions.InvalidResourcePropertyException;
@@ -15,6 +16,7 @@ import gov.nih.nci.cagrid.metadata.service.Service;
 import gov.nih.nci.cagrid.metadata.service.ServicePointOfContactCollection;
 import gov.nih.nci.gss.domain.AnalyticalService;
 import gov.nih.nci.gss.domain.DataService;
+import gov.nih.nci.gss.domain.DomainAttribute;
 import gov.nih.nci.gss.domain.DomainClass;
 import gov.nih.nci.gss.domain.GridService;
 import gov.nih.nci.gss.domain.HostingCenter;
@@ -167,13 +169,14 @@ public class GridIndexService {
 
         // Build GridService object
     	newService.setPointOfContacts(new HashSet<gov.nih.nci.gss.domain.PointOfContact>());
-    	            
+
         if (metadata != null) {
             // Get the buried service description from the metadata
             Service serviceData = metadata.getServiceDescription().getService();
             
             if (serviceData != null) {
                 newService.setName(serviceData.getName());
+                
                 newService.setDescription(serviceData.getDescription());
                 newService.setVersion(serviceData.getVersion());
 
@@ -195,6 +198,7 @@ public class GridIndexService {
     	newService.setIdentifier(null);
     	newService.setSimpleName(null);    
     	newService.setPublishDate(null);
+
         
 		// Build Domain Model object for data services
 		if (newService instanceof DataService) {
@@ -220,16 +224,35 @@ public class GridIndexService {
 
     	List<DomainClass> classList = new ArrayList<DomainClass>();
     	for (UMLClass umlClass : model.getExposedUMLClassCollection().getUMLClass()) {
-    	  DomainClass newClass = new DomainClass();
-    	  newClass.setClassName(umlClass.getClassName());
-    	  newClass.setDescription(umlClass.getDescription());
-    	  newClass.setDomainPackage(umlClass.getPackageName());
-    	  newClass.setModel(newModel);
-    	  newClass.setCount(null);
-    	  newClass.setCountDate(null);
-    	  newClass.setCountError(null);
-    	  newClass.setCountStacktrace(null);
-    	  classList.add(newClass);
+    	    DomainClass newClass = new DomainClass();
+    	    newClass.setClassName(umlClass.getClassName());
+    	    newClass.setDescription(umlClass.getDescription());
+    	    newClass.setDomainPackage(umlClass.getPackageName());
+    	    newClass.setModel(newModel);
+    	    newClass.setCount(null);
+    	    newClass.setCountDate(null);
+    	    newClass.setCountError(null);
+    	    newClass.setCountStacktrace(null);
+    	    classList.add(newClass);
+    	    
+    	    List<DomainAttribute> attrList = new ArrayList<DomainAttribute>();
+    	    for(UMLAttribute umlAttr : umlClass.getUmlAttributeCollection().getUMLAttribute()) {
+    	        gov.nih.nci.gss.domain.DomainAttribute newAttr = new gov.nih.nci.gss.domain.DomainAttribute();
+    	        newAttr.setAttributeName(umlAttr.getName());
+    	        newAttr.setDataTypeName(umlAttr.getDataTypeName());
+    	        newAttr.setCdePublicId(umlAttr.getPublicID());
+    	        newAttr.setDomainClass(newClass);
+    	        attrList.add(newAttr);
+    	    }
+
+            Collections.sort(attrList, new Comparator<DomainAttribute>() {
+                public int compare(DomainAttribute da0, DomainAttribute da1) {
+                    return da0.getAttributeName().compareTo(da1.getAttributeName());
+                }
+            });
+            
+            newClass.setAttributes(new LinkedHashSet<DomainAttribute>(attrList));
+          
     	}
 		
     	Collections.sort(classList, new Comparator<DomainClass>() {
