@@ -92,6 +92,7 @@ CREATE TABLE `GRID_SERVICE` (
   `DESCRIPTION` varchar(2000) default NULL,
   `NAME` varchar(512) NOT NULL,
   `PUBLISH_DATE` timestamp NULL default NULL,
+  `LAST_UPDATE` timestamp NULL default NULL,
   `SIMPLE_NAME` varchar(255) default NULL,
   `DATA_SERVICE_GROUP_ID` bigint(20) default NULL,
   `URL` varchar(767) NOT NULL UNIQUE,

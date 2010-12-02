@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -55,7 +56,9 @@ public class GridDiscoveryServiceJob {
 	private static Logger logger = Logger.getLogger(GridDiscoveryServiceJob.class);
 
 	private static final int NUM_QUERY_THREADS = 20;
-	
+
+	private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
+    
 	private static final int MAX_COUNT_ERROR_LEN = 5000;
     private static final int MAX_COUNT_STACKTRACE_LEN = 50000;
 	
@@ -296,6 +299,8 @@ public class GridDiscoveryServiceJob {
                 service.setLastStatus(createStatus(true));
                 allServices.put(service.getUrl(),service);
             }
+            
+            service.setLastUpdate(new Date());
         }
         
         // Mark the services we didn't see as inactive
@@ -347,14 +352,6 @@ public class GridDiscoveryServiceJob {
                         service.getUrl());
                     continue;
                 }
-                
-                // Avoid caTissues because they don't support count queries
-                // TODO: remove this in the future when caTissue supports counts
-//                if (service.getSimpleName().startsWith("caTissue")) {
-//                    logger.info("Not attempting to count for caTissue: "+
-//                        service.getUrl());
-//                    continue;
-//                }
                 
                 DataServiceObjectCounter counter = 
                     new DataServiceObjectCounter(dataService);
@@ -427,16 +424,30 @@ public class GridDiscoveryServiceJob {
         
         Transaction tx = null;
 
+        Date nowDate = new Date();
+        long now = nowDate.getTime();
+        
         try {
             tx = hibernateSession.beginTransaction();
             
             for(GridService service : services.values()) {
-                saveService(service);
+
+                long diff = now - service.getLastUpdate().getTime();
+                if ((diff > DAY_IN_MILLIS && !service.getAccessible())) {
+                    logger.info("Service defunct, deleting: "+service.getUrl());
+                    deleteService(service);
+                }
+                else {
+                    if ("INACTIVE".equals(service.getLastStatus())) {
+                        logger.info("Service defunct, but not yet ready for deletion: "+service.getUrl());
+                    }
+                    saveService(service);
+                }
             }
             
             // Note that the update completed
             LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(hibernateSession);
-            lastRefresh.setCompletionDate(new Date());
+            lastRefresh.setCompletionDate(nowDate);
             lastRefresh.setNumServices(new Long(numGridNodes));
             hibernateSession.save(lastRefresh);
             
@@ -508,7 +519,7 @@ public class GridDiscoveryServiceJob {
                                     0, MAX_COUNT_STACKTRACE_LEN-3)+"...");
                             }
                         }
-                        
+
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                         
                         // 5) Domain Attributes
@@ -533,6 +544,57 @@ public class GridDiscoveryServiceJob {
 		}
 	}
 
+    private void deleteService(GridService service) {
+
+        try {
+            // Domain classes are deleted in referencing order 
+
+            // 1) Grid Service
+            logger.info("Deleting Service: "+service.getName());
+            hibernateSession.delete(service);
+            
+            if (service instanceof DataService) {
+                DomainModel model = ((DataService)service).getDomainModel();
+                if (model != null) {
+                    
+                    for(DomainClass domainClass : model.getClasses()) {
+
+                        // 2) Domain Attributes
+                        logger.info("Deleting "+domainClass.getAttributes().size()+" Domain Attributes");
+                        for(DomainAttribute domainAttr : domainClass.getAttributes()) {
+                            hibernateSession.delete(domainAttr);
+                        }
+                        
+                        // 3) Domain Classes 
+                        hibernateSession.delete(domainClass);
+                    }
+                    
+                    logger.info("Deleting "+model.getClasses().size()+" Domain Classes");
+                    
+                    // 4) Domain Model
+                    logger.info("Deleting Domain Model: "+model.getLongName());
+                    hibernateSession.delete(model);
+                }
+            }
+            
+            // 1) All POCs
+            for (PointOfContact POC : service.getPointOfContacts()) {
+                logger.info("Deleting Service POC "+POC.getName());
+                hibernateSession.delete(POC);
+            }
+
+            // Don't delete the hosting center in case other services are there,
+            // or if services are added at a later date
+    
+        } 
+        catch (ConstraintViolationException e) {
+            logger.warn("Violated constraint deleting: " + service.getUrl(),e);
+        } 
+        catch (RuntimeException e) {
+            logger.warn("Unable to delete GridService",e);
+        }
+    }
+    
     private String createStatus(Boolean isActive) {
         return isActive ? STATUS_CHANGE_ACTIVE : STATUS_CHANGE_INACTIVE;
     }

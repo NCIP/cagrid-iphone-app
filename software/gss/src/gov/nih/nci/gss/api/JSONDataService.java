@@ -590,7 +590,9 @@ public class JSONDataService extends HttpServlet {
                 }
                 
                 LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
-                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+                if (lastRefresh.getCompletionDate() != null) {
+                    json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+                }
             }
         }
         finally {
@@ -692,7 +694,9 @@ public class JSONDataService extends HttpServlet {
             }
             
             LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
-            json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+            if (lastRefresh.getCompletionDate() != null) {
+                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+            }
         }
         finally {
             s.close();
@@ -737,7 +741,9 @@ public class JSONDataService extends HttpServlet {
             }
             
             LastRefresh lastRefresh = GridServiceDAO.getLastRefreshObject(s);
-            json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+            if (lastRefresh.getCompletionDate() != null) {
+                json.put("lastRefreshDate", df.format(lastRefresh.getCompletionDate()));
+            }
         }
         finally {
             s.close();
