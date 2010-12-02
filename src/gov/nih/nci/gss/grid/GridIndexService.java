@@ -236,14 +236,16 @@ public class GridIndexService {
     	    classList.add(newClass);
     	    
     	    List<DomainAttribute> attrList = new ArrayList<DomainAttribute>();
-    	    for(UMLAttribute umlAttr : umlClass.getUmlAttributeCollection().getUMLAttribute()) {
-    	        gov.nih.nci.gss.domain.DomainAttribute newAttr = new gov.nih.nci.gss.domain.DomainAttribute();
-    	        newAttr.setAttributeName(umlAttr.getName());
-    	        newAttr.setDataTypeName(umlAttr.getDataTypeName());
-    	        newAttr.setCdePublicId(umlAttr.getPublicID());
-    	        newAttr.setDomainClass(newClass);
-    	        attrList.add(newAttr);
-    	    }
+    	    
+    	    if (umlClass.getUmlAttributeCollection() == null) continue;
+            for(UMLAttribute umlAttr : umlClass.getUmlAttributeCollection().getUMLAttribute()) {
+                gov.nih.nci.gss.domain.DomainAttribute newAttr = new gov.nih.nci.gss.domain.DomainAttribute();
+                newAttr.setAttributeName(umlAttr.getName());
+                newAttr.setDataTypeName(umlAttr.getDataTypeName());
+                newAttr.setCdePublicId(umlAttr.getPublicID());
+                newAttr.setDomainClass(newClass);
+                attrList.add(newAttr);
+            }
 
             Collections.sort(attrList, new Comparator<DomainAttribute>() {
                 public int compare(DomainAttribute da0, DomainAttribute da1) {
@@ -252,7 +254,6 @@ public class GridIndexService {
             });
             
             newClass.setAttributes(new LinkedHashSet<DomainAttribute>(attrList));
-          
     	}
 		
     	Collections.sort(classList, new Comparator<DomainClass>() {
