@@ -233,7 +233,6 @@ public class GridIndexService {
     	    newClass.setCountDate(null);
     	    newClass.setCountError(null);
     	    newClass.setCountStacktrace(null);
-    	    classList.add(newClass);
     	    
     	    List<DomainAttribute> attrList = new ArrayList<DomainAttribute>();
     	    
@@ -254,6 +253,8 @@ public class GridIndexService {
             });
             
             newClass.setAttributes(new LinkedHashSet<DomainAttribute>(attrList));
+            
+            classList.add(newClass);
     	}
 		
     	Collections.sort(classList, new Comparator<DomainClass>() {
