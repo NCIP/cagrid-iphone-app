@@ -523,9 +523,15 @@ public class GridDiscoveryServiceJob {
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                         
                         // 5) Domain Attributes
-                        logger.debug("Saving "+domainClass.getAttributes().size()+" Domain Attributes");
-                        for(DomainAttribute domainAttr : domainClass.getAttributes()) {
-                            domainAttr.setId((Long)hibernateSession.save(domainAttr));
+                        if (domainClass.getAttributes() != null) {
+                            logger.debug("Saving "+domainClass.getAttributes().size()+" Domain Attributes");
+                            for(DomainAttribute domainAttr : domainClass.getAttributes()) {
+                                domainAttr.setId((Long)hibernateSession.save(domainAttr));
+                            }
+                        }
+                        else {
+                            logger.debug("Null Domain Attributes List");
+                        
                         }
                     }
 			    }
@@ -560,9 +566,11 @@ public class GridDiscoveryServiceJob {
                     for(DomainClass domainClass : model.getClasses()) {
 
                         // 2) Domain Attributes
-                        logger.info("Deleting "+domainClass.getAttributes().size()+" Domain Attributes");
-                        for(DomainAttribute domainAttr : domainClass.getAttributes()) {
-                            hibernateSession.delete(domainAttr);
+                        if (domainClass.getAttributes() != null) {
+                            logger.info("Deleting "+domainClass.getAttributes().size()+" Domain Attributes");
+                            for(DomainAttribute domainAttr : domainClass.getAttributes()) {
+                                hibernateSession.delete(domainAttr);
+                            }
                         }
                         
                         // 3) Domain Classes 
