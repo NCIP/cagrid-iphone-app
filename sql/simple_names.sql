@@ -63,10 +63,10 @@ INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName",
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName",
 "^camod$","caMOD");
 
--- Washu-CaTissueSuite -> caTissue Suite
+-- Washu-CaTissueSuite -> caTissueSuite
 
 INSERT INTO SIMPLE_NAME (TYPE,PATTERN,SIMPLE_NAME) VALUES ("ServiceName",
-"^Washu-CaTissueSuite$","caTissue Suite");
+"^Washu-CaTissueSuite$","caTissueSuite");
 
 
 -- %% RULES FOR HOST NAMES %%
