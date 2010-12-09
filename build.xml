@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project name="gssapps" basedir="." default="dist"> 
+	
+<property name="project.dir" value="." />
+<property name="ant.project.name" value="GSS Apps" />
+<property name="webroot.dir" value="WebRoot" />
+<property name="dist.dir" value="dist" />
+<property name="war.file" value="gssapps.war" />
+
+<target name="clean" description="Removes generated files">
+	<delete dir="${dist.dir}" quiet="true"/>
+</target>
+
+<target name="dist" depends="clean" 
+		description="Creates WAR file distribution">
+	
+	<echo message="${ant.project.name}: Create WAR file distribution"/>
+	<mkdir dir="${dist.dir}"/>
+	<zip destfile="${dist.dir}/${war.file}" whenempty="skip">
+		<zipfileset dir="${webroot.dir}" prefix=""/>
+	</zip>
+	
+</target>
+	
+</project>
