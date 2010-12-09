@@ -1,0 +1,156 @@
+/*########## BLUE COLOR SCHEME ##########
+ #475B82 = darker blue
+ #6E81A6 = lighter blue
+
+/*########## GREEN COLOR SCHEME ##########
+ #6A8989 = darker green
+ #98B7B7 = lighter green
+
+/*########## PURPLE COLOR SCHEME ##########
+ #797C9C = darker purple
+ #9FA2BA = lighter purple
+
+/*########## TAN COLOR SCHEME ##########
+ #706C60 = darker tan
+ #B3AE9C = lighter tan
+
+/*########## GRAY COLOR SCHEME ##########
+ #838386 = darker gray
+ #AAAAAB = lighter gray
+
+/*########## COMMON AMONG ALL COLOR SCHEMES ##########
+ #A90101 = red
+ #5C5C5C = dark gray
+ #CCCCCC = medium gray
+ #F4F4F5 = light gray
+ #FFFFFF = white
+ #000000 = black
+*/
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/*###############
+HDR AND FTR BEGINS
+###############*/
+.hdrBG { /* for the cell that contains the required cancer.gov header */
+    background-color: #a90101; /* constant: red */
+}
+
+.subhdrBG { /* for the cell that contains the application header */
+    background-color: #475B82; /* darker */
+}
+
+.ftrTable { /* for the table that contains the footer */
+    padding-top: 0.4em;
+}
+
+/*###############
+STANDARD CONTENT BEGINS
+###############*/
+table.contentPage { /* for overall top style for a content page */
+    font-family: arial, helvetica, verdana, sans-serif;
+    padding-left: 1em;
+    padding-right: 1em;
+    font-size: 0.7em;
+    color: #000000; /* constant: black */
+}
+
+h2,.h2 { /* for header of page */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #5c5c5c; /* constant: dark gray */
+    text-align: center;
+}
+
+h3,.h3 { /* for title of page */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #5c5c5c; /* constant: dark gray */
+    text-align: left;
+}
+
+td.footerVersion { /* for the items under the sub-menu title elements */
+	font-family: arial, helvetica, verdana, sans-serif;
+	font-size: 0.6em;
+	background-color: #ffffff; /* constant: white */
+	color: #000000; /* constant: black */
+}
+
+.header {
+    font-size: 16pt; 
+    font-family: Arial, sans-serif;
+    color: #F4F4F5;
+    padding-left: 10pt;
+}
+
+.welcomeTitle { /* for titles of sections inside the content area */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 0.8em;
+    font-weight: bold;
+    padding-left: 1em;
+    background-color: #cccccc; /* constant: medium gray */
+    border-top: 1px solid #cccccc; /* constant: medium gray */
+}
+
+.welcomeContent {
+    /* for the area below the title content of the home page */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 0.8em;
+    line-height: 1.5em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align: justify;
+}
+
+.contentTitle { /* for title on top of the content area */
+    background-color: #cccccc; /* constant: medium gray */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 0.8em;
+    font-weight: bold;
+    padding-left: 0.2em;
+}
+
+table.content tr td {
+    font: verdana;
+    font-size: 12pt;
+    text-align: center;
+}
+
+span.choose {
+	font-size: 14pt;
+}
+
+.mainDesc {
+    color: #475B82;
+    margin: 1em;
+    font-weight: bold;
+}
+
+
+.disclaimerTitle { /* for titles of sections inside the content area */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 0.7em;
+    font-weight: bold;
+    padding-left: 1em;
+    color: #000000;
+    background-color: #cccccc; /* constant: medium gray */
+    border-top: 1px solid #cccccc; /* constant: medium gray */
+}
+
+.disclaimerContent {
+    /* for the area below the title content of the home page */
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-size: 0.7em;
+    color: #000000;
+    line-height: 1.5em;
+    padding-top: 1.5em;
+    padding-left: 2.5em;
+    padding-right: 2.5em;
+    padding-bottom: 1.5em;
+    text-align: justify;
+}
+

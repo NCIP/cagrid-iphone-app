@@ -1,0 +1,560 @@
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>caGrid Mobile Web</title>
+<script src="js/jquery.1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery.text-overflow.min.js" type="text/javascript" charset="utf-8"></script>
+<style type="text/css" media="screen">@import "css/jqtouch.min.css";</style>
+<style type="text/css" media="screen">@import "themes/apple/theme.min.css";</style>
+
+<script type="text/javascript" charset="utf-8">
+    var jQT = new $.jQTouch({
+        icon: 'images/Icon.png',
+        addGlossToIcon: true,
+        statusBar: 'default',
+        preloadImages: [
+            'themes/jqt/img/back_button.png',
+            'themes/jqt/img/back_button_clicked.png',
+            'themes/jqt/img/button_clicked.png',
+            'themes/jqt/img/grayButton.png',
+            'themes/jqt/img/whiteButton.png',
+            'themes/jqt/img/loading.gif'
+            ]
+    });
+    
+    function cmp(a,b) {
+        if (!a && !b) return 0;
+        if (!a) return -1;
+        if (!b) return 1;
+        var ha = a.toLowerCase();
+        var hb = b.toLowerCase();
+        if (ha < hb) return -1;
+        if (ha > hb) return 1;
+        return 0;
+    }
+    
+    function sum(classHash) {
+        var c = 0;
+        for (k in classHash) {
+            c += parseInt(classHash[k])
+        }
+        return c;
+    }
+    
+    function addCommas(n) {
+        var nStr = n + '';
+        x = nStr.split('.');
+        x1 = x[0];
+        x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+    var GSS_URL = "../../gss10";
+    var GSS_JSON_URL = GSS_URL+"/json";
+    var currServiceId = null;            
+    var services = null;
+    var servicesById = {};
+    var currHostId = null;            
+    var hosts = null;
+    var hostsById = {};
+    var counts = null;
+    var groupCounts = {};
+    
+    $(document).ready(function() {
+        
+        $.ajaxSetup({timeout: 5000});
+        
+        $.ajax({ type:"GET", dataType: "json",               
+                 url: GSS_JSON_URL+"/service",
+                 success: function(json) {
+                
+                $("#services_ul").empty();
+                if (!("services" in json)) return;
+                services = json.services;
+                groupCounts['All'] = services.length;
+                
+                // generate some additional derived properties
+                for(i in services) {
+                    var service = services[i];
+                    servicesById[service.id] = service;
+                    service.display_name = service.simple_name || service.name;
+                    service.title = service.display_name;
+                    if (service.host_short_name) service.title += ' at ' + service.host_short_name;
+                    var type = service["class"] == "DataService" ? "database" : "chart_bar";
+                    service.img = '<img src="images/'+type+'.png" class="cellicon"/>';
+                    if ('group' in service) {
+                        group = service['group'];
+                        if (!(group in groupCounts)) groupCounts[group] = 0;
+                        groupCounts[group]++;
+                    }
+                    if ('class' in service) {
+                        clazz = service['class'];
+                        if (!(clazz in groupCounts)) groupCounts[clazz] = 0;
+                        groupCounts[clazz]++;
+                    }
+                }
+                
+                for(g in groupCounts) {
+                    $('#count_'+g).html(groupCounts[g]);
+                }
+                
+                services.sort(function(a,b) {
+                    var r = cmp(a.display_name, b.display_name);
+                    if (r==0) return cmp(a.host_short_name, b.host_short_name);
+                    return r;
+                });
+                
+                $("#services_ul").empty();
+                for(i in services) {
+                    var service = services[i];
+                    if (service.hidden_default == 'true') {
+                        continue;
+                    }
+                    var html = '';
+                    html += '<li class="arrow"><a href="#service_details" onclick="currServiceId=\''+service.id+'\'">';
+                    html += service.img+'<div class="trunc">'+service.title+'</div></a></li>';
+                    $("#services_ul").append(html); 
+                }
+            
+            },
+            error: function(request, textStatus, errorThrown) {
+                $("#services_ul").empty().append("<li>Could not retrieve data</li>"); 
+            }
+        });
+    
+        $.ajax({ type:"GET", dataType: "json",               
+                 url: GSS_JSON_URL+"/host", 
+                 success: function(json) {
+                
+                $("#hosts_ul").empty();
+                if (!("hosts" in json)) return;
+                hosts = json.hosts;
+                
+                // generate some additional derived properties
+                for(i in hosts) {
+                    var host = hosts[i];
+                    hostsById[host.id] = host;
+                    var imgsrc = host.image_name 
+                        ? GSS_URL+'/image/host/'+host.image_name 
+                        : 'images/house.png';
+                    host.img = '<img src="'+imgsrc+'" class="cellicon"/>';
+                }
+                
+                hosts.sort(function(a,b) {
+                    return cmp(a.long_name, b.long_name);
+                });
+                
+                $("#hosts_ul").empty();
+                for(i in hosts) {
+                    var host = hosts[i];
+                    var html = '';
+                    html += '<li class="arrow"><a href="#host_details" onclick="currHostId=\''+host.id+'\'">';
+                    html += host.img+'<div class="title">'+host.short_name+'</div>';
+                    html += '<div class="desc">'+host.long_name+'</div></a></li>';
+                    $("#hosts_ul").append(html); 
+                }
+                
+            },
+            error: function(request, textStatus, errorThrown) {
+                $("#hosts_ul").empty().append("<li>Could not retrieve data</li>"); 
+            }
+        });
+               
+        $.ajax({ type:"GET", dataType: "json",               
+                 url: GSS_JSON_URL+"/counts", 
+                 success: function(json) {
+                
+                if (!("counts" in json)) return;
+                counts = json.counts;
+                
+                $("#count_experiments").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.project.Experiment'])));
+                $("#count_samples").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.sample.Sample'])));
+                $("#count_designs").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.array.ArrayDesign'])));
+                $("#count_arrays").html(addCommas(sum(counts['gov.nih.nci.caarray.domain.array.Array'])));
+                $("#count_images").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Image'])));
+                $("#count_studies").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Study'])));
+                $("#count_patients").html(addCommas(sum(counts['gov.nih.nci.ncia.domain.Patient'])));
+                $("#count_na_protocols").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.common.Protocol'])));
+                $("#count_na_samples").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.particle.Sample'])));
+                $("#count_na_pubs").html(addCommas(sum(counts['gov.nih.nci.cananolab.domain.common.Publication'])));
+              
+            },
+            error: function(request, textStatus, errorThrown) {
+                $("#counts_ul").empty().append("<li>Could not retrieve data</li>"); 
+            }
+        });
+                
+        $('#services').bind('pageAnimationEnd', function(e, info){
+            $("#services_ul>li>a>div").textOverflow('...');
+        });
+        
+        $('#hosts').bind('pageAnimationEnd', function(e, info){
+            $("#hosts_ul>li>a>div").textOverflow('...');
+        });
+        
+        $('#service_details').bind('pageAnimationStart', function(e, info){
+
+            if (info.direction != 'in') return;
+            $(this).empty();
+            if (!(currServiceId in servicesById)) {
+                $(this).append('<div>Service not found</div>');
+            }
+            service = servicesById[currServiceId];
+            
+            html = '';
+            html += '<div class="toolbar"><h1>'+service.display_name+'</h1>';
+            html += '<a href="#" class="back">Back</a></div>';
+            html += '<ul class="rounded"><li class="small">'+service.img+service.title;
+            html += '<br/>Software: '+service.name+' '+service.version;
+            html += '<a href="'+service.url+'" rel="external" class="serviceUrl">'+service.url+'</a>';
+            if (service.description) html += service.description;
+            html += '</li></ul>';
+            
+            if (service.pocs) {
+                for(i in service.pocs) {
+                    poc = service.pocs[i];
+                    html += '<h1>Point of Contact</h1>';
+                    html += '<ul class="rounded"><li class="attrcell"><table>';
+                    html += '<tr><td class="name">Name</td><td class="value">'+poc.name+'</td></tr>';
+                    html += '<tr><td class="name">Role</td><td class="value">'+poc.role+'</td></tr>';
+                    html += '<tr><td class="name">Affiliation</td><td class="value">'+poc.affiliation+'</td></tr>';
+                    html += '<tr class="bottom"><td class="name">Email</td><td class="value"><a href="mailto:'+poc.email+'" rel="external">'+poc.email+'</a></td></tr>';
+                    html += '</table></li></ul>';
+                }
+            }
+            
+            $(this).append(html);
+        });
+        
+        $('#service_details').bind('pageAnimationEnd', function(e, info){
+            $("ul>li>a",this).textOverflow('...');
+        });
+        
+        $('#host_details').bind('pageAnimationStart', function(e, info){
+
+            if (info.direction != 'in') return;
+            $(this).empty();
+            if (!(currHostId in hostsById)) {
+                $(this).append('<div>Host not found</div>');
+            }
+            host = hostsById[currHostId];
+            
+            html = '';
+            html += '<div class="toolbar"><h1>'+host.short_name+'</h1>';
+            html += '<a href="#" class="back">Back</a></div>';
+            html += '<ul class="rounded"><li class="small">'+host.img+'<b>'+host.short_name+"</b>";
+            html += '<br/>Hosting 1 grid service.<br clear="all"/>';
+            
+            address = '';
+            if (host.long_name) address += host.long_name+'<br/>';
+            if (host.street) address += host.street+'<br/>';
+            if (host.locality) address += host.locality+", ";
+            if (host.state_province) address += host.state_province;
+            if (host.postal_code) address += ' '+host.postal_code;     
+            if (host.country_code) address += '<br/>'+host.country_code;           
+            if (address) html += '<p class="address">'+address+'</p>';
+
+            html += '</li></ul>';
+            
+            if (host.pocs) {
+                for(i in host.pocs) {
+                    poc = host.pocs[i];
+                    html += '<h1>Point of Contact</h1>';
+                    html += '<ul class="rounded"><li class="attrcell"><table>';
+                    html += '<tr><td class="name">Name</td><td class="value">'+poc.name+'</td></tr>';
+                    html += '<tr><td class="name">Role</td><td class="value">'+poc.role+'</td></tr>';
+                    html += '<tr><td class="name">Affiliation</td><td class="value">'+poc.affiliation+'</td></tr>';
+                    html += '<tr class="bottom"><td class="name">Email</td><td class="value"><a href="mailto:'+poc.email+'" rel="external">'+poc.email+'</a></td></tr>';
+                    html += '</table></li></ul>';
+                }
+            }
+            
+            $(this).append(html);
+        });
+        
+    });
+
+</script>
+<style type="text/css" media="screen">
+    body.fullscreen #home .info {
+        display: none;
+    }
+    #about {
+        padding: 100px 10px 40px;
+        font-size: 13px;
+        text-align: center;
+    }
+    #about p {
+        margin-bottom: 8px;
+    }
+    #about a {
+        color: #fff;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    .cellicon {
+        border: none;
+        float: left;
+        margin-right: 10px;
+        margin-top: 0px;
+    }
+    a.serviceUrl {
+        clear: left;
+    }
+    
+    div.trunc {
+        color: #000;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
+        padding: 8px 18px 0px 0px;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        width: 220px;
+    }
+    
+    div.title {
+        color: #000;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
+        padding: 0px 18px 0px 0px;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+    
+    div.desc {
+        color: #000;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
+        padding: 0px 18px 0px 0px;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        font-size: 11pt;
+        font-weight: normal;
+    }
+    
+    li.small {
+        padding: 10px 18px 10px 10px;
+        font-size: 11pt;
+        font-weight: normal;
+        color: black;
+    }
+
+    li.small a {
+        color: blue;
+        text-decoration: underline;
+    }
+    
+    li.attrcell {
+        font-size: 11pt;
+        font-weight: normal;
+        color: black;
+    }
+    
+    li.attrcell a {
+        color: blue;
+        text-decoration: underline;
+    }
+    
+    li.attrcell table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    li.attrcell td {
+        vertical-align: top;
+        border-bottom: 1px solid #999999;
+        padding: 5px 0px 5px 0px;
+    }
+    
+    li.attrcell tr.bottom td {
+        border-bottom: none;
+    }
+    
+    li.attrcell td.name {
+        color: #999;
+        width: 30%;
+    }
+    
+    li.statcell {
+        font-size: 11pt;
+        font-weight: normal;
+        color: black;
+    }
+    
+    li.statcell table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    li.statcell td {
+        vertical-align: top;
+        border-bottom: 1px solid #999999;
+        padding: 5px 0px 5px 0px;
+    }
+    
+    li.statcell tr.bottom td {
+        border-bottom: none;
+    }
+    
+    li.statcell td.name {
+        color: #999;
+        width: 60%;
+    }
+    
+    p.address {
+        margin-top: 5px;
+    }
+    
+    .toolbar {
+    	/** Override so that Firefox doesn't have a fat toolbar */
+    	padding: 0px;
+    }
+    
+    .toolbar > h1 {
+        left: 50%;
+        margin: 1px 0 0 -105px;
+        width: 220px;
+    }
+
+
+    div.loader {
+        width: 100%;
+        height: 11px;
+        background-image:url('images/ajax-loader.gif'); 
+        background-repeat:no-repeat;
+        background-position: center;
+    }
+
+</style>
+</head>
+<body>
+
+<div id="home" class="current">
+    <div class="toolbar">
+        <h1>caGrid</h1>
+        <a class="button slideup" id="infoButton" href="#about">About</a>
+    </div>
+    <div class="info">
+        <p>Welcome to the caGrid mobile web app.</p>
+    </div>
+    <ul class="rounded">
+        <li class="arrow"><a href="#stats">Statistics</a></li>
+        <!--<li class="arrow"><a href="#search">Search</a></li>
+        <li class="arrow"><a href="#results">Search Results</a></li>-->
+        <li class="arrow"><a href="#services">Grid Services</a></li>
+        <li class="arrow"><a href="#hosts">Hosting Institutions</a></li>
+    </ul>
+
+</div>
+
+<div id="about" class="selectable">
+    <h1>caGrid Mobile Web App</h1>   
+    <br/><br/><br/><br/>
+    <a href="#" class="grayButton goback">Close</a> 
+</div>
+
+<div id="stats">
+    <div class="toolbar">
+        <h1>Statistics</h1>
+        <a href="#" class="back">Back</a>
+    </div>
+                
+    <h1>caGrid Statistics</h1>
+    <ul class="rounded" id="stats_ul"><li class="statcell"><table>
+    <tr><td class="name">Services</td><td class="value"><span id="count_All"></span></td></tr>
+    <tr><td class="name">Data Services</td><td class="value"><span id="count_DataService"></span></td></tr>
+    <tr class="bottom"><td class="name">Analytical Services</td><td class="value"><span id="count_AnalyticalService"></span></td></tr>
+    </table></li></ul>
+    
+    <h1>Microarray (caArray)</h1>
+    <ul class="rounded" id="stats_ul"><li class="statcell"><table>
+    <tr><td class="name">Sites</td><td class="value"><span id="count_microarray"></span></td></tr>
+    <tr><td class="name">Experiments</td><td class="value"><span id="count_experiments"></span></td></tr>
+    <tr><td class="name">Samples</td><td class="value"><span id="count_samples"></span></td></tr>
+    <tr><td class="name">Array Designs</td><td class="value"><span id="count_designs"></span></td></tr>
+    <tr class="bottom"><td class="name">Arrays</td><td class="value"><span id="count_arrays"></span></td></tr>
+    </table></li></ul>
+    
+    <!--
+    <h1>Biospecimen (caTissue)</h1>
+    <ul class="rounded" id="stats_ul"><li class="statcell"><table>
+    <tr><td class="name">Sites</td><td class="value"><span id="count_biospecimen"></span></td></tr>
+    <tr class="bottom"><td class="name">Samples</td><td class="value"><span id=""></span></td></tr>
+    </table></li></ul>
+    -->
+    
+    <h1>Imaging (NCIA)</h1>
+    <ul class="rounded" id="stats_ul"><li class="statcell"><table>
+    <tr><td class="name">Sites</td><td class="value"><span id="count_imaging"></span></td></tr>
+    <tr><td class="name">Images</td><td class="value"><span id="count_images"></span></td></tr>
+    <tr><td class="name">Studies</td><td class="value"><span id="count_studies"></span></td></tr>
+    <tr class="bottom"><td class="name">Patients</td><td class="value"><span id="count_patients"></span></td></tr>
+    </table></li></ul>
+    
+    <h1>Nanoparticles (caNanoLab)</h1>
+    <ul class="rounded" id="stats_ul"><li class="statcell"><table>
+    <tr><td class="name">Sites</td><td class="value"><span id="count_nanoparticle"></span></td></tr>
+    <tr><td class="name">Protocols</td><td class="value"><span id="count_na_protocols"></span></td></tr>
+    <tr><td class="name">Samples</td><td class="value"><span id="count_na_samples"></span></td></tr>
+    <tr class="bottom"><td class="name">Publications</td><td class="value"><span id="count_na_pubs"></span></td></tr>
+    </table></li></ul>
+        
+</div>
+
+<div id="search">
+    <div class="toolbar">
+        <h1>Search</h1>
+        <a href="#" class="back">Back</a>
+    </div>
+    <ul class="edgetoedge" id="search_ul">
+    </ul>
+</div>
+
+<div id="results">
+    <div class="toolbar">
+        <h1>Search Results</h1>
+        <a href="#" class="back">Back</a>
+    </div>
+    <ul class="edgetoedge" id="results_ul">
+    </ul>
+</div>
+
+<div id="services">
+    <div class="toolbar">
+        <h1>Grid Services</h1>
+        <a href="#" class="back">Back</a>
+    </div>
+    <ul class="edgetoedge" id="services_ul">
+        <li><div class="loader"></div></li>
+    </ul>
+</div>
+
+<div id="hosts">
+    <div class="toolbar">
+        <h1>Hosting Institutions</h1>
+        <a href="#" class="back">Back</a>
+    </div>
+    <ul class="edgetoedge" id="hosts_ul">
+        <li><div class="loader"></div></li>
+    </ul>
+</div>
+
+<div id="service_details">
+</div>
+
+<div id="host_details">
+</div>
+
+</body>
+</html>
