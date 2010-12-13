@@ -236,24 +236,27 @@ public class GridIndexService {
     	    
     	    List<DomainAttribute> attrList = new ArrayList<DomainAttribute>();
     	    
-    	    if (umlClass.getUmlAttributeCollection() == null) continue;
-            for(UMLAttribute umlAttr : umlClass.getUmlAttributeCollection().getUMLAttribute()) {
-                gov.nih.nci.gss.domain.DomainAttribute newAttr = new gov.nih.nci.gss.domain.DomainAttribute();
-                newAttr.setAttributeName(umlAttr.getName());
-                newAttr.setDataTypeName(umlAttr.getDataTypeName());
-                newAttr.setCdePublicId(umlAttr.getPublicID());
-                newAttr.setDomainClass(newClass);
-                attrList.add(newAttr);
-            }
-
-            Collections.sort(attrList, new Comparator<DomainAttribute>() {
-                public int compare(DomainAttribute da0, DomainAttribute da1) {
-                    return da0.getAttributeName().compareTo(da1.getAttributeName());
+    	    if ((umlClass.getUmlAttributeCollection() != null) 
+    	            && (umlClass.getUmlAttributeCollection().getUMLAttribute() != null)) {
+            
+                for(UMLAttribute umlAttr : umlClass.getUmlAttributeCollection().getUMLAttribute()) {
+                    gov.nih.nci.gss.domain.DomainAttribute newAttr = new gov.nih.nci.gss.domain.DomainAttribute();
+                    newAttr.setAttributeName(umlAttr.getName());
+                    newAttr.setDataTypeName(umlAttr.getDataTypeName());
+                    newAttr.setCdePublicId(umlAttr.getPublicID());
+                    newAttr.setDomainClass(newClass);
+                    attrList.add(newAttr);
                 }
-            });
-            
-            newClass.setAttributes(new LinkedHashSet<DomainAttribute>(attrList));
-            
+    
+                Collections.sort(attrList, new Comparator<DomainAttribute>() {
+                    public int compare(DomainAttribute da0, DomainAttribute da1) {
+                        return da0.getAttributeName().compareTo(da1.getAttributeName());
+                    }
+                });
+                
+                newClass.setAttributes(new LinkedHashSet<DomainAttribute>(attrList));
+    	    }
+    	        
             classList.add(newClass);
     	}
 		
