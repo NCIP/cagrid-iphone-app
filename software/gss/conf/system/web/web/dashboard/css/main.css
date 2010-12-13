@@ -1,0 +1,272 @@
+
+body {
+    background-color: #DCE6FA;
+}
+
+#loading {
+    font-size: 1.3em;
+    font-weight: bold;
+    font-family: verdana, sans-serif;
+}
+
+#loading div.label {
+	margin-bottom: 5px;
+}
+
+#progressbar {
+    width: 400px;
+}
+
+div.heading {
+    font-size: 1.6em;
+    font-weight: bold;
+    font-family: verdana, sans-serif;
+    margin-bottom: 10px;
+    color: 20278A;
+}
+
+img.typeicon {
+    border-width: 0px;
+    vertical-align: middle;
+    margin-right: .5em;
+}
+
+img.cellicon {
+    width: 16px;
+    height: 16px;
+}
+
+.errors {
+    color: red;
+    font-size: 1em; 
+    font-weight: bold
+}
+
+div.loading {
+    font-size: 0.9em;
+    padding: 2px;
+}
+
+div.refreshDate {
+    margin-top: 2em;
+    font-size: .8em;
+    font-weight: bold;
+}
+
+table.grid {
+    border-collapse: collapse;
+}
+
+table.grid {
+    border: none;
+    text-align: left;
+}
+
+table.grid td {
+    border: 1px solid black;
+    font-size: .8em;
+    font-family: verdana, sans-serif;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.rightalign {
+    text-align: right;
+}
+
+table.grid td.nopad {
+    padding: 0px;
+    margin: 0px;
+}
+
+table.innergrid {
+    padding: 0px;
+    margin: 0px;
+    border-collapse: collapse;
+    border-width: 0px;
+}
+
+table.innergrid td {
+    border-width: 0px;
+    border-right: 1px solid black;
+    text-align:center;
+}
+
+div.cell {
+    width: 10px;
+    height: 20px;
+    cursor:pointer;
+}
+
+div.keycell {
+    border: 1px solid black;
+    width: 10px;
+    height: 20px;
+}
+
+.lime {
+    background-color: #32D929;
+}
+
+.green {
+    background-color: #2FAD28;
+}
+
+.grey {
+    background-color: #B3B3B3;
+}
+
+.brown {
+    background-color: #998A15;
+}
+
+.orange {
+    background-color: #FF7B24;
+}
+
+.red {
+    background-color: #ED2B00;
+}
+
+
+table.colorkey td {
+    font-family: verdana, sans-serif;
+    font-size: .8em;
+}
+	
+/* tooltip styling */
+
+.tooltip {
+    display: none;
+    z-index:10000;
+    max-width: 40em;
+    background-color: #FAEEDC;
+    padding: 2px;
+    font-size: 11px;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+    font-family: verdana, sans-serif;
+}
+
+.tooltip div.title {
+    font-size: 1.1em;
+    margin: 0px;
+}
+
+.tooltip div.subtitle  {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 2px dotted black;
+}
+
+.tooltip span.value {
+    font-size: 1.0em; 
+    font-weight: bold
+}
+
+/* the overlayed element */
+.overlay {
+    display:none;
+    z-index:10000;
+    background-color:#fff;
+    width:675px;
+    min-height:200px;
+    border:1px solid #666;
+    padding: 10px;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    -moz-box-shadow: 0 0 50px #ccc;
+    -webkit-box-shadow: 0 0 50px #ccc;
+}
+
+/* close button positioned on upper right corner */
+.overlay .close {
+    background-image:url(../images/close.png);
+    position:absolute;
+    right:-15px;
+    top:-15px;
+    cursor:pointer;
+    height:35px;
+    width:35px;
+}
+
+#overlay h3 {
+    font-family: verdana, sans-serif;
+    font-size: 1.0em; 
+    font-weight: bold;
+    margin: 0px;
+    margin-top: 5px;
+}
+
+#overlay pre {
+    font-size: 1.1em;
+    overflow: auto;
+    height: 300px;
+}
+
+div.sortOptions {
+    font-weight: bold;
+}
+
+div.sortOptions .ui-button .ui-button-text {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+
+table.properties {
+    border-collapse: collapse;
+    margin: 5px;
+    min-width: 30em; 
+    font-family: verdana, sans-serif;
+    font-size: .8em;
+}
+
+table.properties th {
+    font-weight: bold;
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid #aaa;
+    padding: 2px;
+    background-color: #ddd;
+}
+
+table.properties .propertyName {
+    min-width: 12em;
+}
+
+table.properties td {
+    font-weight: normal;
+    border: 1px solid #aaa;
+    padding: 2px;
+    vertical-align: top;
+}
+
+table.properties td div.height-limited {
+    height: expression( this.scrollHeight > 139 ? "140px" : "auto" ); /* sets max-height for IE */
+    max-height: 140px; /* sets max-height value for all standards-compliant browsers */
+    /* can't set IE max-width because a scrollbar will obscure a single line... */ 
+    /* width: expression( this.scrollWidth > 499 ? "500px" : "auto" ); */
+    /*max-width: 500px;  sets max-width value for all standards-compliant browsers */
+    overflow: auto;
+    max-width: 30em;
+}
+
+/* 
+ * These classes contain custom changes to jQuery UI Tabs to support the 
+ * dashboard's need for dynamic width past 100% of the screen.
+ */
+.ui-tabs { display: inline-block; min-width: 99%; margin-right: .2em; position: relative; padding: .2em; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+.ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; }
+.ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap; }
+.ui-tabs .ui-tabs-nav li a { float: left; padding: .5em 1em; text-decoration: none; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+.ui-tabs .ui-tabs-panel { display: inline-block; border-width: 0; padding: 1em 1.4em; background: none; }
+.ui-tabs .ui-tabs-hide { display: none !important; }
