@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8" />
@@ -5,10 +6,17 @@
 <link rel="stylesheet" type="text/css" href="css/main.css"/> 
 <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.6.custom.css"/> 
 
-<!-- <script src="http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js"></script> -->
+<!-- 
+<script type="text/javascript" src="js/src/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="js/src/overlay.js"></script>
+<script type="text/javascript" src="js/src/tabs.js"></script>
+<script type="text/javascript" src="js/src/tooltip.js"></script>
+ -->
+
 <script type="text/javascript" src="js/jquery.tools.1.2.5.min.js"></script>
+ 
 <script type="text/javascript" src="js/jquery.ajaxmanager.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.1.8.6.min.js"></script>
 
 <script type="text/javascript" charset="utf-8">
     
@@ -22,6 +30,7 @@
     var hosts = null;
     var hostById = {};
     var countDataByCell = {};
+    var tipHtmlByCell = {};
     var countRequestsTotal = 0;
     var countRequestsDone = 0;
     
@@ -222,14 +231,14 @@
         html += '</td></tr></table>';
     
         html += '<table class="grid"><thead><tr>';
-        html += '<th valign="bottom" title="Hosting Center Icon (hover for name)"><img src="images/grid_health_labels_host.png"></th>';
-        html += '<th valign="bottom" title="Service Name (click for WSDL)"><img src="images/grid_health_labels_name.png"></th>';
-        html += '<th valign="bottom" title="Service Version"><img src="images/grid_health_labels_version.png"></th>';
-        html += '<th valign="bottom" title="Quality of service score based on the indicators in the following columns">QoS</th>';
-        html += '<th valign="bottom" title="Was the service found in the caGrid Index Service?"><img src="images/grid_health_labels_index.png"></th>';
+        html += '<th valign="bottom" title="Hosting center icon (hover for name)"><img src="images/grid_health_labels_host.png"></th>';
+        html += '<th valign="bottom" title="Service name (click for details)"><img src="images/grid_health_labels_name.png"></th>';
+        html += '<th valign="bottom" title="Service version as reported by the Index Service"><img src="images/grid_health_labels_version.png"></th>';
+        html += '<th valign="bottom" title="Quality of service score based on the indicators in the following columns"><img src="images/grid_health_labels_qos.png"></th>';
+        html += '<th valign="bottom" title="Was the service found in the Index Service?"><img src="images/grid_health_labels_index.png"></th>';
         html += '<th valign="bottom" title="Was the service WSDL accessible?"><img src="images/grid_health_labels_access.png"></th>';
         if (type == 'DataService')
-            html += '<th valign="bottom" title="Number of instances for each object in the service domain model"><img src="images/grid_health_labels_counts.png"></th>';
+            html += '<th valign="bottom" align="left" title="Number of instances for each object in the service domain model"><img src="images/grid_health_labels_counts.png"></th>';
         html += "</tr></thead><tbody>";
         
         for(var i=0; i<hosts.length; i++) {
@@ -461,7 +470,8 @@
                         }
                         
                         countDataByCell[cellid] = countData;
-                        
+
+                        var title = countData.serviceName+', '+countData.className;
                         var tip = '<div class="title">'+countData.serviceName+'</div>'
                                 + '<div class="subtitle">'+countData.className+'</div>';
 
@@ -469,20 +479,23 @@
                             tip += 'Refreshed: <span class="value">'+countData.countDate+'</span><br/>';
 
                             if ('count' in countData) {
+                                title += ', '+countData.count+' instances';
                                 tip += 'Number of instances: <span class="value">'+countData.count+'</span><br/>';
                             }
                             else if ('error' in countData) {
+                                title += ', '+countData.error;
                                 tip += 'Error: <span class="errors">'+countData.error+'</span><br/>';
                             }
                         }                               
 
                         if ('message' in countData) {
+                            title += ', '+countData.message;
                             tip += countData.message;
                         }
                             
-                        countHtml += '<td id="'+cellid+'" class="'+countData.css+'" rel="#overlay">';
+                        countHtml += '<td id="'+cellid+'" class="'+countData.css+'" rel="#overlay" title="'+title+'">';
                         countHtml += '<div class="cell"></div></td>';
-                        tips += '<div class="tooltip" id="tip_'+cellid+'">'+tip+'</div>';
+                        tipHtmlByCell[cellid] = tip;
                         rc[countData.css] += 1;
                     }
                     
@@ -492,21 +505,32 @@
                     
                     // Calculate and fill in QoS score
                     service.qos += 2*rc['lime'] + 1*rc['green'] - 0*rc['grey'] - 1*rc['brown'] - 2*rc['orange'] - 4*rc['red'];
-                    
+
                     // Add tooltips and popup overlays
                     for(var k=0; k<classNames.length; k++) {
                         var className = classNames[k];
                         var cellid = sid+"_"+k;
-                        
-                        $('#'+cellid).tooltip({ 
-                                tip:"#tip_"+cellid, 
-                                delay:0, 
-                                position: 'bottom right', 
-                                relative: true
-                        });
+
+                        if (!$.browser.msie) {
+                            // IE doesn't get fancy formatted tooltips because they are too slow there 
+	                        $('#'+cellid).tooltip({ 
+	                                tip:"#tip",
+	                                delay: 0, 
+	                                predelay: 400,
+	                                position: 'bottom right', 
+	                                relative: false,
+	                                onBeforeShow: (function(cellid) {
+	                                    return function(event) {
+	                                        if (cellid in tipHtmlByCell) {
+	                                            $('#tip').empty().append(tipHtmlByCell[cellid]);
+	                                        }
+	                                    }
+	                                })(cellid)
+	                        });
+                        }
                         
                         $('#'+cellid).overlay({
-                            mask: "grey",
+                            mask: {color:"grey", loadSpeed:0, closeSpeed:0},
                             onBeforeLoad: (function(sid,cellid) { 
                                 return function(event) {
                                     var countData = countDataByCell[cellid];
@@ -559,7 +583,16 @@
 	                                                    for(sid in counts) {
 	                                                        for(cid in counts[sid]) {
 	                                                            var st = counts[sid][cid]['stacktrace'];
-	                                                            $('#overlay>div.content pre').empty().append(st);
+
+	                                                            // Workaround for IE issue (http://tinyurl.com/23soaow)
+	                                                            var h = $("#overlay>div.content pre").empty().get(0);
+	                                                            if (typeof h.innerText == "undefined") {
+	                                                            	h.innerHTML = st;
+	                                                            }
+	                                                            else {
+	                                                            	// The append() method uses innerHTML which breaks <pre>'s in IE. Have to use innerText instead. 
+	                                                                h.innerText = st;
+	                                                            }
 	                                                            break;
 	                                                        }
 	                                                    }
@@ -585,9 +618,10 @@
             });
             
             /*
-            countRequestsTotal =5;
+            countRequestsTotal = 5;
             if (c++==5) break;
             */
+            
         }
     }
     
@@ -690,6 +724,14 @@
 
 <div class="heading">Grid Health Dashboard</div>
 
+<div class="overlay" id="overlay">
+    <div class="content">Loading...</div>
+</div>
+
+<div class="tooltip" id="tip">
+    Loading...
+</div>
+
 <div id="loading">
     <div class="label">Loading...</div>
     <div id="progressbar"></div>
@@ -706,10 +748,6 @@
 	<div id="AnalyticalService">
         <p>Loading...</p>
 	</div>
-</div>
-
-<div class="overlay" id="overlay">
-    <div class="content"></div>
 </div>
 
 </body>
