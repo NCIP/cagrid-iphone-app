@@ -1,30 +1,50 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8" />
 <title>Current health of the caGrid</title>
-<script src="http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js"></script>
-<!--
-jquery tools already includes jquery 1.4.2
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
--->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/main.css"/> 
+<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.6.custom.css"/> 
+
+<!-- 
+<script type="text/javascript" src="js/src/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="js/src/overlay.js"></script>
+<script type="text/javascript" src="js/src/tabs.js"></script>
+<script type="text/javascript" src="js/src/tooltip.js"></script>
+ -->
+
+<script type="text/javascript" src="js/jquery.tools.1.2.5.min.js"></script>
+ 
 <script type="text/javascript" src="js/jquery.ajaxmanager.js"></script>
-
-<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.5.custom.css"/> 
-
+<script type="text/javascript" src="js/jquery-ui.1.8.6.min.js"></script>
 
 <script type="text/javascript" charset="utf-8">
     
     var GSS_URL = "../..";
     var GSS_JSON_URL = GSS_URL+"/json";
     
+    var currTab = "#DataService";
     var lastRefreshDate = "";
     var services = null;
     var serviceById = {};
     var hosts = null;
     var hostById = {};
+    var countDataByCell = {};
+    var tipHtmlByCell = {};
+    var countRequestsTotal = 0;
+    var countRequestsDone = 0;
     
-    function cmp(a,b,caseSensitive) {
+    function enabledUI(enabled) {
+        uiEnabled = enabled;
+        if (enabled) {
+            document.body.style.cursor = "default";
+        }
+        else {
+            document.body.style.cursor = "wait";
+        }
+    }
+    
+    function cmp(a,b) {
         if (!a && !b) return 0;
         if (!a) return -1;
         if (!b) return 1;
@@ -56,17 +76,23 @@ jquery tools already includes jquery 1.4.2
         return x1 + x2;
     }
     
+    function serviceSupportsCounts(service) {
+        return !service.name.match("^CaTissue");
+    }
+    
     function allDataReady() {
         return ((services != null) && (hosts != null));
     }
     
     function setup() {
-    
+        
         // add services to hosts
         for(i in services) {
             var service = services[i];
             var hostId = service.host_id ? service.host_id : '';
             var host = hostById[hostId];
+            service.host = host;
+            service.qos = 0;
             host.services[service['class']].push(service);
         }
         
@@ -98,74 +124,280 @@ jquery tools already includes jquery 1.4.2
             }
         }
         
-        createView("#DataService");
+        createView(currTab);
+    }
+    
+    function testForEnd() {
+        countRequestsDone++; 
+        if (countRequestsDone >= countRequestsTotal) {
+            normalizeQosScores(currTab);
+	        enabledUI(true);
+	        $(currTab +"_sortOptions").buttonset("option", "disabled", false);
+	        $("#loading").hide();
+	        $("#tabs").show();
+        }
+    }
+    
+    function resort(hash) {
+    
+        var newsort = $(hash +"_sortOptions input:checked")[0].value;
+        var table = $(hash + ' > table.grid');
+        var rows = $('> tbody > tr',table).get();
+
+        rows.sort(function(a, b) {
+
+            var sa = serviceById[a.id];
+            var sb = serviceById[b.id];
+
+            if (newsort == 'sort_service') {
+                var c = cmp(sa.display_name, sb.display_name);
+                if (c==0) return cmp(sa.host.long_name, sb.host.long_name);
+                else return c;
+            }
+            else if (newsort == 'sort_qos') {
+                var c = ccmp(sb.qos, sa.qos);
+                if (c==0) {
+                    var d = cmp(sa.display_name, sb.display_name);
+                    if (d==0) return cmp(sa.host.long_name, sb.host.long_name);
+                    return d;
+                }
+                else return c;
+            }
+            else {
+                var c = cmp(sa.host.long_name, sb.host.long_name);
+                if (c==0) return cmp(sa.display_name, sb.display_name);
+                else return c;
+            }
+
+        });
+
+        $.each(rows, function(index, row) {
+            var s = serviceById[row.id];
+            table.children('tbody').append(row);
+        });
+        
+    }
+    
+    function normalizeQosScores(hash) {
+    
+        var rows = $(hash + ' > table.grid > tbody > tr').get();
+        var min = Number.MAX_VALUE;
+        var max = 0;
+        
+        $.each(rows, function(index, row) {
+            var s = serviceById[row.id];
+            if (s.qos < min) min = s.qos;
+            if (s.qos > max) max = s.qos;
+        });
+    
+        var range = max - min;
+    
+        $.each(rows, function(index, row) {
+            var service = serviceById[row.id];
+            if (min < 0) {
+                service.qos -= min;
+            }
+            $('#qos_'+service.id).empty().append(Math.round(service.qos));
+        });
     }
     
     function createView(hash) {
     
         var type = hash.substring(1);
     
-        var html = '<table class="grid"><tr>';
-        html += "<th valign='bottom'><img src='images/grid_health_labels_host.png'></th>";
-        html += "<th valign='bottom'><img src='images/grid_health_labels_name.png'></th>";
-        html += "<th valign='bottom'><img src='images/grid_health_labels_version.png'></th>";
-        html += "<th valign='bottom'><img src='images/grid_health_labels_index.png'></th>";
-        html += "<th valign='bottom'><img src='images/grid_health_labels_access.png'></th>";
+        var html = '';
+        html += '<table><tr><td><ul style="display: inline-block; margin-bottom: 10px" class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">';
+        
+        html += '<table><tr><td>Sort by:</td><td>';
+        html += '<div class="sortOptions" id="'+type+'_sortOptions">';
+        html += '<input type="radio" id="'+type+'_sort_host" value="sort_host" name="'+type+'_sortOptions" checked="checked" /><label for="'+type+'_sort_host">Hosting Center</label>';
+        html += '<input type="radio" id="'+type+'_sort_service" value="sort_service" name="'+type+'_sortOptions" /><label for="'+type+'_sort_service">Service Name</label>';
+        html += '<input type="radio" id="'+type+'_sort_qos" value="sort_qos" name="'+type+'_sortOptions" /><label for="'+type+'_sort_qos">QoS Score</label>';
+        html += '</div></td></tr></table></ul></td><td width="50"></td><td>';
+        
+        html += '<table class="colorkey">';
+        html += '<tr>';
+        html += '<td><div class="lime"><div class="keycell"></div></div></td><td>1 or more objects</td>';
+        html += '<td><div class="green"><div class="keycell"></div></div></td><td>0 objects</td>';
+        html += '<td><div class="grey"><div class="keycell"></div></div></td><td>Not queried</td>';
+        html += '</tr>';
+        html += '<tr>';
+        html += '<td><div class="orange"><div class="keycell"></div></div></td><td>Network error</td>';
+        html += '<td><div class="red"><div class="keycell"></div></div></td><td>Query error</td>';
+        html += '<td><div class="brown"><div class="keycell"></div></div></td><td>Null result</td>';
+        html += '</tr>';
+        html += '</table>';
+        
+        html += '</td></tr></table>';
+    
+        html += '<table class="grid"><thead><tr>';
+        html += '<th valign="bottom" title="Hosting center icon (hover for name)"><img src="images/grid_health_labels_host.png"></th>';
+        html += '<th valign="bottom" title="Service name (click for details)"><img src="images/grid_health_labels_name.png"></th>';
+        html += '<th valign="bottom" title="Service version as reported by the Index Service"><img src="images/grid_health_labels_version.png"></th>';
+        html += '<th valign="bottom" title="Quality of service score based on the indicators in the following columns"><img src="images/grid_health_labels_qos.png"></th>';
+        html += '<th valign="bottom" title="Was the service found in the Index Service?"><img src="images/grid_health_labels_index.png"></th>';
+        html += '<th valign="bottom" title="Was the service WSDL accessible?"><img src="images/grid_health_labels_access.png"></th>';
         if (type == 'DataService')
-            html += "<th valign='bottom'><img src='images/grid_health_labels_counts.png'></th>";
-        html += "</tr>";
+            html += '<th valign="bottom" align="left" title="Number of instances for each object in the service domain model"><img src="images/grid_health_labels_counts.png"></th>';
+        html += "</tr></thead><tbody>";
         
         for(var i=0; i<hosts.length; i++) {
             var host = hosts[i];
-            
             if (host.services[type].length == 0) continue;
-            
-            html += '<tr><td rowspan="'+host.services[type].length+'" title="'+host.long_name+'">'
-            html += host.img+'</td>';
             
             for(var j=0; j<host.services[type].length; j++) {
                 var service = host.services[type][j];
+                
+	            html += '<tr id="'+service.id+'"><td title="'+host.long_name+'">'+host.img+'</td>';
+            
                 var indexedImg = service.status == 'ACTIVE' ? 'tick.png' : 'exclamation.png';
                 var accessImg = service.accessible == 'true' ? 'tick.png' : 'exclamation.png';
                 var indexedTitle = service.status == 'ACTIVE' ? 'Service was found on the Index Service' : 'Service was not found on the Index Service';
                 var accessTitle = service.accessible == 'true' ? 'Service WSDL was accessible' : 'Service WSDL was not accessible';
+               
+                service.qos = type == 'DataService' ? 0 : 100;
+                service.qos += service.accessible == 'true' ? 30 : -30;
+                service.qos += service.status == 'ACTIVE' ? 10 : -10;
                 
-                if (j>0) html += '<tr>';
-                html += '<td><a href="'+service.url+'?wsdl" target="_new">'+service.name+'</a></td>';
+                //html += '<td class="nowrap"><a href="'+service.url+'?wsdl" target="_new">'+service.display_name+'</a></td>';
+                html += '<td class="nowrap"><a id="s_'+service.id+'" href="#" rel="#overlay">'+service.display_name+'</a></td>';
                 html += '<td class="nowrap">'+service.version+'</td>';
+                html += '<td id="qos_'+service.id+'" class="rightalign"></td>';
                 html += '<td title="'+indexedTitle+'"><img src="images/'+indexedImg+'" class="cellicon"/></td>';   
                 html += '<td title="'+accessTitle+'"><img src="images/'+accessImg+'" class="cellicon"/></td>';
             
                 if (type == 'DataService')
                     html += '<td id="counts_'+service.id+'" class="nopad">'
                           + '<div class="loading">Loading...</div></td></tr>';
+                   
             }
         }
         
-        html += '</table>';
+        html += '</tbody></table>';
         html += '<div class="refreshDate">Last Refreshed: '+lastRefreshDate+'</div>';
         
-        $('#'+type).empty().append(html);
-        $('#'+type).data('loaded',1)
-        if (type == 'AnalyticalService') return;
+        $(hash).empty().append(html);
+        $(hash).data('loaded',1);
+
+        // Create sort buttons
+
+        $(hash +"_sortOptions").buttonset().change(function (hash) {
+            return function (event) {
+                resort(hash);
+            }
+        }(hash));
         
+        // Create service name overlays
+        
+        for(i in services) {
+            var sid = services[i].id;
+            $('#s_'+sid).overlay({
+                mask: "grey",
+                onBeforeLoad: (function(sid) { 
+                    return function(event) {
+                        var service = serviceById[sid];
+                        var shtml = '<h3>Service Details</h3>';
+			            shtml += '<table class="properties">';
+                        shtml += '<tr><th>Property</th><th>Value</th></tr>';
+                        shtml += '<tr><td>Name</td><td>'+service.display_name+'</td></tr>';
+			            shtml += '<tr><td>Software</td><td>'+service.name+' '+service.version+'</td></tr>';
+			            shtml += '<tr><td>WSDL</td><td><a href="'+service.url+'?wsdl">'+service.url+'?wsdl</a></td></tr>';
+			            if (service.description) {
+			                shtml += '<tr><td class="key">Description</td><td>'+service.description+'</td></tr>';
+			            }
+			            
+			            var pocs = '';
+                        if (service.pocs) {
+                            for(i in service.pocs) {
+                                poc = service.pocs[i];
+                                pocs += '<tr>';
+                                pocs += '<td>Service POC</td>';
+                                pocs += '<td>'+poc.name+'</td>';
+                                pocs += '<td>'+poc.affiliation+'</td>';
+                                pocs += '<td><a href="mailto:'+poc.email+'">'+poc.email+'</a></td>';
+                                pocs += '<td>'+poc.role+'</td>';
+                                pocs += '</tr>';
+                            }  
+                        }
+                        
+			            if (service.host) {
+			                var host = service.host;
+                            shtml += '<tr><td>Host</td><td>'+host.long_name+' ('+host.short_name+')</td></tr>';  
+			            
+				            var address = '';
+				            if (host.street) address += host.street+'<br/>';
+				            if (host.locality) address += host.locality+", ";
+				            if (host.state_province) address += host.state_province;
+				            if (host.postal_code) address += ' '+host.postal_code;     
+				            if (host.country_code) address += '<br/>'+host.country_code;      
+				               
+                            if (address) {
+                                shtml += '<tr><td>Address</td><td>'+address+'</td></tr>';  
+                            }
+                            
+	                        if (host.pocs) {
+	                            for(i in host.pocs) {
+	                                poc = host.pocs[i];
+                                    pocs += '<tr>';
+                                    pocs += '<td>Host POC</td>';
+	                                pocs += '<td>'+poc.name+'</td>';
+                                    pocs += '<td>'+poc.affiliation+'</td>';
+	                                pocs += '<td><a href="mailto:'+poc.email+'">'+poc.email+'</a></td>';
+	                                pocs += '<td>'+poc.role+'</td>';
+                                    pocs += '</tr>';
+	                            }  
+	                        }
+			            }
+			            
+                        shtml += '</table>';
+                            
+                        if (pocs) {
+                            shtml += '<h3>Point of Contacts</h3><div class="height-limited">';
+                            shtml += '<table class="properties"><tr><th>Type</th><th>Name</th><th>Affiliation</th><th>Email</th><th>Role</th></tr>';
+                            shtml += pocs;
+                            shtml += '</table></div>';
+                        }
+                        
+                        $('#overlay>div.content').empty().append(shtml);
+                    }
+                })(sid)
+            });
+        }
+        
+        if (type != 'DataService') {
+            normalizeQosScores(hash);
+            enabledUI(true);
+            return;
+        }
+        
+        // Disable sort options until QoS scores are available
+        $(hash +"_sortOptions").buttonset("option", "disabled", true);
+        
+        // Count the number of requests we're about to send out
+        for(i in services) {
+            if (services[i]['class'] != "DataService") continue;
+            countRequestsTotal++;
+        }
+            
         var c = 0;
         for(i in services) {
             var service = services[i];
             if (service['class'] != "DataService") continue;
-            var tdid = "counts_"+service.id;
+            var sid = service.id;
             
             $.manageAjax.add('ajaxman', { 
-                     dataType: "json",               
-                     url: GSS_JSON_URL+"/counts?serviceId="+service.id,
-                     success: function(json) {
-                   
+	            dataType: "json",               
+	            url: GSS_JSON_URL+"/counts?serviceId="+service.id,
+	            complete: function(json) {
+	                testForEnd();
+                    $("#progressbar").progressbar("option", "value", parseInt(100*countRequestsDone/countRequestsTotal));
+	            },
+	            success: function(sid,c) {
+                    return function(json) {
+                    
                     if (!("counts" in json)) return; 
                     var counts = json.counts;
-                    var sid;
-                    for (s in counts) sid = s;
                     var service = serviceById[sid];
-                    var tdid = "counts_"+sid;
                     var classes = counts[sid];
                     
                     var classNames = [];
@@ -181,118 +413,241 @@ jquery tools already includes jquery 1.4.2
                         if (p != 0) return p;
                         return ccmp(ca,cb);
                     });
-                
+                    
+                    var rc = {
+                        'lime' : 0,
+                        'green': 0,
+                        'grey' : 0,
+                        'brown' : 0,
+                        'orange' : 0,
+                        'red' : 0
+                    };
+                    
                     var tips = "";
                     var overlays = "";
                     var countHtml = '<table class="innergrid"><tr>';
                     for(var k=0; k<classNames.length; k++) {
-                        var cellid = "_"+sid+"_"+k;
+                        var cellid = sid+"_"+k;
                         var className = classNames[k];
                         var cv = classes[className];
+                        var countData = {
+                                'serviceName' : service.name,
+                                'className' : className
+                        };
                         
-                        var css = '';
-                        var tip = '<div class="serviceName">'+service.name+'</div>'
-                                + '<div class="className">'+className+'</div>';
-                        var overlay = "";
+			            if (!serviceSupportsCounts(service)) {
+			                delete cv.countDate;
+			            }
 
                         if ('countDate' in cv) {
-                            tip += 'Refreshed: <span class="tipvalue">'+cv['countDate']+'</span><br/>';
+                        	countData.countDate = cv.countDate;
                             if ('count' in cv) {
-                                css = cv.count == 0 ? 'good' : 'great';
-                                tip += 'Number of instances: <span class="tipvalue">'+cv.count+'</span>';
+                                var count = parseInt(cv.count);
+                               	countData.css = count == 0 ? 'green' : 'lime';
+                                countData.count = count;
                             } 
                             else if ('error' in cv) {
-                                css = 'bad';
-                                tip += 'Error: <span class="errors">'+cv.error+'</span>';
-                                overlay += '<br/>Stacktrace: <pre></pre>';
+                                countData.css = cv.error.match("^QueryProcessingException") ? 'red' : 'orange';
+                                countData.error = cv.error;
                             }
                             else {
-                                css = 'nullresult';
-                                tip += 'The count query returned a null result.';
+                            	countData.css = 'brown';
+                            	countData.message = 'The count query returned a null result.';
                             }
                         }
                         else {
-                            css = 'unknown';
-                            tip += 'This class was not queried for one of the following reasons:<ul>';
-                            tip += '<li>The service is known to not support count queries';
-                            tip += '<li>GSS encountered 10 query execution errors while querying this service';
-                            tip += '<li>GSS encountered 2 service errors while querying this service';
-                            tip += '</ul>';
+                        	countData.css = 'grey';
+                        	countData.message = 'This class was not queried because ';
+                            if (rc['orange'] > 1) {
+                            	countData.message += 'GSS encountered 2 connection errors while querying this service';
+                            }
+                            else if (rc['red'] > 10) {
+                            	countData.message += 'GSS encountered 10 query processing errors while querying this service';
+                            }
+                            else {
+                            	countData.message += 'the service is known to not support count queries';
+                            }
                         }
                         
-                        countHtml += '<td id="'+cellid+'" class="'+css+'" rel="#ol'+cellid+'">';
+                        countDataByCell[cellid] = countData;
+
+                        var title = countData.serviceName+', '+countData.className;
+                        var tip = '<div class="title">'+countData.serviceName+'</div>'
+                                + '<div class="subtitle">'+countData.className+'</div>';
+
+                        if ('countDate' in countData) {
+                            tip += 'Refreshed: <span class="value">'+countData.countDate+'</span><br/>';
+
+                            if ('count' in countData) {
+                                title += ', '+countData.count+' instances';
+                                tip += 'Number of instances: <span class="value">'+countData.count+'</span><br/>';
+                            }
+                            else if ('error' in countData) {
+                                title += ', '+countData.error;
+                                tip += 'Error: <span class="errors">'+countData.error+'</span><br/>';
+                            }
+                        }                               
+
+                        if ('message' in countData) {
+                            title += ', '+countData.message;
+                            tip += countData.message;
+                        }
+                            
+                        countHtml += '<td id="'+cellid+'" class="'+countData.css+'" rel="#overlay" title="'+title+'">';
                         countHtml += '<div class="cell"></div></td>';
-                        tips += '<div class="tooltip" id="tip'+cellid+'">'+tip+'</div>';
-                        overlays += '<div class="overlay" id="ol'+cellid+'">'+tip+overlay+'</div>';
+                        tipHtmlByCell[cellid] = tip;
+                        rc[countData.css] += 1;
                     }
-            
-                    countHtml += '</tr></table>' + tips + overlays;
-                    $('#'+tdid).empty().append(countHtml);
                     
+                    // Fill in object count heatmap
+                    countHtml += '</tr></table>' + tips;
+                    $('#counts_'+sid).empty().append(countHtml);
+                    
+                    // Calculate and fill in QoS score
+                    service.qos += 2*rc['lime'] + 1*rc['green'] - 0*rc['grey'] - 1*rc['brown'] - 2*rc['orange'] - 4*rc['red'];
+
+                    // Add tooltips and popup overlays
                     for(var k=0; k<classNames.length; k++) {
                         var className = classNames[k];
-                        var cellid = "_"+sid+"_"+k;
-                        
-                        $('#'+cellid).tooltip({ 
-                                tip:"#tip"+cellid, 
-                                delay:0, 
-                                position: 'bottom right', 
-                                relative: true
-                        });
+                        var cellid = sid+"_"+k;
+
+                        if (!$.browser.msie) {
+                            // IE doesn't get fancy formatted tooltips because they are too slow there 
+	                        $('#'+cellid).tooltip({ 
+	                                tip:"#tip",
+	                                delay: 0, 
+	                                predelay: 400,
+	                                position: 'bottom right', 
+	                                relative: false,
+	                                onBeforeShow: (function(cellid) {
+	                                    return function(event) {
+	                                        if (cellid in tipHtmlByCell) {
+	                                            $('#tip').empty().append(tipHtmlByCell[cellid]);
+	                                        }
+	                                    }
+	                                })(cellid)
+	                        });
+                        }
                         
                         $('#'+cellid).overlay({
-                            mask: "grey",
-                            onBeforeLoad: (function(className) { 
-                                return function() {
-                                    var oid = this.getOverlay().attr('id');
-                                    $.manageAjax.add('ajaxman', { 
+                            mask: {color:"grey", loadSpeed:0, closeSpeed:0},
+                            onBeforeLoad: (function(sid,cellid) { 
+                                return function(event) {
+                                    var countData = countDataByCell[cellid];
+
+                                    var shtml = '<h3>Count Details</h3>';
+                                    shtml += '<table class="properties">';
+                                    shtml += '<tr><th>Property</th><th>Value</th></tr>';
+                                    shtml += '<tr><td>Service Name</td><td>'+countData.serviceName+'</td></tr>';
+                                    shtml += '<tr><td>Class Name</td><td>'+countData.className+'</td></tr>';
+                                    
+                                    if ('countDate' in countData) {
+                                        shtml += '<tr><td>Refreshed</td><td>'+countData.countDate+'</td></tr>';
+
+                                        if ('count' in countData) {
+                                            shtml += '<tr><td>Number of instances</td><td>'+countData.count+'</td></tr>';
+                                        }
+                                        else if ('error' in countData) {
+                                            shtml += '<tr><td>Error</td><td>'+countData.error+'</td></tr>';
+                                        }
+                                    }                               
+
+                                    if ('message' in countData) {
+                                        shtml += '<tr><td>Notes</td><td>'+countData.message+'</td></tr>';
+                                    }
+
+                                    shtml += '</table>';
+                                    $('#overlay>div.content').empty().append(shtml);
+                                    
+                                    if ('error' in countData) {
+                                        var url = GSS_JSON_URL+"/counts?serviceId="+sid+"&className="+countData.className;
+                                        $('#overlay>div.content').data('asyncLoadingUrl',url);
+                                        $('#overlay>div.content').append('<br/><h3>Stacktrace</h3><pre>Loading...</pre>');
+	                                    $.manageAjax.add('ajaxman', { 
                                              dataType: "json",               
-                                             url: GSS_JSON_URL+"/counts?serviceId="+service.id+"&className="+className,
-                                             success: (function(oid) { 
-                                                return function(json) {                                               
-                                                    if (!("counts" in json)) return; 
-                                                    var counts = json.counts;
-                                                    for(sid in counts) {
-                                                        for(cid in counts[sid]) {
-                                                            var st = counts[sid][cid]['stacktrace'];
-                                                            $('#'+oid+" pre").empty().append(st);
-                                                            break;
+                                             url: url,
+                                             success: (function(url) { 
+	                                                return function(json) {        
+	                                                                
+	                                                    // Did we get data back?       
+	                                                    if (!("counts" in json)) {
+	                                                       return;
                                                         }
-                                                    }
-                                                }
-                                             })(oid)
-                                    }); 
+	                                                    
+	                                                    // Does the current overlay need this data?
+                                                        if ($('#overlay>div.content').data('asyncLoadingUrl') != url) {
+                                                            return;
+                                                        }
+	                                                     
+	                                                    var counts = json.counts;
+	                                                    for(sid in counts) {
+	                                                        for(cid in counts[sid]) {
+	                                                            var st = counts[sid][cid]['stacktrace'];
+
+	                                                            // Workaround for IE issue (http://tinyurl.com/23soaow)
+	                                                            var h = $("#overlay>div.content pre").empty().get(0);
+	                                                            if (typeof h.innerText == "undefined") {
+	                                                            	h.innerHTML = st;
+	                                                            }
+	                                                            else {
+	                                                            	// The append() method uses innerHTML which breaks <pre>'s in IE. Have to use innerText instead. 
+	                                                                h.innerText = st;
+	                                                            }
+	                                                            break;
+	                                                        }
+	                                                    }
+	                                                }
+	                                             })(url)
+	                                    }); 
+                                    
+                                    }
                                 }
-                            })(className)
+                            })(sid,cellid)
                         });
                     }
                     
-                },
-                error: function(request, textStatus, errorThrown) {
-                    $('#'+tdid).empty().append("Could not count retrieve count data"); 
-                }
+                    $('#'+sid).data('loaded',1);
+                    }
+                }(sid),
+                error: function(sid) {
+                    return function(request, textStatus, errorThrown) {
+	                    $('#'+sid).data('loaded',1);
+	                    $('#counts_'+sid).empty().append("Could not count retrieve count data: "+textStatus); 
+                    }
+                }(sid)
             });
             
-            //if (c++==5) break;
+            /*
+            countRequestsTotal = 5;
+            if (c++==5) break;
+            */
+            
         }
     }
     
     $(document).ready(function() {
+    
+        $( "#progressbar" ).progressbar({
+            value: 0
+        });
 
 	    var $tabs = $("#tabs").tabs();
 	    
+	    enabledUI(false);
+	    
         $tabs.tabs({
             select: function(event, ui) {
+                currTab = ui.tab.hash;
                 if (!$(ui.tab.hash).data('loaded')) {
                     createView(ui.tab.hash);
                 }
            }
         });
 
-        var someManagedAjax = $.manageAjax.create('ajaxman', {
+        $.manageAjax.create('ajaxman', {
             queue: true, 
             maxRequests: 5,
-            cacheResponse: true 
+            cacheResponse: false 
         }); 
         
         $.ajaxSetup({timeout: 5000});
@@ -364,187 +719,25 @@ jquery tools already includes jquery 1.4.2
     });
 
 </script>
-<style type="text/css" media="screen">
-
-body {
-    background-color: #DCE6FA;
-}
-
-div.heading {
-    font-size: 2em;
-    font-family: verdana, sans-serif;
-}
-
-div.subheading {
-    font-size: 1.2em;
-    font-family: times new roman, serif;
-    margin: -5px 0px 5px 0px;
-}
-
-img.typeicon {
-    border-width: 0px;
-    vertical-align: middle;
-    margin-right: .5em;
-}
-
-img.cellicon {
-    width: 16px;
-    height: 16px;
-}
-
-.errors {
-    color: red;
-    font-size: 1em; 
-    font-weight: bold
-}
-
-div.loading {
-    font-size: 0.9em;
-    padding: 2px;
-}
-
-div.refreshDate {
-    margin-top: 2em;
-    font-size: .8em;
-    font-weight: bold;
-}
-
-table.grid {
-    border-collapse: collapse;
-}
-
-table.grid {
-    border: none;
-    text-align: left;
-}
-
-table.grid td {
-    border: 1px solid black;
-    font-size: .8em;
-    font-family: verdana, sans-serif;
-}
-
-.nowrap {
-    white-space: nowrap;
-}
-
-table.grid td.nopad {
-    padding: 0px;
-    margin: 0px;
-}
-
-table.innergrid {
-    padding: 0px;
-    margin: 0px;
-    border-collapse: collapse;
-    border-width: 0px;
-}
-
-table.innergrid td {
-    border-width: 0px;
-    border-right: 1px solid black;
-    text-align:center;
-}
-
-div.cell {
-    width: 10px;
-    height: 20px;
-	cursor:pointer;
-}
-
-table.innergrid td.great {
-    background-color: #32D929;
-}
-
-table.innergrid td.good {
-    background-color: #2FAD28;
-}
-
-table.innergrid td.unknown {
-    background-color: #B3B3B3;
-}
-
-table.innergrid td.nullresult {
-    background-color: #998A15;
-}
-
-table.innergrid td.bad {
-    background-color: #ED2B00;
-}
-
-/* tooltip styling */
-
-.tooltip {
-	display: none;
-	max-width: 40em;
-	background-color: #FAEEDC;
-	padding: 2px;
-	font-size: 11px;
-	text-align: left;
-	white-space: normal;
-	word-wrap: break-word;
-}
-
-/* the overlayed element */
-.overlay {
-	display:none;
-	z-index:10000;
-	background-color:#fff;
-	width:675px;
-	padding: 10px;
-	border:1px solid #666;
-    opacity:0.8;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
-    -moz-box-shadow: 0 0 50px #ccc;
-    -webkit-box-shadow: 0 0 50px #ccc;	
-}
-
-/* close button positioned on upper right corner */
-.overlay .close {
-	background-image:url(images/close.png);
-	position:absolute;
-	right:-15px;
-	top:-15px;
-	cursor:pointer;
-	height:35px;
-	width:35px;
-}
-
-pre {
-	overflow: auto;
-	height: 300px;
-}
-
-div.serviceName {
-    font-size: 1.1em;
-    margin: 0px;
-}
-
-div.className {
-    font-size: 1.1em;
-    font-weight: bold;
-    margin-bottom: 4px;
-    padding-bottom: 4px;
-    border-bottom: 2px dotted black;
-}
-
-span.tipvalue {
-    font-size: 1.1em; 
-    font-weight: bold
-}
-
-
-</style>
 </head>
 <body>
 
+<div class="heading">Grid Health Dashboard</div>
 
+<div class="overlay" id="overlay">
+    <div class="content">Loading...</div>
+</div>
 
-<div class="heading">State of the Grid</div>
-<div class="subheading">The current health of caGrid services</div>
+<div class="tooltip" id="tip">
+    Loading...
+</div>
 
-<div id="tabs">
+<div id="loading">
+    <div class="label">Loading...</div>
+    <div id="progressbar"></div>
+</div>
+
+<div id="tabs" style="display: none">
 	<ul>
 		<li><a href="#DataService"><img src="images/database.png" class="typeicon">Data Services</a></li>
 		<li><a href="#AnalyticalService"><img src="images/chart_bar.png" class="typeicon">Analytical Services</a></li>
@@ -553,7 +746,7 @@ span.tipvalue {
 		<div id="errors" class="errors"></div>
 	</div>
 	<div id="AnalyticalService">
-		<p>Loading...</p>
+        <p>Loading...</p>
 	</div>
 </div>
 
