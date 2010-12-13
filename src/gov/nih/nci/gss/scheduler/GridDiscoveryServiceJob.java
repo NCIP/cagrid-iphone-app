@@ -433,7 +433,8 @@ public class GridDiscoveryServiceJob {
             for(GridService service : services.values()) {
 
                 long diff = now - service.getLastUpdate().getTime();
-                if ((diff > DAY_IN_MILLIS && !service.getAccessible())) {
+                // Last seen 1 day ago, and not accessible OR last seen a week ago but still accessible
+                if ((diff > DAY_IN_MILLIS && !service.getAccessible()) || (diff > 7*DAY_IN_MILLIS)) {
                     logger.info("Service defunct, deleting: "+service.getUrl());
                     deleteService(service);
                 }
