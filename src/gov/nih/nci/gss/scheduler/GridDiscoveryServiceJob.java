@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -271,7 +270,8 @@ public class GridDiscoveryServiceJob {
                     // Service was marked as inactive, need to make it active now
                     service.setLastStatus(createStatus(true));
                 } 
-                
+
+                matchingSvc.setLastUpdate(new Date());
                 allServices.put(matchingSvc.getUrl(),matchingSvc);
             } 
             else {
@@ -296,11 +296,11 @@ public class GridDiscoveryServiceJob {
                     dataService = updateCab2bData(dataService);
                 }
 
+                service.setLastUpdate(new Date());
                 service.setLastStatus(createStatus(true));
                 allServices.put(service.getUrl(),service);
             }
             
-            service.setLastUpdate(new Date());
         }
         
         // Mark the services we didn't see as inactive
