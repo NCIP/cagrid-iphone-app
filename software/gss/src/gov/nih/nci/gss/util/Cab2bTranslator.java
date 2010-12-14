@@ -4,7 +4,6 @@ import gov.nih.nci.gss.domain.DataServiceGroup;
 import gov.nih.nci.gss.domain.SearchExemplar;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
