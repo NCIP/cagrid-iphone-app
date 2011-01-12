@@ -707,38 +707,38 @@ public class GridDiscoveryServiceJob {
             for(DomainClass domainClass : matchingModel.getClasses()) {
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
                 existingClasses.put(fullClass,domainClass);
-                logger.info("  Existing class: "+fullClass);
             }
             
-            // Go through new classes
+            // Go through new classes and see if they exist already
 		    for(DomainClass domainClass : model.getClasses()) {
 
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
-                DomainClass matchingClass = existingClasses.get(fullClass);
+                logger.info("  Existing class: "+fullClass);
                 
 		        if (existingClasses.containsKey(fullClass)) {
 		            // Update existing class with new metadata
+                    DomainClass matchingClass = existingClasses.get(fullClass);
                     matchingClass.setDescription(domainClass.getDescription());
                     
                     // Add existing attributes to a map
                     Map<String,DomainAttribute> existingAttrs = new HashMap<String,DomainAttribute>();
                     for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
                         existingAttrs.put(domainAttr.getAttributeName(),domainAttr);
-                        logger.info("    Existing attr: "+domainAttr.getAttributeName());
                     }
 
                     // Go through new attributes
                     for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
-
-                        DomainAttribute matchingAttr = existingAttrs.get(domainAttr.getAttributeName());
-                        if (existingAttrs.containsKey(matchingAttr)) {
+                        if (existingAttrs.containsKey(domainAttr.getAttributeName())) {
                             // Update existing attr with new metadata
+                            logger.info("    Existing attr: "+domainAttr.getAttributeName());
+                            DomainAttribute matchingAttr = existingAttrs.get(domainAttr.getAttributeName());
                             matchingAttr.setCdePublicId(domainAttr.getCdePublicId());
                             matchingAttr.setDataTypeName(domainAttr.getDataTypeName());
                         }
                         else {
                             // Add new class
                             logger.info("    New attr: "+domainAttr.getAttributeName());
+                            domainAttr.setDomainClass(matchingClass);
                             matchingClass.getAttributes().add(domainAttr);
                         }
                     }
@@ -746,6 +746,7 @@ public class GridDiscoveryServiceJob {
 		        else {
 		            // Add new class
 	                logger.info("  New class: "+fullClass);
+	                domainClass.setModel(matchingModel);
                     matchingModel.getClasses().add(domainClass);
 		        }
 		    }
