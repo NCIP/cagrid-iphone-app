@@ -494,7 +494,7 @@ public class GridDiscoveryServiceJob {
 			if (service instanceof DataService) {
 			    DomainModel model = ((DataService)service).getDomainModel();
 			    if (model != null) {
-    	            logger.debug("Saving Domain Model: "+model.getLongName());
+    	            logger.info("Saving Domain Model: "+model.getLongName());
     				model.setId((Long)hibernateSession.save(model));
     				
                     // 4) Domain Classes 
@@ -521,6 +521,11 @@ public class GridDiscoveryServiceJob {
                             }
                         }
 
+                        logger.info("Saving Class: "+domainClass.getClassName()+" model="+domainClass.getModel());
+                        if (domainClass.getModel() != null) {
+                            logger.info("  model id: "+domainClass.getModel().getId());
+                            logger.info("  model name: "+domainClass.getModel().getLongName());
+                        }
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                         
                         // 5) Domain Attributes
@@ -655,7 +660,7 @@ public class GridDiscoveryServiceJob {
 	
 	private GridService updateServiceData(GridService matchingSvc,
 			GridService service) {
-
+        
 		// Copy over data from the new service
 		// - Do not overwrite: url (unique keys), id (db primary key), publish date (should stay the original value)
 		matchingSvc.setName(service.getName());
@@ -702,7 +707,7 @@ public class GridDiscoveryServiceJob {
             for(DomainClass domainClass : matchingModel.getClasses()) {
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
                 existingClasses.put(fullClass,domainClass);
-                logger.debug("  Existing class: "+fullClass);
+                logger.info("  Existing class: "+fullClass);
             }
             
             // Go through new classes
@@ -719,7 +724,7 @@ public class GridDiscoveryServiceJob {
                     Map<String,DomainAttribute> existingAttrs = new HashMap<String,DomainAttribute>();
                     for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
                         existingAttrs.put(domainAttr.getAttributeName(),domainAttr);
-                        logger.debug("    Existing attr: "+domainAttr.getAttributeName());
+                        logger.info("    Existing attr: "+domainAttr.getAttributeName());
                     }
 
                     // Go through new attributes
@@ -733,14 +738,14 @@ public class GridDiscoveryServiceJob {
                         }
                         else {
                             // Add new class
-                            logger.debug("    New attr: "+domainAttr.getAttributeName());
+                            logger.info("    New attr: "+domainAttr.getAttributeName());
                             matchingClass.getAttributes().add(domainAttr);
                         }
                     }
 		        }
 		        else {
 		            // Add new class
-	                logger.debug("  New class: "+fullClass);
+	                logger.info("  New class: "+fullClass);
                     matchingModel.getClasses().add(domainClass);
 		        }
 		    }
