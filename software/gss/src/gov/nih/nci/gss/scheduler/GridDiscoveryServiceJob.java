@@ -521,11 +521,7 @@ public class GridDiscoveryServiceJob {
                             }
                         }
 
-                        logger.info("Saving Class: "+domainClass.getClassName()+" model="+domainClass.getModel());
-                        if (domainClass.getModel() != null) {
-                            logger.info("  model id: "+domainClass.getModel().getId());
-                            logger.info("  model name: "+domainClass.getModel().getLongName());
-                        }
+                        logger.debug("Saving Class: "+domainClass.getClassName());
                         domainClass.setId((Long)hibernateSession.save(domainClass));
                         
                         // 5) Domain Attributes
@@ -573,7 +569,7 @@ public class GridDiscoveryServiceJob {
 
                         // 2) Domain Attributes
                         if (domainClass.getAttributes() != null) {
-                            logger.info("Deleting "+domainClass.getAttributes().size()+" Domain Attributes");
+                            logger.debug("Deleting "+domainClass.getAttributes().size()+" Domain Attributes");
                             for(DomainAttribute domainAttr : domainClass.getAttributes()) {
                                 hibernateSession.delete(domainAttr);
                             }
@@ -583,10 +579,10 @@ public class GridDiscoveryServiceJob {
                         hibernateSession.delete(domainClass);
                     }
                     
-                    logger.info("Deleting "+model.getClasses().size()+" Domain Classes");
+                    logger.debug("Deleting "+model.getClasses().size()+" Domain Classes");
                     
                     // 4) Domain Model
-                    logger.info("Deleting Domain Model: "+model.getLongName());
+                    logger.debug("Deleting Domain Model: "+model.getLongName());
                     hibernateSession.delete(model);
                 }
             }
@@ -713,7 +709,7 @@ public class GridDiscoveryServiceJob {
 		    for(DomainClass domainClass : model.getClasses()) {
 
                 String fullClass = domainClass.getDomainPackage()+"."+domainClass.getClassName();
-                logger.info("  Existing class: "+fullClass);
+                logger.debug("  Existing class: "+fullClass);
                 
 		        if (existingClasses.containsKey(fullClass)) {
 		            // Update existing class with new metadata
@@ -730,14 +726,14 @@ public class GridDiscoveryServiceJob {
                     for(DomainAttribute domainAttr : matchingClass.getAttributes()) {
                         if (existingAttrs.containsKey(domainAttr.getAttributeName())) {
                             // Update existing attr with new metadata
-                            logger.info("    Existing attr: "+domainAttr.getAttributeName());
+                            logger.debug("    Existing attr: "+domainAttr.getAttributeName());
                             DomainAttribute matchingAttr = existingAttrs.get(domainAttr.getAttributeName());
                             matchingAttr.setCdePublicId(domainAttr.getCdePublicId());
                             matchingAttr.setDataTypeName(domainAttr.getDataTypeName());
                         }
                         else {
                             // Add new class
-                            logger.info("    New attr: "+domainAttr.getAttributeName());
+                            logger.debug("    New attr: "+domainAttr.getAttributeName());
                             domainAttr.setDomainClass(matchingClass);
                             matchingClass.getAttributes().add(domainAttr);
                         }
@@ -745,7 +741,7 @@ public class GridDiscoveryServiceJob {
 		        }
 		        else {
 		            // Add new class
-	                logger.info("  New class: "+fullClass);
+	                logger.debug("  New class: "+fullClass);
 	                domainClass.setModel(matchingModel);
                     matchingModel.getClasses().add(domainClass);
 		        }
