@@ -264,14 +264,8 @@ public class GridDiscoveryServiceJob {
                 
                 // Update any new data about this service
                 matchingSvc = updateServiceData(matchingSvc, service);
-
-                // Check to see if this service is active once again
-                if (STATUS_CHANGE_INACTIVE.equals(matchingSvc.getLastStatus())) {
-                    // Service was marked as inactive, need to make it active now
-                    service.setLastStatus(createStatus(true));
-                } 
-
                 matchingSvc.setLastUpdate(new Date());
+                matchingSvc.setLastStatus(createStatus(true));
                 allServices.put(matchingSvc.getUrl(),matchingSvc);
             } 
             else {
