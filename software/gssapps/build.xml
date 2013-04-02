@@ -1,4 +1,12 @@
 <?xml version="1.0"?>
+
+<!--L
+  Copyright SAIC and Capability Plus solutions
+
+  Distributed under the OSI-approved BSD 3-Clause License.
+  See http://ncip.github.com/cagrid-iphone-app/LICENSE.txt for details.
+L-->
+
 <project name="gssapps" basedir="." default="dist"> 
 	
 <property name="project.dir" value="." />
