@@ -6,6 +6,5 @@ iPhone App for caGrid is distributed under the BSD 3-Clause License. Please see 
 
 You will find more details about iPhone App for caGrid in the following links:
 
-
  * [Code Repository](https://github.com/NCIP/cagrid-iphone-app)
  * [Documentation](http://gforge.nci.nih.gov/frs/?group_id=690&release_id=4063)
