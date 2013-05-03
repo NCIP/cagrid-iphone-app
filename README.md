@@ -2,6 +2,7 @@ Welcome to the iPhone App for caGrid Project!
 ==============================================
 
 iPhone App for caGrid is an application to access services and data on caGrid and a Grid Summary Service to maintain grid information in support of the app.
+It is developed using Java and IOS SDK.
 
 iPhone App for caGrid is distributed under the BSD 3-Clause License. Please see the NOTICE and LICENSE files for details.
 
